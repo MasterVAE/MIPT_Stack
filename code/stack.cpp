@@ -1,7 +1,4 @@
-#include <ctype.h>
 #include <stdlib.h>
-#include <assert.h>
-#include <sys/stat.h>
 
 #include "stack.h"
 
@@ -11,9 +8,7 @@ StackErr_t StackVerify(Stack_t* stack)
 
     if(stack->data == NULL) return STACK_DATA_NULL;
 
-    if(stack->capacity <= 0) return STACK_CAPACITY_INCORRECT;
-
-    if(stack->size > stack->capacity) return STACK_OVERFLOW;
+    if(stack->size > stack->capacity) return STACK_SIZE_INCORECT;
 
     return NO_ERROR;
 }
@@ -22,12 +17,12 @@ StackErr_t StackInit(Stack_t* stack, size_t capacity)
 {
     stack->capacity = capacity;
     stack->size = 0;
-    stack->data = (int*)calloc(capacity, sizeof(int));
+    stack->data = (stack_type*)calloc(capacity, sizeof(stack_type));
 
     return StackVerify(stack);
 }
 
-StackErr_t StackPush(Stack_t* stack, int value)
+StackErr_t StackPush(Stack_t* stack, stack_type value)
 {
     StackErr_t err = StackVerify(stack);
     if(err) return err;
@@ -39,11 +34,26 @@ StackErr_t StackPush(Stack_t* stack, int value)
     }
     else 
     {
-        return STACK_OVERFLOW;
+        if(stack->capacity == 0)
+        {
+            stack->capacity = 1;
+            stack->data = (stack_type*)calloc(1, sizeof(stack_type));
+        }
+        else
+        {
+            stack->capacity *= 2;
+            stack->data = (stack_type*)realloc(stack->data, stack->capacity * sizeof(stack_type));
+        }
+
+        err = StackVerify(stack);
+        if(err) return err;
+
+        stack->data[stack->size++] = value;
+        return NO_ERROR;
     }
 }
 
-int StackPop(Stack_t* stack, StackErr_t* err)
+stack_type StackPop(Stack_t* stack, StackErr_t* err)
 {
     StackErr_t error = StackVerify(stack);
     if(error)
@@ -80,20 +90,20 @@ void StackDestroy(Stack_t* stack)
 
 void StackDump(Stack_t* stack)
 {
-    printf("- - - Stack printing START - - -\n\n");
+    printf("\n\033[31m- - - Stack printing START - - -\033[0m\n\n");
     if(stack != NULL)
     {   
         printf("Capacity: %lu\n", stack->capacity);
         printf("Size: %lu\n", stack->size);
 
-        printf("Data: \n\n", stack->size);
+        printf("Data: \n\n");
         if(stack->data != NULL)
         {
             for(size_t i = 0; i < stack->capacity; i++)
             {
                 if(i < stack->size)
                 {
-                    printf("*[%lu]: %d\n", i, stack->data[i]);
+                    printf("*[%lu]: \033[32m%d\033[0m\n", i, stack->data[i]);
                 }
                 else
                 {
@@ -110,5 +120,5 @@ void StackDump(Stack_t* stack)
     {
         printf("NULL Stack\n");
     }
-    printf("\n- - - Stack printing END - - -\n\n");
+    printf("\n\033[31m- - - Stack printing END - - -\033[0m\n\n");
 }
