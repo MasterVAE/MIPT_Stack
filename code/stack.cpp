@@ -2,22 +2,31 @@
 
 #include "stack.h"
 
-StackErr_t StackVerify(Stack_t* stack)
+void ErrorParser(int error)
 {
-    if(stack == NULL) return STACK_POINTER_NULL;
-
-    if(stack->data == NULL) return STACK_DATA_NULL;
-
-    if(stack->size > stack->capacity) return STACK_SIZE_INCORECT;
-
-    if(stack->data[0] != 0x6BADF00D || stack->data[1 + stack->capacity] != 0x7BADF00D) return STACK_DATA_NULL;
-
-    return NO_ERROR;
+    if((error & 0b1000) > 0) printf("Error: stack NULL");
+    if((error & 0b0100) > 0) printf("Error: data NULL");
+    if((error & 0b0010) > 0) printf("Error: stack overflow");
+    if((error & 0b0001) > 0) printf("Error: data corrupted");
 }
 
-StackErr_t StackInit(Stack_t* stack, size_t capacity)
+int StackVerify(Stack_t* stack)
 {
-    if(stack == NULL) return STACK_POINTER_NULL;
+    int i = 0;
+    if(stack == NULL) return i | 0b1000;
+
+    if(stack->size > stack->capacity) i = i | 0b0010;
+
+    if(stack->data == NULL) return i | 0b0100;
+
+    if(stack->data[0] != 0x6BADF00D || stack->data[1 + stack->capacity] != 0x7BADF00D) return i | 0b0001;
+
+    return i;
+}
+
+int StackInit(Stack_t* stack, size_t capacity)
+{
+    if(stack == NULL) return 0b1000;
 
     stack->capacity = capacity;
     stack->size = 0;
@@ -28,15 +37,15 @@ StackErr_t StackInit(Stack_t* stack, size_t capacity)
     return StackVerify(stack);
 }
 
-StackErr_t StackPush(Stack_t* stack, stack_type value)
+int StackPush(Stack_t* stack, stack_type value)
 {
-    StackErr_t err = StackVerify(stack);
-    if(err) return err;
+    int err = StackVerify(stack);
+    if(err != 0) return err;
 
     if(stack->size < stack->capacity)
     {
         stack->data[1 + stack->size++] = value;
-        return NO_ERROR;
+        return 0b0000;
     }
 
     if(stack->capacity == 0)
@@ -54,29 +63,29 @@ StackErr_t StackPush(Stack_t* stack, stack_type value)
     }
 
     err = StackVerify(stack);
-    if(err) return err;
+    if(err != 0) return err;
 
     stack->data[1 + stack->size++] = value;
-    return NO_ERROR;
+    return 0b0000;
     
 }
 
-stack_type StackPop(Stack_t* stack, StackErr_t* err)
+stack_type StackPop(Stack_t* stack, int* err)
 {
-    StackErr_t error = StackVerify(stack);
-    if(error)
+    int error = StackVerify(stack);
+    if(error != 0)
     {
         if(err != NULL) *err = error;
         return 0;
     }
     if(stack->size > 0)
     {
-        if(err != NULL) *err = NO_ERROR;
+        if(err != NULL) *err = 0b0000;
         stack->size--;
         return stack->data[1 + stack->size];
     }
 
-    if(err != NULL) *err = STACK_SIZE_INCORECT;
+    if(err != NULL) *err = 0b0010;
     return 0;
     
 }
@@ -97,9 +106,13 @@ void StackDestroy(Stack_t* stack)
 #define CLEAN "\033[0m"
 #define GREEN "\033[32m"
 
-void StackDump(Stack_t* stack)
+
+void StackDump(Stack_t* stack, int error)
 {
-    printf("\n" RED "- - - Stack printing START - - - " CLEAN "\n\n");
+
+
+    printf("\n" RED "- - - Stack printing START - - - " CLEAN "\n");
+    ErrorParser(error);
     if(stack == NULL)
     {   
         printf("NULL Stack\n");
@@ -137,3 +150,5 @@ void StackDump(Stack_t* stack)
 
     printf("\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
 }
+
+
