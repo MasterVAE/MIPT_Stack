@@ -1,46 +1,158 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "code/stack.h"
 
+int input(Stack_t* stack);
+
 int main()
 {
-    const char* StackErrorNames[4] = {"NO_ERROR", "STACK_POINTER_NULL", "STACK_DATA_NULL", "STACK_SIZE_INCORECT"};
-
     StackErr_t err = NO_ERROR;
-    Stack_t st1;
-    const size_t cap1 = 2;
+    Stack_t stack;
+    err = StackInit(&stack, 0);
+    if(err != 0)
+    { 
+        printf("Error %d occured\n", err);
+        StackDump(&stack);
+    }
 
-    err = StackInit(&st1, cap1);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    StackDump(&st1);
-    err = StackPush(&st1, 10);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    StackDump(&st1);
-    err = StackPush(&st1, 20);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    StackDump(&st1);
-    err = StackPush(&st1, 30);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    StackDump(&st1);
-    int value1 = StackPop(&st1, &err);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    printf("value: %d\n", value1);
-    StackDump(&st1);
-    int value2 = StackPop(&st1, &err);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    printf("value: %d\n", value2);
-    StackDump(&st1);
-    int value3 = StackPop(&st1, &err);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    printf("value: %d\n", value3);
-    StackDump(&st1);
-    int value4 = StackPop(&st1, &err);
-    if(err != 0) printf("Error %s occured\n", StackErrorNames[err]);
-    StackDump(&st1);
+    while (1)
+    {
+        if(input(&stack)) break;
+    }
+    StackDestroy(&stack);
+    return 0;
+}
+
+int input(Stack_t* stack)
+{
+    char buff[10];
+    StackErr_t err;
+    if(!scanf("%s", buff)) return 0;
     
-    printf("value: %d\n", value4);
+    if(strcmp(buff, "HLT") == 0) return 1;
 
+    if(strcmp(buff, "PUSH") == 0)
+    {
+        stack_type d = 0;
+        if(scanf("%d", &d))
+        {
+            err = StackPush(stack, d);
+            if(err != 0)
+            {
+                printf("Error %d occured\n", err);
+                StackDump(stack);
+            }
+        }
+        return 0;
+    }
+    
+    if(strcmp(buff, "ADD") == 0)
+    {
 
-    StackDestroy(&st1);
+        stack_type a = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);\
+        }
+        stack_type b = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);\
+        }
+        err = StackPush(stack, a + b);
+        if(err != 0)
+        {
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        return 0;
+    }
+
+    if(strcmp(buff, "SUB") == 0)
+    {
+
+        stack_type b = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);\
+        }
+        stack_type a = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        err = StackPush(stack, a - b);
+        if(err != 0)
+        {
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        return 0;
+    }
+
+    if(strcmp(buff, "MUL") == 0)
+    {
+
+        stack_type a = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        stack_type b = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        err = StackPush(stack, a * b);
+        if(err != 0)
+        {
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        return 0;
+    }
+    if(strcmp(buff, "DIV") == 0)
+    {
+
+        stack_type b = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);\
+        }
+        stack_type a = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        err = StackPush(stack, a/b);
+        if(err != 0)
+        {
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        return 0;
+    }
+    if(strcmp(buff, "OUT") == 0)
+    {
+
+        stack_type value = StackPop(stack, &err);
+        if(err != 0)
+        { 
+            printf("Error %d occured\n", err);
+            StackDump(stack);
+        }
+        printf("%d\n", value);
+        return 0;
+    }
     return 0;
 }

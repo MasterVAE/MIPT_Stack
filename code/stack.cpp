@@ -10,14 +10,20 @@ StackErr_t StackVerify(Stack_t* stack)
 
     if(stack->size > stack->capacity) return STACK_SIZE_INCORECT;
 
+    if(stack->data[0] != 0x6BADF00D || stack->data[1 + stack->capacity] != 0x7BADF00D) return STACK_DATA_NULL;
+
     return NO_ERROR;
 }
 
 StackErr_t StackInit(Stack_t* stack, size_t capacity)
 {
+    if(stack == NULL) return STACK_POINTER_NULL;
+
     stack->capacity = capacity;
     stack->size = 0;
-    stack->data = (stack_type*)calloc(capacity, sizeof(stack_type));
+    stack->data = (stack_type*)calloc(capacity+2, sizeof(stack_type));
+    stack->data[0] = 0x6BADF00D;
+    stack->data[1 + capacity] = 0x7BADF00D;
 
     return StackVerify(stack);
 }
@@ -29,28 +35,30 @@ StackErr_t StackPush(Stack_t* stack, stack_type value)
 
     if(stack->size < stack->capacity)
     {
-        stack->data[stack->size++] = value;
+        stack->data[1 + stack->size++] = value;
         return NO_ERROR;
     }
-    else 
+
+    if(stack->capacity == 0)
     {
-        if(stack->capacity == 0)
-        {
-            stack->capacity = 1;
-            stack->data = (stack_type*)calloc(1, sizeof(stack_type));
-        }
-        else
-        {
-            stack->capacity *= 2;
-            stack->data = (stack_type*)realloc(stack->data, stack->capacity * sizeof(stack_type));
-        }
-
-        err = StackVerify(stack);
-        if(err) return err;
-
-        stack->data[stack->size++] = value;
-        return NO_ERROR;
+        stack->capacity = 1;
+        stack->data = (stack_type*)realloc(stack->data, 3 * sizeof(stack_type));
+        stack->data[0] = 0x6BADF00D;
+        stack->data[1 + stack->capacity] = 0x7BADF00D;
     }
+    else
+    {
+        stack->capacity *= 2;
+        stack->data = (stack_type*)realloc(stack->data, (stack->capacity + 2) * sizeof(stack_type));
+        stack->data[1 + stack->capacity] = 0x7BADF00D;
+    }
+
+    err = StackVerify(stack);
+    if(err) return err;
+
+    stack->data[1 + stack->size++] = value;
+    return NO_ERROR;
+    
 }
 
 stack_type StackPop(Stack_t* stack, StackErr_t* err)
@@ -65,13 +73,11 @@ stack_type StackPop(Stack_t* stack, StackErr_t* err)
     {
         if(err != NULL) *err = NO_ERROR;
         stack->size--;
-        return stack->data[stack->size];
+        return stack->data[1 + stack->size];
     }
-    else
-    {
-        if(err != NULL) *err = STACK_SIZE_INCORECT;
-        return 0;
-    }
+
+    if(err != NULL) *err = STACK_SIZE_INCORECT;
+    return 0;
     
 }
 
@@ -87,38 +93,47 @@ void StackDestroy(Stack_t* stack)
         stack->size = 0;
     }
 }
+#define RED "\033[31m"
+#define CLEAN "\033[0m"
+#define GREEN "\033[32m"
 
 void StackDump(Stack_t* stack)
 {
-    printf("\n\033[31m- - - Stack printing START - - -\033[0m\n\n");
-    if(stack != NULL)
+    printf("\n" RED "- - - Stack printing START - - - " CLEAN "\n\n");
+    if(stack == NULL)
     {   
-        printf("Capacity: %lu\n", stack->capacity);
-        printf("Size: %lu\n", stack->size);
+        printf("NULL Stack\n");
+        printf("\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
+        return;
+    }
+        
+    printf("Capacity: %lu\n", stack->capacity);
+    printf("Size: %lu\n\n", stack->size);
 
-        printf("Data: \n\n");
-        if(stack->data != NULL)
+    if(stack->data == NULL)
+    {
+        printf("NULL data\n");
+        printf("\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
+        return;
+    }
+    if(stack->data[0] == 0x6BADF00D) printf("Guard 1: " GREEN "%d" CLEAN "\n", stack->data[0]);
+    else printf("Guard 1: " RED "%d" CLEAN "\n", stack->data[0]);
+
+    if(stack->data[stack->capacity+1] == 0x7BADF00D) printf("Guard 2: " GREEN "%d" CLEAN "\n", stack->data[stack->capacity+1]);
+    else printf("Guard 2: " RED "%d" CLEAN "\n", stack->data[stack->capacity+1]);
+
+    printf("Data: \n\n");
+    for(size_t i = 1; i < stack->capacity+1; i++)
+    {
+        if(i < stack->size)
         {
-            for(size_t i = 0; i < stack->capacity; i++)
-            {
-                if(i < stack->size)
-                {
-                    printf("*[%lu]: \033[32m%d\033[0m\n", i, stack->data[i]);
-                }
-                else
-                {
-                    printf(" [%lu]: %d\n", i, stack->data[i]);
-                }
-            }
+            printf("*[%lu]: " GREEN "%d" CLEAN "\n", i, stack->data[i]);
         }
         else
         {
-            printf("NULL data\n");
+            printf(" [%lu]: %d\n", i, stack->data[i]);
         }
     }
-    else
-    {
-        printf("NULL Stack\n");
-    }
-    printf("\n\033[31m- - - Stack printing END - - -\033[0m\n\n");
+
+    printf("\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
 }
