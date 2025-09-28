@@ -3,6 +3,25 @@
 
 #include <stdio.h>
 
+#define RED "\033[31m"
+#define CLEAN "\033[0m"
+#define GREEN "\033[32m"
+
+#define SHIELD_START 0x6BADF00D
+#define SHIELD_END 0x7BADF00D
+#define ERROR_STREAM stderr
+#define STACK_MULTIPLIER 2
+
+enum StackError
+{
+    Verified = 0,
+    StackNull = 1 << 4,
+    StackOverflow = 1 << 2,
+    DataNull = 1 << 3,
+    DataCorrupted = 1 << 1
+};
+
+bool IsError(int error, StackError check);
 typedef int stack_type;
 
 typedef struct Stack_t
@@ -19,5 +38,6 @@ int StackInit(Stack_t* stack, size_t capacity);
 int StackPush(Stack_t* stack, stack_type value);
 int StackPop(Stack_t* stack, int* err = NULL);
 void StackDestroy(Stack_t* stack);
+
 
 #endif

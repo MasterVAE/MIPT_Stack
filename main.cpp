@@ -5,14 +5,16 @@
 
 #include "code/stack.h"
 
+#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) StackDump(stack, *err);
+#define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) StackDump(stack, err);
+#define PUSH_ERR(stack, value) int error = StackPush(stack, value); if(error != 0) StackDump(stack, error);
+
 int input(Stack_t* stack);
 
 int main()
 {
-    int err = 0b0000;
     Stack_t stack;
-    err = StackInit(&stack, 0);
-    if(err != 0) StackDump(&stack, err);
+    INIT_ERR(&stack, 0);
 
     while (1)
     {
@@ -32,93 +34,66 @@ int input(Stack_t* stack)
 
     if(strcmp(buff, "PUSH") == 0)
     {
-        stack_type d = 0;
-        if(scanf("%d", &d)) 
+        stack_type value = 0;
+        if(scanf("%d", &value)) 
         {
-            err = StackPush(stack, d);
-            if(err != 0) StackDump(stack, err);
+            PUSH_ERR(stack, value);
         }
         return 0;
     }
     
     if(strcmp(buff, "ADD") == 0)
     {
+        stack_type a = POP_ERR(stack, &err);
+        stack_type b = POP_ERR(stack, &err);
 
-        stack_type a = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
-
-        stack_type b = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
-
-        err = StackPush(stack, a + b);
-        if(err != 0) StackDump(stack, err);
-
+        PUSH_ERR(stack, a + b);
         return 0;
     }
 
     if(strcmp(buff, "SUB") == 0)
     {
-        stack_type b = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
+        stack_type b = POP_ERR(stack, &err);
+        stack_type a = POP_ERR(stack, &err);
 
-        stack_type a = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
-
-        err = StackPush(stack, a - b);
-        if(err != 0) StackDump(stack, err);
-
+        PUSH_ERR(stack, a - b);
         return 0;
     }
 
     if(strcmp(buff, "MUL") == 0)
     {
-        stack_type a = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
+        stack_type a = POP_ERR(stack, &err);
+        stack_type b = POP_ERR(stack, &err);
 
-        stack_type b = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
-
-        err = StackPush(stack, a * b);
-        if(err != 0) StackDump(stack, err);
-
+        PUSH_ERR(stack, a * b);
         return 0;
     }
     if(strcmp(buff, "DIV") == 0)
     {
-
-        stack_type b = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
+        stack_type b = POP_ERR(stack, &err);
 
         if(b == 0)
         {
-            err = StackPush(stack, b);
-            if(err != 0) StackDump(stack, err);
+            PUSH_ERR(stack, b);
             return 0;
         }
 
-        stack_type a = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
+        stack_type a = POP_ERR(stack, &err);
 
-        
-        err = StackPush(stack, a/b);
-        if(err != 0) StackDump(stack, err);
+        PUSH_ERR(stack, a/b);
 
         return 0;
     }
     if(strcmp(buff, "SQRT") == 0)
     {
-        stack_type value = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
+        stack_type value = POP_ERR(stack, &err);
         
-        err = StackPush(stack, (int)sqrt(value));
-        if(err != 0) StackDump(stack, err);
+        PUSH_ERR(stack, (int)sqrt(value));
         return 0;
     }
     if(strcmp(buff, "OUT") == 0)
     {
-        stack_type value = StackPop(stack, &err);
-        if(err != 0) StackDump(stack, err);
-        
+        stack_type value = POP_ERR(stack, &err);
         printf("%d\n", value);  
         return 0;
     }
