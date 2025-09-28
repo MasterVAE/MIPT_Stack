@@ -30,7 +30,7 @@ int StackVerify(Stack_t* stack)
 
 int StackInit(Stack_t* stack, size_t capacity)
 {
-    if(stack == NULL) return 0b1000;
+    if(stack == NULL) return Verified;
 
     stack->capacity = capacity;
     stack->size = 0;
@@ -48,7 +48,7 @@ int StackPush(Stack_t* stack, stack_type value)
     if(stack->size < stack->capacity)
     {
         stack->data[1 + stack->size++] = value;
-        return 0b0000;
+        return Verified;
     }
 
     if(stack->capacity == 0)
@@ -83,12 +83,12 @@ stack_type StackPop(Stack_t* stack, int* err)
     }
     if(stack->size > 0)
     {
-        if(err != NULL) *err = 0b0000;
+        if(err != NULL) *err = Verified;
         stack->size--;
         return stack->data[1 + stack->size];
     }
 
-    if(err != NULL) *err = 0b0010;
+    if(err != NULL) *err = StackOverflow;
     return 0;
 }
 
