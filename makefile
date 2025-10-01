@@ -11,7 +11,7 @@ SPU_SOURCES = processor.cpp code/stack.cpp
 SPU_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SPU_SOURCES))
 SPU_TARGET = spu.out
 
-ASM_SOURCES = assembler.cpp
+ASM_SOURCES = assembler.cpp code/assembler_read.cpp
 ASM_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
 ASM_TARGET = asm.out
 
