@@ -7,7 +7,6 @@ bool IsError(int error, StackError check)
     return error & check;
 }
 
-
 void ErrorParser(int error)
 {
     if(IsError(error, StackNull)) fprintf(ERROR_STREAM, "Error: stack NULL\n");
@@ -21,8 +20,8 @@ int StackVerify(Stack_t* stack)
     int error = Verified;
 
     if(stack == NULL) return error | StackNull;
-    if(stack->size > stack->capacity) error= error | StackOverflow;
-    if(stack->data == NULL) return error| DataNull;
+    if(stack->size > stack->capacity) error |= StackOverflow;
+    if(stack->data == NULL) return error | DataNull;
     if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) return error | DataCorrupted;
 
     return error;
@@ -30,11 +29,12 @@ int StackVerify(Stack_t* stack)
 
 int StackInit(Stack_t* stack, size_t capacity)
 {
-    if(stack == NULL) return Verified;
+    if(stack == NULL) return StackNull;
 
-    stack->capacity = capacity;
+    if(capacity == 0) capacity = 1;
+    stack->capacity = capacity; // FIXME минимальный трешхолд
     stack->size = 0;
-    stack->data = (stack_type*)calloc(capacity+2, sizeof(stack_type));
+    stack->data = (stack_type*)calloc(capacity + 2, sizeof(stack_type));
     stack->data[0] = SHIELD_START;
     stack->data[1 + capacity] = SHIELD_END;
 
@@ -54,7 +54,7 @@ int StackPush(Stack_t* stack, stack_type value)
     if(stack->capacity == 0)
     {
         stack->capacity = 1;
-        stack->data = (stack_type*)realloc(stack->data, 3 * sizeof(stack_type));
+        stack->data = (stack_type*)realloc(stack->data, 3 * sizeof(stack_type)); // FIXME calloc
         stack->data[0] = SHIELD_START;
         stack->data[1 + stack->capacity] = SHIELD_END;
     }
@@ -70,8 +70,10 @@ int StackPush(Stack_t* stack, stack_type value)
     stack->data[1 + stack->size++] = value;
 
     err = StackVerify(stack); if(err != 0) return err;
-    return 0;
+    return Verified;
 }
+
+// FIXME везде verify и в начале и в конце
 
 stack_type StackPop(Stack_t* stack, int* err)
 {
@@ -97,12 +99,13 @@ void StackDestroy(Stack_t* stack)
     if(stack != NULL)
     {
         free(stack->data);
+        stack->data = NULL;
         stack->capacity = 0;
         stack->size = 0;
     }
 }
 
-void StackDump(Stack_t* stack, int error)
+void StackDump(Stack_t* stack, int error)//сломать стак разными способами в мейне
 {
     fprintf(ERROR_STREAM,"\n" RED "- - - Stack printing START - - - " CLEAN "\n");
     ErrorParser(error);

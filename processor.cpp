@@ -9,40 +9,45 @@
 #define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) StackDump(stack, err);
 #define PUSH_ERR(stack, value) int error = StackPush(stack, value); if(error != 0) StackDump(stack, error);
 
-int input(Stack_t* stack);
+int input(Stack_t* stack, FILE* steam);
 
 int main()
 {
     Stack_t stack;
     INIT_ERR(&stack, 0);
 
+    FILE* input_file = fopen("files/code.bcode", "r");
+    if(input_file == NULL)
+    {
+        StackDestroy(&stack);
+        return 1;
+    }
+
     while (1)
     {
-        if(input(&stack)) break;
+        if(input(&stack, input_file)) break;
     }
     StackDestroy(&stack);
     return 0;
 }
 
-int input(Stack_t* stack)
+int input(Stack_t* stack, FILE* stream) //fixme ENUM  
 {
-    char buff[10];
-    int err;
-    if(!scanf("%s", buff)) return 0;
+    int inp = 0;
+    int err = 0;
+    if(!fscanf(stream, "%d", &inp)) return 0;
     
-    if(strcmp(buff, "HLT") == 0) return 1;
-
-    if(strcmp(buff, "PUSH") == 0)
+    if(inp == 0) return 1;
+    else if(inp == 7)
     {
         stack_type value = 0;
-        if(scanf("%d", &value)) 
+        if(fscanf(stream, "%d", &value)) 
         {
             PUSH_ERR(stack, value);
         }
         return 0;
     }
-    
-    if(strcmp(buff, "ADD") == 0)
+    else if(inp == 1)
     {
         stack_type a = POP_ERR(stack, &err);
         stack_type b = POP_ERR(stack, &err);
@@ -50,8 +55,7 @@ int input(Stack_t* stack)
         PUSH_ERR(stack, a + b);
         return 0;
     }
-
-    if(strcmp(buff, "SUB") == 0)
+    else if(inp == 2)
     {
         stack_type b = POP_ERR(stack, &err);
         stack_type a = POP_ERR(stack, &err);
@@ -59,8 +63,7 @@ int input(Stack_t* stack)
         PUSH_ERR(stack, a - b);
         return 0;
     }
-
-    if(strcmp(buff, "MUL") == 0)
+    else if(inp == 3)
     {
         stack_type a = POP_ERR(stack, &err);
         stack_type b = POP_ERR(stack, &err);
@@ -68,7 +71,7 @@ int input(Stack_t* stack)
         PUSH_ERR(stack, a * b);
         return 0;
     }
-    if(strcmp(buff, "DIV") == 0)
+    else if(inp == 4)
     {
         stack_type b = POP_ERR(stack, &err);
 
@@ -78,24 +81,30 @@ int input(Stack_t* stack)
             return 0;
         }
 
-        stack_type a = POP_ERR(stack, &err);
+        stack_type a = POP_ERR(stack, &err); //fixme ошитбеа интерпритатора
 
         PUSH_ERR(stack, a/b);
 
         return 0;
     }
-    if(strcmp(buff, "SQRT") == 0)
+    else if(inp == 5)
     {
         stack_type value = POP_ERR(stack, &err);
         
         PUSH_ERR(stack, (int)sqrt(value));
         return 0;
     }
-    if(strcmp(buff, "OUT") == 0)
+    else if(inp == 6)
     {
         stack_type value = POP_ERR(stack, &err);
         printf("%d\n", value);  
         return 0;
     }
+    else
+    {
+        //ошибка интерпритатора
+    }
+
+    //fixme strcmp into enum
     return 0;
 }

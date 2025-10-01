@@ -7,11 +7,13 @@
 #define CLEAN "\033[0m"
 #define GREEN "\033[32m"
 
+// FIXME const
 #define SHIELD_START 0x6BADF00D
 #define SHIELD_END 0x7BADF00D
 #define ERROR_STREAM stderr
 #define STACK_MULTIPLIER 2
 
+// FIXME в порядке правильном
 enum StackError
 {
     Verified = 0,
