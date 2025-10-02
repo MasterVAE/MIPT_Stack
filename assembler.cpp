@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "code/assembler_read.h"
-#include "language.h"
+#include "code/language.h"
 
 int assemble(char** text, size_t count, FILE* out_file);
 void error_parser(int error);
@@ -60,7 +60,7 @@ int main()
     if(error != ASS_CORRECT)
     { 
         error_parser(error);
-        exit(EXIT_FAILURE);
+        return 1;
     }
 }
 

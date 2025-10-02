@@ -4,15 +4,12 @@
 #include <math.h>
 
 #include "code/stack.h"
-#include "language.h"
+#include "code/language.h"
 #include "code/assembler_read.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) StackDump(stack, *err);
 #define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) StackDump(stack, err);
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) StackDump(stack, error);}
-
-const int command_size = 2;
-const int value_size = 8;
 
 typedef enum interpretator_errors
 {
@@ -37,7 +34,6 @@ int main()
         StackDestroy(&stack);
         return 1;
     }
-
     char* buffer = NULL;
     size_t size = 0;
     

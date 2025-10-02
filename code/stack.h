@@ -21,7 +21,8 @@ enum StackError
     StackOverflow = 1 << 2,
     DataNull = 1 << 3,
     DataCorrupted = 1 << 4,
-    CapacityInvalid = 1 << 5
+    CapacityInvalid = 1 << 5,
+    StackUnderflow = 1 << 6
 };
 
 bool IsError(int error, StackError check);

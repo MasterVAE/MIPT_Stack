@@ -15,6 +15,10 @@ ASM_SOURCES = assembler.cpp code/assembler_read.cpp
 ASM_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
 ASM_TARGET = asm.out
 
+DIS_SOURCES = disassembler.cpp code/assembler_read.cpp
+DIS_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(DIS_SOURCES))
+DIS_TARGET = dis.out
+
 spu: $(SPU_TARGET)
 
 $(SPU_TARGET): $(SPU_OBJECTS)
@@ -24,7 +28,6 @@ $(SPU_TARGET): $(SPU_OBJECTS)
 	@rm -rf $(OBJ_DIR)
 	@echo "Removed object directory after build."
 
-# Компиляция другой цели
 asm: $(ASM_TARGET)
 
 $(ASM_TARGET): $(ASM_OBJECTS)
@@ -34,27 +37,31 @@ $(ASM_TARGET): $(ASM_OBJECTS)
 	@rm -rf $(OBJ_DIR)
 	@echo "Removed object directory after build."
 
-# Компиляция всех целей
-all: spu asm
+dis: $(DIS_TARGET)
+
+$(DIS_TARGET): $(DIS_OBJECTS)
+	@echo "Linking DIS..."
+	@$(CC) $(CFLAGS) $^ -o $@
+	@echo "ASM Linked Successfully: $(DIS_TARGET)"
+	@rm -rf $(OBJ_DIR)
+	@echo "Removed object directory after build."
+
+all: spu asm dis
 	@echo "All targets built successfully"
 
-# Правило для компиляции объектных файлов
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | make_build_dir
 	@mkdir -p $(dir $@)
 	@echo "Compiling $<"
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled Successfully $<"
 
-# Создание директории для сборки
 make_build_dir:
 	@mkdir -p $(OBJ_DIR)
 	@echo "Created build directory: $(OBJ_DIR)"
 
-# Очистка
 clean:
 	@rm -rf $(OBJ_DIR) *.out
 	@echo "Cleaned Successfully"
 
-# Псевдонимы для удобства
 build: all
 rebuild: clean all

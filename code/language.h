@@ -13,4 +13,7 @@ enum funcs
     OUT = 7
 };
 
+const int command_size = 2;
+const int value_size = 8;
+
 #endif

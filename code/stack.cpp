@@ -13,6 +13,7 @@ void ErrorParser(int error)
     if(IsError(error, CapacityInvalid)) fprintf(ERROR_STREAM, "Error: capacity invalid\n");
     if(IsError(error, DataNull)) fprintf(ERROR_STREAM, "Error: data NULL\n");
     if(IsError(error, StackOverflow)) fprintf(ERROR_STREAM, "Error: stack overflow\n");
+    if(IsError(error, StackUnderflow)) fprintf(ERROR_STREAM, "Error: stack underflow\n");
     if(IsError(error, DataCorrupted)) fprintf(ERROR_STREAM, "Error: data corrupted\n");
 }
 
@@ -81,7 +82,7 @@ stack_type StackPop(Stack_t* stack, int* err)
         return stack->data[1 + stack->size];
     }
 
-    if(err != NULL) *err = StackOverflow;
+    if(err != NULL) *err = StackUnderflow;
     return 0;
 }
 
@@ -96,7 +97,7 @@ void StackDestroy(Stack_t* stack)
     }
 }
 
-void StackDump(Stack_t* stack, int error)//сломать стак разными способами в мейне
+void StackDump(Stack_t* stack, int error)
 {
     fprintf(ERROR_STREAM,"\n" RED "- - - Stack printing START - - - " CLEAN "\n");
     ErrorParser(error);
@@ -116,11 +117,11 @@ void StackDump(Stack_t* stack, int error)//сломать стак разным�
         fprintf(ERROR_STREAM, "\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
         return;
     }
-    if(stack->data[0] == SHIELD_START) fprintf(ERROR_STREAM, "Guard 1: " GREEN "%d" CLEAN "\n", stack->data[0]);
-    else fprintf(ERROR_STREAM, "Guard 1: " RED "%d" CLEAN "\n", stack->data[0]);
+    if(stack->data[0] == SHIELD_START) fprintf(ERROR_STREAM, "Guard 1: " GREEN "%X" CLEAN "\n", stack->data[0]);
+    else fprintf(ERROR_STREAM, "Guard 1: " RED "%X" CLEAN "\n", stack->data[0]);
 
-    if(stack->data[stack->capacity+1] == SHIELD_END) fprintf(ERROR_STREAM, "Guard 2: " GREEN "%d" CLEAN "\n", stack->data[stack->capacity+1]);
-    else fprintf(ERROR_STREAM, "Guard 2: " RED "%d" CLEAN "\n", stack->data[stack->capacity+1]);
+    if(stack->data[stack->capacity+1] == SHIELD_END) fprintf(ERROR_STREAM, "Guard 2: " GREEN "%X" CLEAN "\n", stack->data[stack->capacity+1]);
+    else fprintf(ERROR_STREAM, "Guard 2: " RED "%X" CLEAN "\n", stack->data[stack->capacity+1]);
 
     fprintf(ERROR_STREAM, "Data: \n\n");
     for(size_t i = 1; i < stack->capacity+1; i++)
