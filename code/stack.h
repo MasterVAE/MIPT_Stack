@@ -17,10 +17,11 @@
 enum StackError
 {
     Verified = 0,
-    StackNull = 1 << 4,
+    StackNull = 1 << 1,
     StackOverflow = 1 << 2,
     DataNull = 1 << 3,
-    DataCorrupted = 1 << 1
+    DataCorrupted = 1 << 4,
+    CapacityInvalid = 1 << 5
 };
 
 bool IsError(int error, StackError check);

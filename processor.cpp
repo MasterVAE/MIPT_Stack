@@ -4,30 +4,33 @@
 #include <math.h>
 
 #include "code/stack.h"
+#include "language.h"
+#include "code/assembler_read.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) StackDump(stack, *err);
 #define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) StackDump(stack, err);
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) StackDump(stack, error);}
 
-int input(Stack_t* stack, FILE* steam);
+const int command_size = 2;
+const int value_size = 8;
 
-enum func_bycodes //вынести в словарь
+typedef enum interpretator_errors
 {
-    HLT = 0,
-    PUSH = 1,
-    ADD = 2,
-    SUB = 3,
-    MUL = 4,
-    DIV = 5, 
-    SQRT = 6,
-    OUT = 7
-};
+    INT_CORRECT = 0,
+    INT_HALT,
+    INT_DIVISION_BY_ZERO,
+    INT_INVALID_COMMAND
+} i_err;
+
+int input(Stack_t* stack, char* buffer, size_t* offcet);
+int get_int(char* buffer, size_t len);
+
 
 int main()
 {
     Stack_t stack;
     INIT_ERR(&stack, 0);
-
+    
     FILE* input_file = fopen("files/code.bcode", "r");
     if(input_file == NULL)
     {
@@ -35,30 +38,41 @@ int main()
         return 1;
     }
 
+    char* buffer = NULL;
+    size_t size = 0;
+    
+    initialize_buffer(&buffer, &size, input_file);
+    fclose(input_file);
+
+    size_t offcet = 0;
     while (1)
     {
-        if(input(&stack, input_file)) break;
+        int error = input(&stack, buffer, &offcet);
+        if(error == INT_HALT) break;
+        else if(error == INT_DIVISION_BY_ZERO) fprintf(stderr, "Interpretator error: DIVISION BY ZERO\n"); 
+        else if(error == INT_INVALID_COMMAND) fprintf(stderr, "Interpretator error: INVALID COMMAND\n"); 
     }
     StackDestroy(&stack);
+    free(buffer);
     return 0;
 }
 
-int input(Stack_t* stack, FILE* stream) //fixme ENUM  
+int input(Stack_t* stack, char* buffer, size_t* offcet)
 {
-    int inp = 0;
+    int inp = get_int(buffer + *offcet, command_size);
+    *offcet += command_size;
     int err = 0;
-    if(!fscanf(stream, "%d", &inp)) return 0;
 
     switch (inp)
     {
-        case HLT: return 1;
+        case HLT: return INT_HALT;
         case ADD:
         {
             stack_type a = POP_ERR(stack, &err);
             stack_type b = POP_ERR(stack, &err);
 
             PUSH_ERR(stack, a + b);
-            return 0;
+            return INT_CORRECT;
         }
         case SUB:
         {
@@ -66,7 +80,7 @@ int input(Stack_t* stack, FILE* stream) //fixme ENUM
             stack_type a = POP_ERR(stack, &err);
 
             PUSH_ERR(stack, a - b);
-            return 0;
+            return INT_CORRECT;
         }
         case MUL:
         {
@@ -74,7 +88,7 @@ int input(Stack_t* stack, FILE* stream) //fixme ENUM
             stack_type b = POP_ERR(stack, &err);
 
             PUSH_ERR(stack, a * b);
-            return 0;
+            return INT_CORRECT;
         }
         case DIV:
         {
@@ -83,41 +97,46 @@ int input(Stack_t* stack, FILE* stream) //fixme ENUM
             if(b == 0)
             {
                 PUSH_ERR(stack, b);
-                return 0;
+                return INT_DIVISION_BY_ZERO;
             }
 
-            stack_type a = POP_ERR(stack, &err); //fixme ошитбеа интерпритатора
-
+            stack_type a = POP_ERR(stack, &err);
             PUSH_ERR(stack, a/b);
-
-            return 0;
+            return INT_CORRECT;
         }
         case SQRT:
         {
             stack_type value = POP_ERR(stack, &err);
-        
             PUSH_ERR(stack, (int)sqrt(value));
-            return 0;
+            return INT_CORRECT;
         }
         case PUSH:
         {
-            stack_type value = 0;
-            if(fscanf(stream, "%d", &value)) 
-            {
-                PUSH_ERR(stack, value);
-            }
-            return 0;
+            stack_type value = get_int(buffer + *offcet, value_size);
+            *offcet += value_size;
+            PUSH_ERR(stack, value);
+            return INT_CORRECT;
         }
         case OUT:
         {
             stack_type value = POP_ERR(stack, &err);
             printf("%d\n", value);  
-            return 0;
+            return INT_CORRECT;
         }
         default:
-            //ошибка интерпритатора
-            break;
+            return INT_INVALID_COMMAND;
     }
-    //fixme strcmp into enum
-    return 0;
+    return INT_CORRECT;
+}
+
+
+int get_int(char* buffer, size_t len)
+{
+    int ans = 0;
+    for(size_t i = 0; i < len; i++)
+    {
+        ans *= 16;
+        ans += buffer[i] - 'A';
+    }
+    return ans;
 }

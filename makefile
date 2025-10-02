@@ -7,7 +7,7 @@ CFLAGS = -D _DEBUG -ggdb3 -std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-op
 .DEFAULT_GOAL := all
 
 # Определения для разных целей
-SPU_SOURCES = processor.cpp code/stack.cpp
+SPU_SOURCES = processor.cpp code/stack.cpp code/assembler_read.cpp
 SPU_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SPU_SOURCES))
 SPU_TARGET = spu.out
 

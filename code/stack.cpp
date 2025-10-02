@@ -10,6 +10,7 @@ bool IsError(int error, StackError check)
 void ErrorParser(int error)
 {
     if(IsError(error, StackNull)) fprintf(ERROR_STREAM, "Error: stack NULL\n");
+    if(IsError(error, CapacityInvalid)) fprintf(ERROR_STREAM, "Error: capacity invalid\n");
     if(IsError(error, DataNull)) fprintf(ERROR_STREAM, "Error: data NULL\n");
     if(IsError(error, StackOverflow)) fprintf(ERROR_STREAM, "Error: stack overflow\n");
     if(IsError(error, DataCorrupted)) fprintf(ERROR_STREAM, "Error: data corrupted\n");
@@ -20,6 +21,7 @@ int StackVerify(Stack_t* stack)
     int error = Verified;
 
     if(stack == NULL) return error | StackNull;
+    if(stack->capacity == 0) error |= CapacityInvalid;
     if(stack->size > stack->capacity) error |= StackOverflow;
     if(stack->data == NULL) return error | DataNull;
     if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) return error | DataCorrupted;
@@ -32,7 +34,7 @@ int StackInit(Stack_t* stack, size_t capacity)
     if(stack == NULL) return StackNull;
 
     if(capacity == 0) capacity = 1;
-    stack->capacity = capacity; // FIXME минимальный трешхолд
+    stack->capacity = capacity;
     stack->size = 0;
     stack->data = (stack_type*)calloc(capacity + 2, sizeof(stack_type));
     stack->data[0] = SHIELD_START;
@@ -48,23 +50,14 @@ int StackPush(Stack_t* stack, stack_type value)
     if(stack->size < stack->capacity)
     {
         stack->data[1 + stack->size++] = value;
+        err = StackVerify(stack); if(err != 0) return err;
         return Verified;
     }
 
-    if(stack->capacity == 0)
-    {
-        stack->capacity = 1;
-        stack->data = (stack_type*)realloc(stack->data, 3 * sizeof(stack_type)); // FIXME calloc
-        stack->data[0] = SHIELD_START;
-        stack->data[1 + stack->capacity] = SHIELD_END;
-    }
-    else
-    {
-        stack->capacity *= STACK_MULTIPLIER;
-        stack->data = (stack_type*)realloc(stack->data, (stack->capacity + 2) * sizeof(stack_type));
-        stack->data[1 + stack->capacity] = SHIELD_END;
-    }
-
+    stack->capacity *= STACK_MULTIPLIER;
+    stack->data = (stack_type*)realloc(stack->data, (stack->capacity + 2) * sizeof(stack_type));
+    stack->data[1 + stack->capacity] = SHIELD_END;
+    
     err = StackVerify(stack); if(err != 0) return err;
 
     stack->data[1 + stack->size++] = value;
@@ -72,8 +65,6 @@ int StackPush(Stack_t* stack, stack_type value)
     err = StackVerify(stack); if(err != 0) return err;
     return Verified;
 }
-
-// FIXME везде verify и в начале и в конце
 
 stack_type StackPop(Stack_t* stack, int* err)
 {

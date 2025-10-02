@@ -11,13 +11,12 @@ void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
     assert(size != NULL);
     assert(input_file != NULL);
 
+    *size = file_len(input_file);
+
     char* buff = (char*)calloc(*size + 1, sizeof(char));
     size_t len = fread(buff, sizeof(char), *size, input_file);
 
     buff[len] = '\0';
-
-    printf("File size: %lu\n", *size);
-    printf("Buffer size: %lu\n", len);
 
     *size = len;
     *buffer = buff;
