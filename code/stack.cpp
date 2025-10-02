@@ -37,9 +37,9 @@ int StackInit(Stack_t* stack, size_t capacity)
     if(capacity == 0) capacity = 1;
     stack->capacity = capacity;
     stack->size = 0;
-    stack->data = (stack_type*)calloc(capacity + 2, sizeof(stack_type));
+    stack->data = (stack_type*)calloc(capacity + 2 * shield_size, sizeof(stack_type));
     stack->data[0] = SHIELD_START;
-    stack->data[1 + capacity] = SHIELD_END;
+    stack->data[1 * shield_size + capacity] = SHIELD_END;
 
     return StackVerify(stack);
 }
@@ -50,18 +50,18 @@ int StackPush(Stack_t* stack, stack_type value)
 
     if(stack->size < stack->capacity)
     {
-        stack->data[1 + stack->size++] = value;
+        stack->data[1 * shield_size + stack->size++] = value;
         err = StackVerify(stack); if(err != 0) return err;
         return Verified;
     }
 
     stack->capacity *= STACK_MULTIPLIER;
-    stack->data = (stack_type*)realloc(stack->data, (stack->capacity + 2) * sizeof(stack_type));
-    stack->data[1 + stack->capacity] = SHIELD_END;
+    stack->data = (stack_type*)realloc(stack->data, (stack->capacity + 2 * shield_size) * sizeof(stack_type));
+    stack->data[1 * shield_size + stack->capacity] = SHIELD_END;
     
     err = StackVerify(stack); if(err != 0) return err;
 
-    stack->data[1 + stack->size++] = value;
+    stack->data[1 * shield_size + stack->size++] = value;
 
     err = StackVerify(stack); if(err != 0) return err;
     return Verified;
@@ -79,9 +79,8 @@ stack_type StackPop(Stack_t* stack, int* err)
     {
         if(err != NULL) *err = Verified;
         stack->size--;
-        return stack->data[1 + stack->size];
+        return stack->data[1 * shield_size + stack->size];
     }
-
     if(err != NULL) *err = StackUnderflow;
     return 0;
 }
@@ -99,7 +98,7 @@ void StackDestroy(Stack_t* stack)
 
 void StackDump(Stack_t* stack, int error)
 {
-    fprintf(ERROR_STREAM,"\n" RED "- - - Stack printing START - - - " CLEAN "\n");
+        fprintf(ERROR_STREAM,"\n" RED "- - - Stack printing START - - - " CLEAN "\n");
     ErrorParser(error);
     if(stack == NULL)
     {   
@@ -108,8 +107,8 @@ void StackDump(Stack_t* stack, int error)
         return;
     }
         
-    fprintf(ERROR_STREAM, "Capacity: %lu\n", stack->capacity);
-    fprintf(ERROR_STREAM, "Size: %lu\n\n", stack->size);
+        fprintf(ERROR_STREAM, "Capacity: %lu\n", stack->capacity);
+        fprintf(ERROR_STREAM, "Size: %lu\n\n", stack->size);
 
     if(stack->data == NULL)
     {
@@ -117,24 +116,35 @@ void StackDump(Stack_t* stack, int error)
         fprintf(ERROR_STREAM, "\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
         return;
     }
-    if(stack->data[0] == SHIELD_START) fprintf(ERROR_STREAM, "Guard 1: " GREEN "%X" CLEAN "\n", stack->data[0]);
-    else fprintf(ERROR_STREAM, "Guard 1: " RED "%X" CLEAN "\n", stack->data[0]);
+    if(stack->data[0] == SHIELD_START)
+    {
+        fprintf(ERROR_STREAM, "Guard 1: " GREEN "%X" CLEAN "\n", (unsigned int)stack->data[0]);
+    }
+    else
+    {
+        fprintf(ERROR_STREAM, "Guard 1: " RED "%X" CLEAN "\n", (unsigned int)stack->data[0]);
+    }
 
-    if(stack->data[stack->capacity+1] == SHIELD_END) fprintf(ERROR_STREAM, "Guard 2: " GREEN "%X" CLEAN "\n", stack->data[stack->capacity+1]);
-    else fprintf(ERROR_STREAM, "Guard 2: " RED "%X" CLEAN "\n", stack->data[stack->capacity+1]);
-
-    fprintf(ERROR_STREAM, "Data: \n\n");
-    for(size_t i = 1; i < stack->capacity+1; i++)
+    if(stack->data[stack->capacity+1] == SHIELD_END)
+    {
+        fprintf(ERROR_STREAM, "Guard 2: " GREEN "%X" CLEAN "\n", (unsigned int)stack->data[stack->capacity+1]);
+    }
+    else
+    {
+        fprintf(ERROR_STREAM, "Guard 2: " RED "%X" CLEAN "\n", (unsigned int)stack->data[stack->capacity + 1 * shield_size]);
+    }
+        fprintf(ERROR_STREAM, "Data: \n\n");
+    for(size_t i = 1; i < stack->capacity + 1 * shield_size; i++)
     {
         if(i < stack->size)
         {
-            fprintf(ERROR_STREAM, "*[%lu]: " GREEN "%d" CLEAN "\n", i, stack->data[i]);
+        fprintf(ERROR_STREAM, "*[%lu]: " GREEN "%d" CLEAN "\n", i, stack->data[i]);
         }
         else
         {
-            fprintf(ERROR_STREAM, " [%lu]: %d\n", i, stack->data[i]);
+        fprintf(ERROR_STREAM, " [%lu]: %d\n", i, stack->data[i]);
         }
     }
 
-    fprintf(ERROR_STREAM, "\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
+        fprintf(ERROR_STREAM, "\n" RED "- - - Stack printing END - - -" CLEAN "\n\n");
 }

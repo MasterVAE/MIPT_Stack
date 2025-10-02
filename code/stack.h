@@ -8,12 +8,11 @@
 #define GREEN "\033[32m"
 
 // FIXME const
-#define SHIELD_START 0x6BADF00D
-#define SHIELD_END 0x7BADF00D
+const int SHIELD_START = 0x6BADF00D;
+const int SHIELD_END = 0x7BADF00D;
 #define ERROR_STREAM stderr
-#define STACK_MULTIPLIER 2
+const int STACK_MULTIPLIER = 2;
 
-// FIXME в порядке правильном
 enum StackError
 {
     Verified = 0,
@@ -43,5 +42,6 @@ int StackPush(Stack_t* stack, stack_type value);
 int StackPop(Stack_t* stack, int* err = NULL);
 void StackDestroy(Stack_t* stack);
 
+const int shield_size = 1;
 
 #endif

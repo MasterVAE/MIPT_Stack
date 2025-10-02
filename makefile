@@ -6,18 +6,17 @@ CFLAGS = -D _DEBUG -ggdb3 -std=c++17 -Wall -Wextra -Weffc++ -Waggressive-loop-op
 
 .DEFAULT_GOAL := all
 
-# Определения для разных целей
 SPU_SOURCES = processor.cpp code/stack.cpp code/assembler_read.cpp
 SPU_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SPU_SOURCES))
-SPU_TARGET = spu.out
+SPU_TARGET = build/spu.out
 
 ASM_SOURCES = assembler.cpp code/assembler_read.cpp
 ASM_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(ASM_SOURCES))
-ASM_TARGET = asm.out
+ASM_TARGET = build/asm.out
 
 DIS_SOURCES = disassembler.cpp code/assembler_read.cpp
 DIS_OBJECTS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(DIS_SOURCES))
-DIS_TARGET = dis.out
+DIS_TARGET = build/dis.out
 
 spu: $(SPU_TARGET)
 
@@ -25,8 +24,6 @@ $(SPU_TARGET): $(SPU_OBJECTS)
 	@echo "Linking SPU..."
 	@$(CC) $(CFLAGS) $^ -o $@
 	@echo "SPU Linked Successfully: $(SPU_TARGET)"
-	@rm -rf $(OBJ_DIR)
-	@echo "Removed object directory after build."
 
 asm: $(ASM_TARGET)
 
@@ -34,8 +31,6 @@ $(ASM_TARGET): $(ASM_OBJECTS)
 	@echo "Linking ASM..."
 	@$(CC) $(CFLAGS) $^ -o $@
 	@echo "ASM Linked Successfully: $(ASM_TARGET)"
-	@rm -rf $(OBJ_DIR)
-	@echo "Removed object directory after build."
 
 dis: $(DIS_TARGET)
 
@@ -43,11 +38,11 @@ $(DIS_TARGET): $(DIS_OBJECTS)
 	@echo "Linking DIS..."
 	@$(CC) $(CFLAGS) $^ -o $@
 	@echo "ASM Linked Successfully: $(DIS_TARGET)"
-	@rm -rf $(OBJ_DIR)
-	@echo "Removed object directory after build."
 
 all: spu asm dis
 	@echo "All targets built successfully"
+	@rm -rf $(OBJ_DIR)
+	@echo "Removed object directory after build."
 
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | make_build_dir
 	@mkdir -p $(dir $@)
@@ -59,9 +54,4 @@ make_build_dir:
 	@mkdir -p $(OBJ_DIR)
 	@echo "Created build directory: $(OBJ_DIR)"
 
-clean:
-	@rm -rf $(OBJ_DIR) *.out
-	@echo "Cleaned Successfully"
-
 build: all
-rebuild: clean all

@@ -23,9 +23,20 @@ enum assembler_errors
     ASS_SYNTAX_ERROR 
 };
 
-int main()
+int main(int argc, char *argv[])
 {
-    FILE* input_file = fopen("files/code.asm", "r");
+    const char* input_file_name = "files/code.asm";
+    const char* output_file_name = "files/code.bcode";
+    if(argc >= 2)
+    {
+        input_file_name = argv[1];
+        if(argc >= 3)
+        {
+            output_file_name = argv[2];
+        }
+    }
+
+    FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
     {
         error_parser(ASS_NULL_INPUT_FILE);
@@ -42,8 +53,7 @@ int main()
     count = initialize_text(&text, buffer, size);
 
     fclose(input_file);
-
-    FILE* output_file = fopen("files/code.bcode", "w");
+    FILE* output_file = fopen(output_file_name, "w");
     if(output_file == NULL)
     {
         error_parser(ASS_NULL_OUTPUT_FILE);
