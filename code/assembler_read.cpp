@@ -22,7 +22,7 @@ void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
     *buffer = buff;
 }
 
-size_t initialize_text(char*** text, char* buffer, size_t size)
+size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
     assert(text != NULL);
@@ -36,10 +36,10 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
         }
     }
 
-    *text = (char**)calloc(count, sizeof(char*));
+    *text = (Line*)calloc(count, sizeof(Line));
     assert(*text != NULL);
 
-    (*text)[0] = buffer;
+    (*text)[0].str = buffer;
 
     size_t j = 1;
     for(size_t i = 0; i < size-1; i++)
@@ -47,10 +47,12 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
         if(buffer[i] == '\n')
         {       
             buffer[i] = '\0';
-            (*text)[j] = buffer+i+1;
+            (*text)[j].str = buffer+i+1;
+            (*text)[j - 1].len = (size_t)((*text)[j].str - (*text)[j-1].str - 1);
             j++;
         }
     } 
+    (*text)[j - 1].len = (size_t)(buffer + size - (*text)[j-1].str);
     return count;
 }
 

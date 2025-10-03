@@ -6,7 +6,7 @@
 #include "code/assembler_read.h"
 #include "code/language.h"
 
-int assemble(char** text, size_t count, FILE* out_file);
+int assemble(Line* text, size_t count, FILE* out_file);
 void error_parser(int error);
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int value);
@@ -36,6 +36,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
+
     FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
     {
@@ -44,7 +46,7 @@ int main(int argc, char *argv[])
     }
 
     char* buffer = NULL;
-    char** text = NULL;
+    Line* text = NULL;
 
     size_t size = 0;
     size_t count = 0;
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
     count = initialize_text(&text, buffer, size);
 
     fclose(input_file);
+    
     FILE* output_file = fopen(output_file_name, "w");
     if(output_file == NULL)
     {
@@ -72,10 +75,11 @@ int main(int argc, char *argv[])
         error_parser(error);
         return 1;
     }
+    printf("Success compiling: %s -> %s\n", input_file_name, output_file_name);
 }
 
 
-int assemble(char** text, size_t count, FILE* out_file)
+int assemble(Line* text, size_t count, FILE* out_file)
 {
     if(text == NULL) return ASS_NULL_TEXT_POINTER;
     if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
@@ -84,7 +88,7 @@ int assemble(char** text, size_t count, FILE* out_file)
     char buff[11] = {};
     for(size_t i = 0; i < count - 1; i++)
     {
-        sscanf(text[i], "%10s", buff);
+        sscanf(text[i].str, "%10s", buff);
         if(!strcmp(buff, "HLT")) bytecode_comm(out_file, HLT);
         else if(!strcmp(buff, "ADD")) bytecode_comm(out_file, ADD);
         else if(!strcmp(buff, "SUB")) bytecode_comm(out_file, SUB);
@@ -95,7 +99,7 @@ int assemble(char** text, size_t count, FILE* out_file)
         else if(!strcmp(buff, "PUSH"))
         {
             int value = 0;
-            if(sscanf(text[i] + 4, "%10d", &value))
+            if(sscanf(text[i].str + 4, "%10d", &value))
             { 
                 bytecode_comm(out_file, PUSH); 
                 bytecode_value(out_file, value); 
@@ -108,12 +112,13 @@ int assemble(char** text, size_t count, FILE* out_file)
         else return ASS_SYNTAX_ERROR;
     }
 
-    sscanf(text[count -  1], "%10s", buff);
+    sscanf(text[count -  1].str, "%10s", buff);
     if(!strcmp(buff, "HLT")) bytecode_comm(out_file, HLT);
     else return ASS_HLT_NOT_FOUND;
 
     return ASS_CORRECT;
 }
+
 
 void error_parser(int error)
 {
@@ -167,9 +172,12 @@ int bytecode_comm(FILE* output_file, int command)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
 
-    char bytecode[9] = {};
-    bytecode[0] = 'A' + (char)command/16;
-    bytecode[1] = 'A' + (char)command%16;
+    char bytecode[command_size + 1] = {};
+    for(int i = command_size - 1; i >= 0; i--)
+    {
+        bytecode[i] = '0'+ (char)command%2;
+        command/=2;
+    }
     fprintf(output_file, "%s", bytecode);
     
     return ASS_CORRECT;
@@ -179,11 +187,11 @@ int bytecode_value(FILE* output_file, int value)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
 
-    char bytecode[9] = {};
-    for(int i = 7; i >= 0; i--)
+    char bytecode[value_size + 1] = {};
+    for(int i = value_size - 1; i >= 0; i--)
     {
-        bytecode[i] = 'A'+ (char)value%16;
-        value/=16;
+        bytecode[i] = '0'+ (char)value%2;
+        value/=2;
     }
     fprintf(output_file, "%s", bytecode);
     

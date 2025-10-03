@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "stack.h"
+#include "language.h"
 
 bool IsError(int error, StackError check)
 {

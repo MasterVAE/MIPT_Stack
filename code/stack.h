@@ -2,12 +2,12 @@
 #define STACK_H_
 
 #include <stdio.h>
+#include "language.h"
 
 #define RED "\033[31m"
 #define CLEAN "\033[0m"
 #define GREEN "\033[32m"
 
-// FIXME const
 const int SHIELD_START = 0x6BADF00D;
 const int SHIELD_END = 0x7BADF00D;
 #define ERROR_STREAM stderr
@@ -25,7 +25,6 @@ enum StackError
 };
 
 bool IsError(int error, StackError check);
-typedef int stack_type;
 
 typedef struct Stack_t
 {

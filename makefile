@@ -21,23 +21,17 @@ DIS_TARGET = build/dis.out
 spu: $(SPU_TARGET)
 
 $(SPU_TARGET): $(SPU_OBJECTS)
-	@echo "Linking SPU..."
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "SPU Linked Successfully: $(SPU_TARGET)"
 
 asm: $(ASM_TARGET)
 
 $(ASM_TARGET): $(ASM_OBJECTS)
-	@echo "Linking ASM..."
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "ASM Linked Successfully: $(ASM_TARGET)"
 
 dis: $(DIS_TARGET)
 
 $(DIS_TARGET): $(DIS_OBJECTS)
-	@echo "Linking DIS..."
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "ASM Linked Successfully: $(DIS_TARGET)"
 
 all: spu asm dis
 	@echo "All targets built successfully"
@@ -46,7 +40,6 @@ all: spu asm dis
 
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp | make_build_dir
 	@mkdir -p $(dir $@)
-	@echo "Compiling $<"
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled Successfully $<"
 
@@ -54,4 +47,9 @@ make_build_dir:
 	@mkdir -p $(OBJ_DIR)
 	@echo "Created build directory: $(OBJ_DIR)"
 
+clean:
+	@rm -rf $(OBJ_DIR) *.out
+	@echo "Cleaned Successfully"
+
 build: all
+rebuild: clean all

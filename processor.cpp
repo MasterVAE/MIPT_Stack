@@ -131,8 +131,8 @@ int get_int(char* buffer, size_t len)
     int ans = 0;
     for(size_t i = 0; i < len; i++)
     {
-        ans *= 16;
-        ans += buffer[i] - 'A';
+        ans *= 2;
+        ans += buffer[i] - '0';
     }
     return ans;
 }

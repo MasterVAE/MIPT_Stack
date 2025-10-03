@@ -191,8 +191,8 @@ int disbytecode(char* buffer, size_t size)
     int ans = 0;
     for(size_t i = 0; i < size; i++)
     {
-        ans *= 16;
-        ans += buffer[i] - 'A';
+        ans *= 2;
+        ans += buffer[i] - '0';
     }
     return ans;
 }
