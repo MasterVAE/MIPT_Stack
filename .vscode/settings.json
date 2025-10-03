@@ -1,6 +1,11 @@
 {
     "files.associations": {
         "cmath": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "format": "cpp",
+        "queue": "cpp",
+        "stack": "cpp",
+        "thread": "cpp",
+        "vector": "cpp"
     }
 }

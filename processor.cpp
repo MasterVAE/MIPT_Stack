@@ -40,6 +40,9 @@ int main()
     initialize_buffer(&buffer, &size, input_file);
     fclose(input_file);
 
+    //BREAKING STACK
+    //((char*)stack.data)[2] = '7';
+
     size_t offcet = 0;
     while (1)
     {

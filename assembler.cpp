@@ -6,10 +6,13 @@
 #include "code/assembler_read.h"
 #include "code/language.h"
 
-int assemble(Line* text, size_t count, FILE* out_file);
+int assemble(char** text, size_t count, FILE* out_file);
 void error_parser(int error);
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int value);
+int command_parse(char** line, size_t line_ind, FILE* out_file);
+
+
 
 enum assembler_errors
 {
@@ -20,7 +23,8 @@ enum assembler_errors
     ASS_NULL_INPUT_FILE,
     ASS_NULL_TEXT_POINTER,
     ASS_NULL_OUTPUT_FILE,
-    ASS_SYNTAX_ERROR 
+    ASS_SYNTAX_ERROR,
+    ASS_TO_MUCH_ARGUMENT,
 };
 
 int main(int argc, char *argv[])
@@ -46,7 +50,7 @@ int main(int argc, char *argv[])
     }
 
     char* buffer = NULL;
-    Line* text = NULL;
+    char** text = NULL;
 
     size_t size = 0;
     size_t count = 0;
@@ -79,46 +83,70 @@ int main(int argc, char *argv[])
 }
 
 
-int assemble(Line* text, size_t count, FILE* out_file)
+int assemble(char** text, size_t count, FILE* out_file)
 {
     if(text == NULL) return ASS_NULL_TEXT_POINTER;
     if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
     if(count == 0) return ASS_EMPTY_PROGRAMM;
 
-    char buff[11] = {};
-    for(size_t i = 0; i < count - 1; i++)
+    
+    for(size_t i = 0; i < count; i++)
     {
-        sscanf(text[i].str, "%10s", buff);
-        if(!strcmp(buff, "HLT")) bytecode_comm(out_file, HLT);
-        else if(!strcmp(buff, "ADD")) bytecode_comm(out_file, ADD);
-        else if(!strcmp(buff, "SUB")) bytecode_comm(out_file, SUB);
-        else if(!strcmp(buff, "MUL")) bytecode_comm(out_file, MUL);
-        else if(!strcmp(buff, "DIV")) bytecode_comm(out_file, DIV);
-        else if(!strcmp(buff, "SQRT")) bytecode_comm(out_file, SQRT);
-        else if(!strcmp(buff, "OUT")) bytecode_comm(out_file, OUT);
-        else if(!strcmp(buff, "PUSH"))
-        {
-            int value = 0;
-            if(sscanf(text[i].str + 4, "%10d", &value))
-            { 
-                bytecode_comm(out_file, PUSH); 
-                bytecode_value(out_file, value); 
-            }
-            else
-            {
-                return ASS_PUSH_ARGUMENT_INVALID;
-            }
-        }
-        else return ASS_SYNTAX_ERROR;
+        int error = command_parse(text, i, out_file);
+        if(error != ASS_CORRECT) return error;
     }
 
-    sscanf(text[count -  1].str, "%10s", buff);
-    if(!strcmp(buff, "HLT")) bytecode_comm(out_file, HLT);
-    else return ASS_HLT_NOT_FOUND;
+    if(text[(count-1) * (arg_limit + 1)] != NULL && strcmp(text[(count-1) * (arg_limit + 1)], "HLT")) return ASS_HLT_NOT_FOUND;
 
     return ASS_CORRECT;
 }
 
+int command_parse(char** line, size_t line_ind, FILE* out_file)
+{
+    if(line == NULL) return ASS_NULL_TEXT_POINTER;
+    if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
+
+    size_t commands = 0;
+
+    char* comm = NULL;
+    while((comm = line[line_ind * (arg_limit + 1) + commands]) != NULL)
+    {
+        if(commands > 0) return ASS_TO_MUCH_ARGUMENT;
+
+        if(!strcmp(comm, "HLT")) bytecode_comm(out_file, HLT);
+        else if(!strcmp(comm, "ADD")) bytecode_comm(out_file, ADD);
+        else if(!strcmp(comm, "SUB")) bytecode_comm(out_file, SUB);
+        else if(!strcmp(comm, "MUL")) bytecode_comm(out_file, MUL);
+        else if(!strcmp(comm, "DIV")) bytecode_comm(out_file, DIV);
+        else if(!strcmp(comm, "SQRT")) bytecode_comm(out_file, SQRT);
+        else if(!strcmp(comm, "OUT")) bytecode_comm(out_file, OUT);
+        else if(!strcmp(comm, "PUSH"))
+        {
+            int value = 0;
+            char* arg = NULL;
+            while((arg = line[line_ind * (arg_limit + 1) + 1 + commands]) != NULL)
+            {   
+                if(sscanf(arg, "%10d", &value))
+                { 
+                    bytecode_comm(out_file, PUSH); 
+                    bytecode_value(out_file, value); 
+                    commands++;
+                }
+                else
+                {
+                    return ASS_PUSH_ARGUMENT_INVALID;
+                }
+            }
+            if(commands == 0)
+            {
+                return ASS_PUSH_ARGUMENT_INVALID;
+            }    
+        }
+        else return ASS_SYNTAX_ERROR;
+        commands++;
+    }  
+    return ASS_CORRECT;
+}
 
 void error_parser(int error)
 {
@@ -141,7 +169,7 @@ void error_parser(int error)
         }
         case ASS_NULL_INPUT_FILE:
         {
-            fprintf(stderr, "Inpout file NULL\n");
+            fprintf(stderr, "Input file NULL\n");
             break;
         }
         case ASS_NULL_TEXT_POINTER:
