@@ -71,6 +71,7 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
             if(i < count-1 && (*text)[i * (arg_limit + 1)] + off + 1 < (*text)[(i+1) * (arg_limit + 1)]) off++;
             (*text)[i * (arg_limit + 1) + j + 1] = (*text)[i * (arg_limit + 1)] + off;
         }
+        (*text)[i * (arg_limit + 1) + arg_limit] = NULL;
     }
     
     return count;

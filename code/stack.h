@@ -33,6 +33,16 @@ typedef struct Stack_t
     size_t capacity;
 } Stack_t;
 
+typedef struct processor
+{
+    Stack_t stack;
+    char* buffer;
+    size_t offcet;
+
+    int* reg;
+    
+} SPU;
+
 void ErrorParser(int error);
 void StackDump(Stack_t* stack, int error = 0);
 int StackVerify(Stack_t* stack);

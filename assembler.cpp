@@ -13,20 +13,6 @@ int bytecode_value(FILE* output_file, int value);
 int command_parse(char** line, size_t line_ind, FILE* out_file);
 
 
-
-enum assembler_errors
-{
-    ASS_CORRECT = 0, 
-    ASS_HLT_NOT_FOUND,
-    ASS_PUSH_ARGUMENT_INVALID,
-    ASS_EMPTY_PROGRAMM,
-    ASS_NULL_INPUT_FILE,
-    ASS_NULL_TEXT_POINTER,
-    ASS_NULL_OUTPUT_FILE,
-    ASS_SYNTAX_ERROR,
-    ASS_TO_MUCH_ARGUMENT,
-};
-
 int main(int argc, char *argv[])
 {
     const char* input_file_name = "files/code.asm";
