@@ -1,11 +1,13 @@
 #ifndef LANGUAGE_H_
 #define LANGUAGE_H_
 
-#define RED "\033[31m"
+#define RED "\033[91m"
 #define CLEAN "\033[0m"
-#define GREEN "\033[32m"
-#define BLUE "\033[34m"
+#define GREEN "\033[92m"
+#define BLUE "\033[94m"
 #define MAGENTA "\033[35m"
+#define CYAN "\033[96m"
+#define PINK "\033[95m"
 
 enum funcs
 {
@@ -24,7 +26,7 @@ enum funcs
 
 enum assembler_errors
 {
-    ASS_CORRECT = 0, 
+    ASS_CORRECT, 
     ASS_HLT_NOT_FOUND,
     ASS_ARGUMENT_INVALID,
     ASS_EMPTY_PROGRAMM,
@@ -53,7 +55,8 @@ typedef enum processor_errors
     SPU_STACK_ERROR = 1 << 4,
     SPU_PROCESSOR_NULL = 1 << 5,
     SPU_REG_NULL = 1 << 6,
-    SPU_BUFFER_NULL = 1 << 7
+    SPU_BUFFER_NULL = 1 << 7,
+    SPU_INVALID_REGISTER = 1 << 8
 } spu_err;
 
 

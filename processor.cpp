@@ -13,6 +13,7 @@
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) {stack->err_code = error; return SPU_STACK_ERROR;}}
 
 int run(SPU* processor);
+int IsError(int error, int check);
 int SPUInit(SPU* processor);
 void SPUDestroy(SPU* processor);
 void SPUDump(SPU* processor);
@@ -24,6 +25,7 @@ int main()
     printf("SPU STARTING...\n");
     SPU spu_main = {};
     int error = SPUInit(&spu_main);
+    spu_main.err_code = error;
     if(error != SPU_CORRECT) SPUDump(&spu_main);
 
     FILE* input_file = fopen("files/code.bcode", "r");
@@ -43,6 +45,7 @@ int main()
         if(error == SPU_HALT) break;
         else if(error != SPU_CORRECT)
         { 
+            spu_main.err_code = error;
             SPUDump(&spu_main);
             break;
         }
@@ -60,18 +63,18 @@ int run(SPU* processor)
 
     switch (inp)
     {
-        case HLT: return SPU_HALT;
-        case ADD: return SPU_ADD(processor);
-        case SUB: return SPU_SUB(processor);
-        case MUL: return SPU_MUL(processor);
-        case DIV: return SPU_DIV(processor);
-        case SQRT: return SPU_SQRT(processor);
-        case PUSH: return SPU_PUSH(processor);
-        case OUT: return SPU_OUT(processor);
+        case HLT:   return SPU_HALT;
+        case ADD:   return SPU_ADD(processor);
+        case SUB:   return SPU_SUB(processor);
+        case MUL:   return SPU_MUL(processor);
+        case DIV:   return SPU_DIV(processor);
+        case SQRT:  return SPU_SQRT(processor);
+        case PUSH:  return SPU_PUSH(processor);
+        case OUT:   return SPU_OUT(processor);
         case PUSHR: return SPU_PUSHR(processor);
-        case IN: return SPU_IN(processor);
-        case POPR: return SPU_POPR(processor);
-        default: return SPU_INVALID_COMMAND;
+        case IN:    return SPU_IN(processor);
+        case POPR:  return SPU_POPR(processor);
+        default:    return SPU_INVALID_COMMAND;
     }
     return SPU_CORRECT;
 }
@@ -101,6 +104,14 @@ void SPUDump(SPU* processor)
         fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
         return;
     }
+    if(processor->buffer == NULL)
+    {
+        fprintf(ERROR_STREAM, "Buffer NULL\n");
+    }
+    else
+    {
+        fprintf(ERROR_STREAM, "Buffer:\n\n%s\n\n", processor->buffer);
+    }
         fprintf(ERROR_STREAM, "Offcet: %lu\n", processor->offcet);
         StackDump(&processor->stack);
     if(processor->reg == NULL)
@@ -109,24 +120,23 @@ void SPUDump(SPU* processor)
         fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
         return;
     }
-        fprintf(ERROR_STREAM, "Register: \n");
+        fprintf(ERROR_STREAM, "Register:\n\n");
     for(int i = 0; i < register_size; i++)
     {
-        fprintf(ERROR_STREAM, "    [%d] %d\n", i, processor->reg[i]);
+        fprintf(ERROR_STREAM, "  " PINK "[%d]" CYAN " %d\n" CLEAN, i, processor->reg[i]);
     }
         fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
 }
 
 int SPUVerify(SPU* processor)
 {
-    processor->err_code = Verified;
+    processor->err_code = SPU_CORRECT;
 
-    if(processor == NULL) return processor->err_code |= SPU_PROCESSOR_NULL;
-    if(StackVerify(&processor->stack) != Verified) processor->err_code |= SPU_STACK_ERROR;
-    if(processor->buffer == NULL) processor->err_code |= SPU_BUFFER_NULL;
-    if(processor->reg == NULL) processor->err_code |= SPU_REG_NULL;
-
-    return processor->err_code;
+    if(processor == NULL)                    return processor->err_code |= SPU_PROCESSOR_NULL;
+    if(StackVerify(&processor->stack) != Verified)  processor->err_code |= SPU_STACK_ERROR;
+    if(processor->buffer == NULL)                   processor->err_code |= SPU_BUFFER_NULL;
+    if(processor->reg == NULL)                      processor->err_code |= SPU_REG_NULL;
+    return                                          processor->err_code;
 }
 
 void SPUDestroy(SPU* processor)
@@ -134,20 +144,23 @@ void SPUDestroy(SPU* processor)
     if(processor == NULL) return;
     StackDestroy(&processor->stack);
     free(processor->reg);
-    processor->reg = NULL;
     free(processor->buffer);
-    processor->buffer = NULL;
+    memset(processor, 0, sizeof(processor));
+}
+
+int IsError(int error, int check)
+{
+    return error & check;
 }
 
 void SPUErrorParser(int error)
-{
-
-    //FIXME PROCESSOR
-    
-    if(IsError(error, StackNull)) fprintf(ERROR_STREAM, "Error: stack NULL\n");
-    if(IsError(error, CapacityInvalid)) fprintf(ERROR_STREAM, "Error: capacity invalid\n");
-    if(IsError(error, DataNull)) fprintf(ERROR_STREAM, "Error: data NULL\n");
-    if(IsError(error, StackOverflow)) fprintf(ERROR_STREAM, "Error: stack overflow\n");
-    if(IsError(error, StackUnderflow)) fprintf(ERROR_STREAM, "Error: stack underflow\n");
-    if(IsError(error, DataCorrupted)) fprintf(ERROR_STREAM, "Error: data corrupted\n");
+{   
+    if(IsError(error, SPU_HALT))                fprintf(ERROR_STREAM, "Error: SPU halted\n");
+    if(IsError(error, SPU_DIVISION_BY_ZERO))    fprintf(ERROR_STREAM, "Error: division by zero\n");
+    if(IsError(error, SPU_INVALID_COMMAND))     fprintf(ERROR_STREAM, "Error: invalid command\n");
+    if(IsError(error, SPU_STACK_ERROR))         fprintf(ERROR_STREAM, "Error: stack error\n");
+    if(IsError(error, SPU_PROCESSOR_NULL))      fprintf(ERROR_STREAM, "Error: processor NULL\n");
+    if(IsError(error, SPU_REG_NULL))            fprintf(ERROR_STREAM, "Error: register NULL\n");
+    if(IsError(error, SPU_BUFFER_NULL))         fprintf(ERROR_STREAM, "Error: buffer null\n");
+    if(IsError(error, SPU_INVALID_REGISTER))    fprintf(ERROR_STREAM, "Error: invalid register\n");
 }

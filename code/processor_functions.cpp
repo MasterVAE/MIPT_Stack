@@ -9,13 +9,13 @@
 
 int get_int(char* buffer, size_t len)
 {
-    int ans = 0;
+    unsigned int ans = 0;
     for(size_t i = 0; i < len; i++)
     {
         ans *= 2;
-        ans += buffer[i] - '0';
+        ans += (unsigned int)(buffer[i] - '0');
     }
-    return ans;
+    return (int)ans;
 }
 
 int SPU_ADD(SPU* processor)
@@ -101,6 +101,7 @@ int SPU_IN(SPU* processor)
 int SPU_PUSHR(SPU* processor)
 {
     stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
+    if(reg < 0 || reg >= register_size) return SPU_INVALID_REGISTER;
     processor->offcet += value_size;
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
     return SPU_CORRECT;
@@ -109,6 +110,7 @@ int SPU_PUSHR(SPU* processor)
 int SPU_POPR(SPU* processor)
 {
     stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
+    if(reg < 0 || reg >= register_size) return SPU_INVALID_REGISTER;
     processor->offcet += value_size;
     int err = 0;
     processor->reg[reg] = POP_ERR(&processor->stack, &err);

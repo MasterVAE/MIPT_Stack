@@ -1,9 +1,12 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "stack.h"
 #include "language.h"
 
 void ErrorParser(int error);
+
+bool IsError(int error, int check);
 
 bool IsError(int error, StackError check)
 {
@@ -91,13 +94,9 @@ stack_type StackPop(Stack_t* stack, int* err)
 
 void StackDestroy(Stack_t* stack)
 {
-    if(stack != NULL)
-    {
-        free(stack->data);
-        stack->data = NULL;
-        stack->capacity = 0;
-        stack->size = 0;
-    }
+    if(stack == NULL) return;
+    free(stack->data);
+    memset(stack, 0, sizeof(stack));
 }
 
 void StackDump(Stack_t* stack)
@@ -142,11 +141,11 @@ void StackDump(Stack_t* stack)
     {
         if(i < stack->size)
         {
-        fprintf(ERROR_STREAM, "*[%lu]: " GREEN "%d" CLEAN "\n", i, stack->data[i]);
+        fprintf(ERROR_STREAM, " *" PINK "[%lu]" GREEN " %d" CLEAN "\n", i, stack->data[i]);
         }
         else
         {
-        fprintf(ERROR_STREAM, " [%lu]: %d\n", i, stack->data[i]);
+        fprintf(ERROR_STREAM, "  " PINK "[%lu]" CLEAN " %d\n", i, stack->data[i]);
         }
     }
 

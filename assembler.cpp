@@ -101,14 +101,14 @@ int command_parse(char** line, size_t line_ind, FILE* out_file)
     {
         if(commands > 0) return ASS_TO_MUCH_ARGUMENT;
 
-        if(!strcmp(comm, "HLT")) bytecode_comm(out_file, HLT);
+        if(     !strcmp(comm, "HLT")) bytecode_comm(out_file, HLT);
         else if(!strcmp(comm, "ADD")) bytecode_comm(out_file, ADD);
         else if(!strcmp(comm, "SUB")) bytecode_comm(out_file, SUB);
         else if(!strcmp(comm, "MUL")) bytecode_comm(out_file, MUL);
         else if(!strcmp(comm, "DIV")) bytecode_comm(out_file, DIV);
-        else if(!strcmp(comm, "SQRT")) bytecode_comm(out_file, SQRT);
+        else if(!strcmp(comm, "SQRT"))bytecode_comm(out_file, SQRT);
         else if(!strcmp(comm, "OUT")) bytecode_comm(out_file, OUT);
-        else if(!strcmp(comm, "IN")) bytecode_comm(out_file, IN);
+        else if(!strcmp(comm, "IN"))  bytecode_comm(out_file, IN);
         else if(!strcmp(comm, "PUSH"))
         {
             int value = 0;
@@ -221,12 +221,13 @@ int bytecode_comm(FILE* output_file, int command)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
 
-    char bytecode[command_size + 1] = {};
+    char bytecode[command_size + 2] = {};
     for(int i = command_size - 1; i >= 0; i--)
     {
         bytecode[i] = '0'+ (char)command%2;
         command/=2;
     }
+    //bytecode[command_size] = ' ';
     fprintf(output_file, "%s", bytecode);
     
     return ASS_CORRECT;
@@ -236,12 +237,14 @@ int bytecode_value(FILE* output_file, int value)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
 
-    char bytecode[value_size + 1] = {};
+    unsigned int value_u = (unsigned)value;
+    char bytecode[value_size + 2] = {};
     for(int i = value_size - 1; i >= 0; i--)
     {
-        bytecode[i] = '0'+ (char)value%2;
-        value/=2;
+        bytecode[i] = '0'+ (unsigned char)value_u%2;
+        value_u/=2;
     }
+    //bytecode[value_size] = ' ';
     fprintf(output_file, "%s", bytecode);
     
     return ASS_CORRECT;
