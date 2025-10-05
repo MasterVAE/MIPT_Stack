@@ -1,9 +1,13 @@
-PUSH 10 20 30 40 50 60 70 80 90 100 110 120 130 140
+IN
+POPR SR1
+IN 
+POPR SR8
+PUSHR SR1
 PUSH 10
 MUL
-SQRT ; вот тут вот комментарий находится
-OUT
-OUT 
-; пенсия
+PUSHR SR8
+PUSH -10
+MUL
+ADD
 OUT
 HLT

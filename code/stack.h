@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include "language.h"
 
-#define RED "\033[31m"
-#define CLEAN "\033[0m"
-#define GREEN "\033[32m"
 
 const int SHIELD_START = 0x6BADF00D;
 const int SHIELD_END = 0x7BADF00D;
@@ -31,6 +28,7 @@ typedef struct Stack_t
     stack_type* data;
     size_t size;
     size_t capacity;
+    int err_code;
 } Stack_t;
 
 typedef struct processor
@@ -40,11 +38,12 @@ typedef struct processor
     size_t offcet;
 
     int* reg;
+
+    int err_code;
     
 } SPU;
 
-void ErrorParser(int error);
-void StackDump(Stack_t* stack, int error = 0);
+void StackDump(Stack_t* stack);
 int StackVerify(Stack_t* stack);
 int StackInit(Stack_t* stack, size_t capacity);
 int StackPush(Stack_t* stack, stack_type value);

@@ -3,6 +3,8 @@
 #include "stack.h"
 #include "language.h"
 
+void ErrorParser(int error);
+
 bool IsError(int error, StackError check)
 {
     return error & check;
@@ -20,15 +22,15 @@ void ErrorParser(int error)
 
 int StackVerify(Stack_t* stack)
 {
-    int error = Verified;
+    stack->err_code = Verified;
 
-    if(stack == NULL) return error | StackNull;
-    if(stack->capacity == 0) error |= CapacityInvalid;
-    if(stack->size > stack->capacity) error |= StackOverflow;
-    if(stack->data == NULL) return error | DataNull;
-    if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) return error | DataCorrupted;
+    if(stack == NULL) return stack->err_code |= StackNull;
+    if(stack->capacity == 0) stack->err_code |= CapacityInvalid;
+    if(stack->size > stack->capacity) stack->err_code |= StackOverflow;
+    if(stack->data == NULL) return stack->err_code |= DataNull;
+    if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) return stack->err_code |= DataCorrupted;
 
-    return error;
+    return stack->err_code;
 }
 
 int StackInit(Stack_t* stack, size_t capacity)
@@ -41,6 +43,7 @@ int StackInit(Stack_t* stack, size_t capacity)
     stack->data = (stack_type*)calloc(capacity + 2 * shield_size, sizeof(stack_type));
     stack->data[0] = SHIELD_START;
     stack->data[1 * shield_size + capacity] = SHIELD_END;
+    stack->err_code = 0;
 
     return StackVerify(stack);
 }
@@ -97,10 +100,10 @@ void StackDestroy(Stack_t* stack)
     }
 }
 
-void StackDump(Stack_t* stack, int error)
+void StackDump(Stack_t* stack)
 {
         fprintf(ERROR_STREAM,"\n" RED "- - - Stack printing START - - - " CLEAN "\n");
-    ErrorParser(error);
+    ErrorParser(stack->err_code);
     if(stack == NULL)
     {   
         fprintf(ERROR_STREAM, "NULL Stack\n");

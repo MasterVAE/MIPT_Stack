@@ -3,10 +3,20 @@
 #include "processor_functions.h"
 #include "stack.h"
 
-#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {StackDump(stack, *err); return SPU_STACK_ERROR;}
-#define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) {StackDump(stack, err); return SPU_STACK_ERROR;}
-#define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) {StackDump(stack, error); return SPU_STACK_ERROR;}}
+#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) return SPU_STACK_ERROR;
+#define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) return SPU_STACK_ERROR;}
 
+
+int get_int(char* buffer, size_t len)
+{
+    int ans = 0;
+    for(size_t i = 0; i < len; i++)
+    {
+        ans *= 2;
+        ans += buffer[i] - '0';
+    }
+    return ans;
+}
 
 int SPU_ADD(SPU* processor)
 {
@@ -62,8 +72,10 @@ int SPU_SQRT(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_PUSH(SPU* processor, stack_type value)
+int SPU_PUSH(SPU* processor)
 {
+    stack_type value = get_int(processor->buffer + processor->offcet, value_size);
+    processor->offcet += value_size;
     PUSH_ERR(&processor->stack, value);
     return SPU_CORRECT;
 }
@@ -73,5 +85,33 @@ int SPU_OUT(SPU* processor)
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
     printf("SPU OUT: %d\n", value);  
+    return SPU_CORRECT;
+}
+
+int SPU_IN(SPU* processor)
+{
+    printf("SPU IN: ");  
+    stack_type value = 0;
+    scanf("%d", &value);
+    PUSH_ERR(&processor->stack, value);
+    
+    return SPU_CORRECT;
+}
+
+int SPU_PUSHR(SPU* processor)
+{
+    stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
+    processor->offcet += value_size;
+    PUSH_ERR(&processor->stack, processor->reg[reg]); 
+    return SPU_CORRECT;
+}
+
+int SPU_POPR(SPU* processor)
+{
+    stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
+    processor->offcet += value_size;
+    int err = 0;
+    processor->reg[reg] = POP_ERR(&processor->stack, &err);
+   
     return SPU_CORRECT;
 }

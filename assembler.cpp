@@ -6,6 +6,8 @@
 #include "code/assembler_read.h"
 #include "code/language.h"
 
+#define REG_CMP(reg, num) if(!strcmp(arg, reg)) {bytecode_value(out_file, num); return SPU_CORRECT;}
+
 int assemble(char** text, size_t count, FILE* out_file);
 void error_parser(int error);
 int bytecode_comm(FILE* output_file, int command);
@@ -106,6 +108,7 @@ int command_parse(char** line, size_t line_ind, FILE* out_file)
         else if(!strcmp(comm, "DIV")) bytecode_comm(out_file, DIV);
         else if(!strcmp(comm, "SQRT")) bytecode_comm(out_file, SQRT);
         else if(!strcmp(comm, "OUT")) bytecode_comm(out_file, OUT);
+        else if(!strcmp(comm, "IN")) bytecode_comm(out_file, IN);
         else if(!strcmp(comm, "PUSH"))
         {
             int value = 0;
@@ -120,13 +123,45 @@ int command_parse(char** line, size_t line_ind, FILE* out_file)
                 }
                 else
                 {
-                    return ASS_PUSH_ARGUMENT_INVALID;
+                    return ASS_ARGUMENT_INVALID;
                 }
             }
             if(commands == 0)
             {
-                return ASS_PUSH_ARGUMENT_INVALID;
+                return ASS_ARGUMENT_INVALID;
             }    
+        }
+        else if(!strcmp(comm, "PUSHR"))
+        {
+            char* arg = line[line_ind * (arg_limit + 1) + 1];
+            if(arg == NULL) return ASS_ARGUMENT_INVALID;
+
+            bytecode_comm(out_file, PUSHR);
+            REG_CMP("SR1", 0);
+            REG_CMP("SR2", 1);
+            REG_CMP("SR3", 2);
+            REG_CMP("SR4", 3);
+            REG_CMP("SR5", 4);
+            REG_CMP("SR6", 5);
+            REG_CMP("SR7", 6);
+            REG_CMP("SR8", 7);
+            return ASS_ARGUMENT_INVALID;
+        }
+        else if(!strcmp(comm, "POPR"))
+        {
+            char* arg = line[line_ind * (arg_limit + 1) + 1];
+            if(arg == NULL) return ASS_ARGUMENT_INVALID;
+
+            bytecode_comm(out_file, POPR);
+            REG_CMP("SR1", 0);
+            REG_CMP("SR2", 1);
+            REG_CMP("SR3", 2);
+            REG_CMP("SR4", 3);
+            REG_CMP("SR5", 4);
+            REG_CMP("SR6", 5);
+            REG_CMP("SR7", 6);
+            REG_CMP("SR8", 7);
+            return ASS_ARGUMENT_INVALID;
         }
         else return ASS_SYNTAX_ERROR;
         commands++;
@@ -143,9 +178,9 @@ void error_parser(int error)
             fprintf(stderr, "HLT not found\n");
             break;
         }
-        case ASS_PUSH_ARGUMENT_INVALID:
+        case ASS_ARGUMENT_INVALID:
         {
-            fprintf(stderr, "PUSH argument invalid\n");
+            fprintf(stderr, "Argument invalid\n");
             break;
         }
         case ASS_EMPTY_PROGRAMM:
