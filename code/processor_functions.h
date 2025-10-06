@@ -5,6 +5,7 @@
 
 int get_int(char* buffer, size_t len);
 
+int SPU_HALT    (SPU* processor);
 int SPU_ADD     (SPU* processor);
 int SPU_SUB     (SPU* processor);
 int SPU_MUL     (SPU* processor);

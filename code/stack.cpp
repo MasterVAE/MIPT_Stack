@@ -96,7 +96,7 @@ void StackDestroy(Stack_t* stack)
 {
     if(stack == NULL) return;
     free(stack->data);
-    memset(stack, 0, sizeof(stack));
+    memset(stack, 0, sizeof(Stack_t));
 }
 
 void StackDump(Stack_t* stack)

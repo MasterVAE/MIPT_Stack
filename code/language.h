@@ -9,20 +9,6 @@
 #define CYAN "\033[96m"
 #define PINK "\033[95m"
 
-enum funcs
-{
-    HLT,
-    PUSH,
-    ADD,
-    SUB,
-    MUL,
-    DIV,
-    SQRT,
-    OUT,
-    IN,
-    PUSHR,
-    POPR
-};
 
 enum assembler_errors
 {
@@ -37,19 +23,19 @@ enum assembler_errors
     ASS_TO_MUCH_ARGUMENT
 };
 
-const int command_size = 6;
-const int value_size = 32;
+const size_t command_size = 6;
+const size_t value_size = 32;
 
-const int register_size = 8;
+const size_t register_size = 8;
+
+const size_t arg_limit = 10;
 
 typedef int stack_type;
-
-
 
 typedef enum processor_errors
 {
     SPU_CORRECT = 0,
-    SPU_HALT = 1 << 1,
+    SPU_HALT_STATE = 1 << 1,
     SPU_DIVISION_BY_ZERO = 1 << 2,
     SPU_INVALID_COMMAND = 1 << 3,
     SPU_STACK_ERROR = 1 << 4,

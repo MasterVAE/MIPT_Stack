@@ -1,6 +1,6 @@
-SOURCES_ASSEMBLER = assembler.cpp code/assembler_read.cpp
-SOURCES_DISASSEMBLER = disassembler.cpp code/assembler_read.cpp
-SOURCES_PROCESSOR = processor.cpp code/stack.cpp code/assembler_read.cpp code/processor_functions.cpp
+SOURCES_ASSEMBLER = assembler.cpp code/processor_functions.cpp code/assembler_read.cpp code/assembler_func.cpp code/stack.cpp
+SOURCES_DISASSEMBLER = disassembler.cpp code/assembler_read.cpp code/processor_functions.cpp code/assembler_func.cpp code/stack.cpp
+SOURCES_PROCESSOR = processor.cpp code/stack.cpp code/assembler_read.cpp code/processor_functions.cpp code/assembler_func.cpp 
 
 OBJ_DIR = obj
 SOURCE_DIR = ./

@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "assembler_read.h"
+#include "language.h"
 
 void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
 {

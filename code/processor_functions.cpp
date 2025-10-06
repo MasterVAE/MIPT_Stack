@@ -18,6 +18,11 @@ int get_int(char* buffer, size_t len)
     return (int)ans;
 }
 
+int SPU_HALT(SPU*)
+{
+    return SPU_HALT_STATE;
+}
+
 int SPU_ADD(SPU* processor)
 {
     int err = 0;
@@ -100,8 +105,8 @@ int SPU_IN(SPU* processor)
 
 int SPU_PUSHR(SPU* processor)
 {
-    stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
-    if(reg < 0 || reg >= register_size) return SPU_INVALID_REGISTER;
+    int reg = get_int(processor->buffer + processor->offcet, value_size);
+    if(reg < 0 || reg >= (int)register_size) return SPU_INVALID_REGISTER;
     processor->offcet += value_size;
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
     return SPU_CORRECT;
@@ -109,8 +114,8 @@ int SPU_PUSHR(SPU* processor)
 
 int SPU_POPR(SPU* processor)
 {
-    stack_type reg = get_int(processor->buffer + processor->offcet, value_size);
-    if(reg < 0 || reg >= register_size) return SPU_INVALID_REGISTER;
+    int reg = get_int(processor->buffer + processor->offcet, value_size);
+    if(reg < 0 || reg >= (int)register_size) return SPU_INVALID_REGISTER;
     processor->offcet += value_size;
     int err = 0;
     processor->reg[reg] = POP_ERR(&processor->stack, &err);

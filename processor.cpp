@@ -7,6 +7,7 @@
 #include "code/language.h"
 #include "code/assembler_read.h"
 #include "code/processor_functions.h"
+#include "code/commands.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {stack->err_code = *err; return SPU_STACK_ERROR;}
 #define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0){stack->err_code = err; return SPU_STACK_ERROR;}
@@ -42,7 +43,7 @@ int main()
     while (1)
     {
         error = run(&spu_main);
-        if(error == SPU_HALT) break;
+        if(error == SPU_HALT_STATE) break;
         else if(error != SPU_CORRECT)
         { 
             spu_main.err_code = error;
@@ -61,22 +62,11 @@ int run(SPU* processor)
     int inp = get_int(processor->buffer + processor->offcet, command_size);
     processor->offcet += command_size;
 
-    switch (inp)
+    for(int i = 0; i < COMMANDS_COUNT; i++)
     {
-        case HLT:   return SPU_HALT;
-        case ADD:   return SPU_ADD(processor);
-        case SUB:   return SPU_SUB(processor);
-        case MUL:   return SPU_MUL(processor);
-        case DIV:   return SPU_DIV(processor);
-        case SQRT:  return SPU_SQRT(processor);
-        case PUSH:  return SPU_PUSH(processor);
-        case OUT:   return SPU_OUT(processor);
-        case PUSHR: return SPU_PUSHR(processor);
-        case IN:    return SPU_IN(processor);
-        case POPR:  return SPU_POPR(processor);
-        default:    return SPU_INVALID_COMMAND;
+        if(inp == COMMANDS[i].num)  return COMMANDS[i].spu_func(processor);
     }
-    return SPU_CORRECT;
+    return SPU_INVALID_COMMAND;
 }
 
 int SPUInit(SPU* processor)
@@ -121,9 +111,9 @@ void SPUDump(SPU* processor)
         return;
     }
         fprintf(ERROR_STREAM, "Register:\n\n");
-    for(int i = 0; i < register_size; i++)
+    for(size_t i = 0; i < register_size; i++)
     {
-        fprintf(ERROR_STREAM, "  " PINK "[%d]" CYAN " %d\n" CLEAN, i, processor->reg[i]);
+        fprintf(ERROR_STREAM, "  " PINK "[%lu]" CYAN " %d\n" CLEAN, i, processor->reg[i]);
     }
         fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
 }
@@ -145,7 +135,7 @@ void SPUDestroy(SPU* processor)
     StackDestroy(&processor->stack);
     free(processor->reg);
     free(processor->buffer);
-    memset(processor, 0, sizeof(processor));
+    memset(processor, 0, sizeof(SPU));
 }
 
 int IsError(int error, int check)
@@ -155,7 +145,7 @@ int IsError(int error, int check)
 
 void SPUErrorParser(int error)
 {   
-    if(IsError(error, SPU_HALT))                fprintf(ERROR_STREAM, "Error: SPU halted\n");
+    if(IsError(error, SPU_HALT_STATE))          fprintf(ERROR_STREAM, "Error: SPU halted\n");
     if(IsError(error, SPU_DIVISION_BY_ZERO))    fprintf(ERROR_STREAM, "Error: division by zero\n");
     if(IsError(error, SPU_INVALID_COMMAND))     fprintf(ERROR_STREAM, "Error: invalid command\n");
     if(IsError(error, SPU_STACK_ERROR))         fprintf(ERROR_STREAM, "Error: stack error\n");

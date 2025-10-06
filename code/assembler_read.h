@@ -8,6 +8,4 @@ size_t initialize_text(char*** text, char* buffer, size_t size);
 size_t file_len(FILE* file);
 size_t parse(char* source, char* dist, size_t max, size_t* read = NULL);
 
-const size_t arg_limit = 10;
-
 #endif

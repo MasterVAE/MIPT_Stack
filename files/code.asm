@@ -2,8 +2,6 @@ PUSH 10
 PUSH 0
 PUSHR SR1
 POPR SR8
-; commm
-; penis
 DIV
 OUT
 HLT

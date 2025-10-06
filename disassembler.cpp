@@ -5,6 +5,7 @@
 
 #include "code/assembler_read.h"
 #include "code/language.h"
+#include "code/commands.h"
 
 int disassemble(char* buffer, size_t size, FILE* out_file);
 void error_parser(int error);
@@ -33,6 +34,8 @@ int main(int argc, char *argv[])
             output_file_name = argv[2];
         }
     }
+
+    printf("Start disassembling: %s -> %s\n", input_file_name, output_file_name);
 
     FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
@@ -67,8 +70,22 @@ int main(int argc, char *argv[])
         error_parser(error);
         return 1;
     }
+
+    printf("End disassembling: %s -> %s\n", input_file_name, output_file_name);
+    return 0;
 }
 
+const char* regs[] = 
+{
+    "SR1",
+    "SR2",
+    "SR3",
+    "SR4",
+    "SR5",
+    "SR6",
+    "SR7",
+    "SR8"
+};
 
 int disassemble(char* buffer, size_t size, FILE* out_file)
 {
@@ -84,78 +101,49 @@ int disassemble(char* buffer, size_t size, FILE* out_file)
             return DIS_SYNTAX_ERROR;
         }
         int comm = disbytecode(buffer + i, command_size);
-        switch (comm)
+        int found = 0;
+        for(int j = 0; j < COMMANDS_COUNT; j++)
+        {    
+            if(COMMANDS[j].num == comm)
+            {
+                if(!strcmp(COMMANDS[j].name, "PUSH"))
+                {
+                    if(i + command_size + value_size > size)
+                    {
+                        return DIS_PUSH_ARGUMENT_INVALID;
+                    }
+                    int value = disbytecode(buffer + i + command_size, value_size);
+                    i += value_size;
+                    fprintf(out_file, "PUSH %d\n", value);
+                }
+                else if(!strcmp(COMMANDS[j].name, "PUSHR"))
+                {
+                    if(i + command_size + value_size > size)
+                    {
+                        return DIS_PUSH_ARGUMENT_INVALID;
+                    }
+                    int value = disbytecode(buffer + i + command_size, value_size);
+                    i += value_size;
+                    fprintf(out_file, "PUSHR %s\n", regs[value]);
+                }
+                else if(!strcmp(COMMANDS[j].name, "POPR"))
+                {
+                    if(i + command_size + value_size > size)
+                    {
+                        return DIS_PUSH_ARGUMENT_INVALID;
+                    }
+                    int value = disbytecode(buffer + i + command_size, value_size);
+                    i += value_size;
+                    fprintf(out_file, "POPR %s\n", regs[value]);
+                }
+                else fprintf(out_file, "%s\n", COMMANDS[j].name);
+                found = 1;
+                break;
+            }
+        }
+        if(!found)
         {
-            case HLT:   fprintf(out_file, "HLT\n"); break;
-            case ADD:   fprintf(out_file, "ADD\n"); break;
-            case SUB:   fprintf(out_file, "SUB\n"); break;
-            case MUL:   fprintf(out_file, "MUL\n"); break;
-            case DIV:   fprintf(out_file, "DIV\n"); break;
-            case SQRT:  fprintf(out_file, "SQRT\n");break;
-            case OUT:   fprintf(out_file, "OUT\n"); break;
-            case IN:    fprintf(out_file, "IN\n");  break;
-            case PUSH:
-            {
-                if(i + command_size + value_size > size)
-                {
-                    return DIS_PUSH_ARGUMENT_INVALID;
-                }
-                int value = disbytecode(buffer + i + command_size, value_size);
-                i += value_size;
-                fprintf(out_file, "PUSH %d\n", value);
-
-                break;
-            }
-            case PUSHR:
-            {
-                if(i + command_size + value_size > size)
-                {
-                    return DIS_PUSH_ARGUMENT_INVALID;
-                }
-                int reg = disbytecode(buffer + i + command_size, value_size);
-                i += value_size;
-                fprintf(out_file, "PUSHR ");
-                switch(reg)
-                {
-                    case(0): fprintf(out_file, " SR1\n"); break;
-                    case(1): fprintf(out_file, " SR2\n"); break;
-                    case(2): fprintf(out_file, " SR3\n"); break;
-                    case(3): fprintf(out_file, " SR4\n"); break;
-                    case(4): fprintf(out_file, " SR5\n"); break;
-                    case(5): fprintf(out_file, " SR6\n"); break;
-                    case(6): fprintf(out_file, " SR7\n"); break;
-                    case(7): fprintf(out_file, " SR8\n"); break;
-                    default: return DIS_PUSH_ARGUMENT_INVALID;
-                }
-                break;
-            }
-            case POPR:
-            {
-                if(i + command_size + value_size > size)
-                {
-                    return DIS_PUSH_ARGUMENT_INVALID;
-                }
-                int reg = disbytecode(buffer + i + command_size, value_size);
-                i += value_size;
-                fprintf(out_file, "POPR ");
-                switch(reg)
-                {
-                    case(0): fprintf(out_file, "SR1\n"); break;
-                    case(1): fprintf(out_file, "SR2\n"); break;
-                    case(2): fprintf(out_file, "SR3\n"); break;
-                    case(3): fprintf(out_file, "SR4\n"); break;
-                    case(4): fprintf(out_file, "SR5\n"); break;
-                    case(5): fprintf(out_file, "SR6\n"); break;
-                    case(6): fprintf(out_file, "SR7\n"); break;
-                    case(7): fprintf(out_file, "SR8\n"); break;
-                    default: return DIS_PUSH_ARGUMENT_INVALID;
-                }
-                break;
-            }
-            default:
-            {
-                return DIS_SYNTAX_ERROR;
-            }
+            return DIS_SYNTAX_ERROR;
         }
         i += command_size;
     }

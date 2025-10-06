@@ -5,15 +5,15 @@
 
 #include "code/assembler_read.h"
 #include "code/language.h"
-
-#define REG_CMP(reg, num) if(!strcmp(arg, reg)) {bytecode_value(out_file, num); return SPU_CORRECT;}
+#include "code/assembler_func.h"
+#include "code/processor_functions.h"
+#include "code/commands.h"
 
 int assemble(char** text, size_t count, FILE* out_file);
 void error_parser(int error);
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int value);
 int command_parse(char** line, size_t line_ind, FILE* out_file);
-
 
 int main(int argc, char *argv[])
 {
@@ -80,92 +80,21 @@ int assemble(char** text, size_t count, FILE* out_file)
     
     for(size_t i = 0; i < count; i++)
     {
-        int error = command_parse(text, i, out_file);
-        if(error != ASS_CORRECT) return error;
+        int found = 0;
+        for(int j = 0; j < COMMANDS_COUNT; j++)
+        {
+            if(!strcmp(text[i * (arg_limit + 1)], COMMANDS[j].name))
+            {
+                found = 1;
+                int error = COMMANDS[j].ass_func(text, (int)i, out_file, j);
+                if(error != ASS_CORRECT) return error;
+            }
+        }
+        if(!found) return ASS_SYNTAX_ERROR;
     }
 
     if(text[(count-1) * (arg_limit + 1)] != NULL && strcmp(text[(count-1) * (arg_limit + 1)], "HLT")) return ASS_HLT_NOT_FOUND;
 
-    return ASS_CORRECT;
-}
-
-int command_parse(char** line, size_t line_ind, FILE* out_file)
-{
-    if(line == NULL) return ASS_NULL_TEXT_POINTER;
-    if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
-
-    size_t commands = 0;
-
-    char* comm = NULL;
-    while((comm = line[line_ind * (arg_limit + 1) + commands]) != NULL)
-    {
-        if(commands > 0) return ASS_TO_MUCH_ARGUMENT;
-
-        if(     !strcmp(comm, "HLT")) bytecode_comm(out_file, HLT);
-        else if(!strcmp(comm, "ADD")) bytecode_comm(out_file, ADD);
-        else if(!strcmp(comm, "SUB")) bytecode_comm(out_file, SUB);
-        else if(!strcmp(comm, "MUL")) bytecode_comm(out_file, MUL);
-        else if(!strcmp(comm, "DIV")) bytecode_comm(out_file, DIV);
-        else if(!strcmp(comm, "SQRT"))bytecode_comm(out_file, SQRT);
-        else if(!strcmp(comm, "OUT")) bytecode_comm(out_file, OUT);
-        else if(!strcmp(comm, "IN"))  bytecode_comm(out_file, IN);
-        else if(!strcmp(comm, "PUSH"))
-        {
-            int value = 0;
-            char* arg = NULL;
-            while((arg = line[line_ind * (arg_limit + 1) + 1 + commands]) != NULL)
-            {   
-                if(sscanf(arg, "%10d", &value))
-                { 
-                    bytecode_comm(out_file, PUSH); 
-                    bytecode_value(out_file, value); 
-                    commands++;
-                }
-                else
-                {
-                    return ASS_ARGUMENT_INVALID;
-                }
-            }
-            if(commands == 0)
-            {
-                return ASS_ARGUMENT_INVALID;
-            }    
-        }
-        else if(!strcmp(comm, "PUSHR"))
-        {
-            char* arg = line[line_ind * (arg_limit + 1) + 1];
-            if(arg == NULL) return ASS_ARGUMENT_INVALID;
-
-            bytecode_comm(out_file, PUSHR);
-            REG_CMP("SR1", 0);
-            REG_CMP("SR2", 1);
-            REG_CMP("SR3", 2);
-            REG_CMP("SR4", 3);
-            REG_CMP("SR5", 4);
-            REG_CMP("SR6", 5);
-            REG_CMP("SR7", 6);
-            REG_CMP("SR8", 7);
-            return ASS_ARGUMENT_INVALID;
-        }
-        else if(!strcmp(comm, "POPR"))
-        {
-            char* arg = line[line_ind * (arg_limit + 1) + 1];
-            if(arg == NULL) return ASS_ARGUMENT_INVALID;
-
-            bytecode_comm(out_file, POPR);
-            REG_CMP("SR1", 0);
-            REG_CMP("SR2", 1);
-            REG_CMP("SR3", 2);
-            REG_CMP("SR4", 3);
-            REG_CMP("SR5", 4);
-            REG_CMP("SR6", 5);
-            REG_CMP("SR7", 6);
-            REG_CMP("SR8", 7);
-            return ASS_ARGUMENT_INVALID;
-        }
-        else return ASS_SYNTAX_ERROR;
-        commands++;
-    }  
     return ASS_CORRECT;
 }
 
@@ -217,35 +146,3 @@ void error_parser(int error)
 }
 
 
-int bytecode_comm(FILE* output_file, int command)
-{
-    if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
-
-    char bytecode[command_size + 2] = {};
-    for(int i = command_size - 1; i >= 0; i--)
-    {
-        bytecode[i] = '0'+ (char)command%2;
-        command/=2;
-    }
-    //bytecode[command_size] = ' ';
-    fprintf(output_file, "%s", bytecode);
-    
-    return ASS_CORRECT;
-}
-
-int bytecode_value(FILE* output_file, int value)
-{
-    if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
-
-    unsigned int value_u = (unsigned)value;
-    char bytecode[value_size + 2] = {};
-    for(int i = value_size - 1; i >= 0; i--)
-    {
-        bytecode[i] = '0'+ (unsigned char)value_u%2;
-        value_u/=2;
-    }
-    //bytecode[value_size] = ' ';
-    fprintf(output_file, "%s", bytecode);
-    
-    return ASS_CORRECT;
-}
