@@ -7,6 +7,8 @@
 #include "code/language.h"
 #include "code/assembler_read.h"
 #include "code/processor_functions.h"
+
+#define SPU_MODE
 #include "code/commands.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {stack->err_code = *err; return SPU_STACK_ERROR;}

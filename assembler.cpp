@@ -6,7 +6,8 @@
 #include "code/assembler_read.h"
 #include "code/language.h"
 #include "code/assembler_func.h"
-#include "code/processor_functions.h"
+
+#define ASS_MODE
 #include "code/commands.h"
 
 int assemble(Line* text, size_t count, FILE* out_file);
