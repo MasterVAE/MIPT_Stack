@@ -9,7 +9,7 @@
 #include "code/processor_functions.h"
 #include "code/commands.h"
 
-int assemble(char** text, size_t count, FILE* out_file);
+int assemble(Line* text, size_t count, FILE* out_file);
 void error_parser(int error);
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int value);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     }
 
     char* buffer = NULL;
-    char** text = NULL;
+    Line* text = NULL;
 
     size_t size = 0;
     size_t count = 0;
@@ -70,20 +70,18 @@ int main(int argc, char *argv[])
     printf("Success compiling: %s -> %s\n", input_file_name, output_file_name);
 }
 
-
-int assemble(char** text, size_t count, FILE* out_file)
+int assemble(Line* text, size_t count, FILE* out_file)
 {
     if(text == NULL) return ASS_NULL_TEXT_POINTER;
     if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
     if(count == 0) return ASS_EMPTY_PROGRAMM;
-
     
     for(size_t i = 0; i < count; i++)
     {
         int found = 0;
         for(int j = 0; j < COMMANDS_COUNT; j++)
         {
-            if(!strcmp(text[i * (arg_limit + 1)], COMMANDS[j].name))
+            if(!strcmp(text[i].line, COMMANDS[j].name))
             {
                 found = 1;
                 int error = COMMANDS[j].ass_func(text, (int)i, out_file, j);
@@ -93,7 +91,7 @@ int assemble(char** text, size_t count, FILE* out_file)
         if(!found) return ASS_SYNTAX_ERROR;
     }
 
-    if(text[(count-1) * (arg_limit + 1)] != NULL && strcmp(text[(count-1) * (arg_limit + 1)], "HLT")) return ASS_HLT_NOT_FOUND;
+    if(text[count-1].line != NULL && strcmp(text[count-1].line, "HLT")) return ASS_HLT_NOT_FOUND;
 
     return ASS_CORRECT;
 }
@@ -102,47 +100,13 @@ void error_parser(int error)
 {
     switch (error)
     {
-        case ASS_HLT_NOT_FOUND:
-        {
-            fprintf(stderr, "HLT not found\n");
-            break;
-        }
-        case ASS_ARGUMENT_INVALID:
-        {
-            fprintf(stderr, "Argument invalid\n");
-            break;
-        }
-        case ASS_EMPTY_PROGRAMM:
-        {
-            fprintf(stderr, "Empty programm\n");
-            break;
-        }
-        case ASS_NULL_INPUT_FILE:
-        {
-            fprintf(stderr, "Input file NULL\n");
-            break;
-        }
-        case ASS_NULL_TEXT_POINTER:
-        {
-            fprintf(stderr, "Text NULL\n");
-            break;
-        }
-        case ASS_NULL_OUTPUT_FILE:
-        {
-            fprintf(stderr, "Output file NULL\n");
-            break;
-        }
-        case ASS_SYNTAX_ERROR:
-        {
-            fprintf(stderr, "Syntax error\n");
-            break;
-        }
-        default:
-        {
-            fprintf(stderr, "Unknown error: %d\n", error);
-            break;
-        }
+        case ASS_HLT_NOT_FOUND:{    fprintf(stderr, "HLT not found\n");             break;}
+        case ASS_ARGUMENT_INVALID:{ fprintf(stderr, "Argument invalid\n");          break;}
+        case ASS_EMPTY_PROGRAMM:{   fprintf(stderr, "Empty programm\n");            break;}
+        case ASS_NULL_INPUT_FILE:{  fprintf(stderr, "Input file NULL\n");           break;}
+        case ASS_NULL_TEXT_POINTER:{fprintf(stderr, "Text NULL\n");                 break;}
+        case ASS_NULL_OUTPUT_FILE:{ fprintf(stderr, "Output file NULL\n");          break;}
+        case ASS_SYNTAX_ERROR:{     fprintf(stderr, "Syntax error\n");              break;}
+        default:{                   fprintf(stderr, "Unknown error: %d\n", error);  break;}
     }
 }
-
-

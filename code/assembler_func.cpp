@@ -11,55 +11,55 @@
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int command);
 
-int ASS_HALT    (char**, int, FILE* out_file, int my_ind) 
+int ASS_HALT    (Line*, int, FILE* out_file, int my_ind) 
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_ADD     (char**, int, FILE* out_file, int my_ind)
+int ASS_ADD     (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_SUB     (char**, int, FILE* out_file, int my_ind)
+int ASS_SUB     (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_MUL     (char**, int, FILE* out_file, int my_ind)
+int ASS_MUL     (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_DIV     (char**, int, FILE* out_file, int my_ind)
+int ASS_DIV     (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_SQRT    (char**, int, FILE* out_file, int my_ind)
+int ASS_SQRT    (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_OUT     (char**, int, FILE* out_file, int my_ind)
+int ASS_OUT     (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
-int ASS_IN      (char**, int, FILE* out_file, int my_ind)
+int ASS_IN      (Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
-int ASS_PUSHR   (char** text, int list_ind, FILE* out_file, int my_ind)
+int ASS_PUSHR   (Line* text, int list_ind, FILE* out_file, int my_ind)
 {
-    char* arg = text[(size_t)list_ind * (arg_limit + 1) + 1];
+    char* arg = text[list_ind].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
     bytecode_comm(out_file, COMMANDS[my_ind].num);
@@ -73,9 +73,9 @@ int ASS_PUSHR   (char** text, int list_ind, FILE* out_file, int my_ind)
     REG_CMP("SR8", 7);
     return ASS_ARGUMENT_INVALID;
 }
-int ASS_POPR    (char** text, int list_ind, FILE* out_file, int my_ind)
+int ASS_POPR    (Line* text, int list_ind, FILE* out_file, int my_ind)
 {
-    char* arg = text[(size_t)list_ind * (arg_limit + 1) + 1];
+    char* arg = text[list_ind].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
     bytecode_comm(out_file, COMMANDS[my_ind].num);
@@ -89,12 +89,12 @@ int ASS_POPR    (char** text, int list_ind, FILE* out_file, int my_ind)
     REG_CMP("SR8", 7);
     return ASS_ARGUMENT_INVALID;
 }
-int ASS_PUSH    (char** text, int line_ind, FILE* out_file, int my_ind)
+int ASS_PUSH    (Line* text, int line_ind, FILE* out_file, int my_ind)
 {
     int value = 0;
     char* arg = NULL;
     int commands = 0;
-    while((arg = text[(size_t)line_ind * (arg_limit + 1) + 1 + (size_t)commands]) != NULL)
+    while((arg = text[line_ind].args[commands]) != NULL)
     {   
         if(sscanf(arg, "%10d", &value))
         { 

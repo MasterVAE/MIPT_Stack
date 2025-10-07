@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <assert.h>
 
 #include "assembler_read.h"
 #include "language.h"
@@ -23,7 +24,7 @@ void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
     *buffer = buff;
 }
 
-size_t initialize_text(char*** text, char* buffer, size_t size)
+size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
     assert(text != NULL);
@@ -37,10 +38,10 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
         }
     }
 
-    *text = (char**)calloc(count * (arg_limit + 1), sizeof(char*));
+    *text = (Line*)calloc(count, sizeof(Line));
     assert(text != NULL);
 
-    (*text)[0] = buffer;
+    (*text)[0].line = buffer;
 
     size_t j = 1;
     for(size_t i = 0; i < size-1; i++)
@@ -48,8 +49,7 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
         if(buffer[i] == '\n')
         {       
             buffer[i] = '\0';
-            (*text)[j * (arg_limit + 1)] = buffer+i+1;
-            j++;
+            (*text)[j++].line = buffer+i+1;
         }
         else if(buffer[i] == ';')
         {
@@ -61,18 +61,23 @@ size_t initialize_text(char*** text, char* buffer, size_t size)
     {
         size_t read = 0;
         size_t off = 0;
+        off = parse((*text)[i].line, (*text)[i].line, 10, &read);
+        
+        if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
         for(j = 0; j < arg_limit; j++)
         {
-            off += parse((*text)[i * (arg_limit + 1)] + off, (*text)[i * (arg_limit + 1) + j], 10, &read);
+            size_t add = parse((*text)[i].line + off, (*text)[i].line + off, 10, &read);
             if(read == 0)
             {
-                (*text)[i * (arg_limit + 1) + j] = NULL;
+                (*text)[i].args[j] = NULL;
                 break;
             }
-            if(i < count-1 && (*text)[i * (arg_limit + 1)] + off + 1 < (*text)[(i+1) * (arg_limit + 1)]) off++;
-            (*text)[i * (arg_limit + 1) + j + 1] = (*text)[i * (arg_limit + 1)] + off;
+            (*text)[i].args[j] = (*text)[i].line + off;
+            (*text)[i].arg_count++;
+            off += add;
+            if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
+            (*text)[i].args[j + 1] = (*text)[i].line + off;
         }
-        (*text)[i * (arg_limit + 1) + arg_limit] = NULL;
     }
     
     return count;
@@ -87,6 +92,9 @@ size_t file_len(FILE* file)
 
 size_t parse(char* source, char* dist, size_t max, size_t* read)
 {
+    assert(source != NULL);
+    assert(dist != NULL);
+
     if(read != NULL) *read = 0;
 
     size_t offcet = 0;

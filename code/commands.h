@@ -8,7 +8,7 @@ typedef struct instruction
 {
     const char* name;
     const int num;
-    int (*ass_func) (char** text, int line_ind, FILE* out_file, int my_ind);
+    int (*ass_func) (Line* text, int line_ind, FILE* out_file, int my_ind);
     int (*spu_func) (SPU* processor);
 } instruction;
 
