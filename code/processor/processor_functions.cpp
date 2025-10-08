@@ -1,22 +1,19 @@
 #include <math.h>
+#include <string.h>
 
 #include "processor_functions.h"
 #include "stack.h"
 #include "../language.h"
 
-#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) return SPU_STACK_ERROR;
-#define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) return SPU_STACK_ERROR;}
-
+#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {(stack)->err_code = *err; return SPU_STACK_ERROR;}
+#define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0) {(stack)->err_code = err; return SPU_STACK_ERROR;}
+#define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) {(stack)->err_code = error; return SPU_STACK_ERROR;}}
 
 int get_int(char* code, size_t size)
 {
-    int ans = 0;
-    for(int i = (int)size-1; i >= 0; i--)
-    {
-        ans *= 256;
-        ans += *(code+i);
-    }
-    return ans;
+    int value;
+    memcpy(&value, code, size);
+    return value;
 }
 
 

@@ -5,6 +5,7 @@
 
 #include "assembler_read.h"
 #include "../language.h"
+#include "../lib.h"
 #include "assembler_func.h"
 
 #define ASS_MODE
@@ -90,7 +91,7 @@ int assemble(Line* text, size_t count, FILE* out_file)
         if(!found) return ASS_SYNTAX_ERROR;
     }
 
-    if(text[count-1].line != NULL && strcmp(text[count-1].line, "HLT")) return ASS_HLT_NOT_FOUND;
+    //if(text[count-1].line != NULL && strcmp(text[count-1].line, "HLT")) return ASS_HLT_NOT_FOUND;
 
     return ASS_CORRECT;
 }

@@ -3,6 +3,19 @@
 
 #include "stack.h"
 
+typedef enum processor_errors
+{
+    SPU_CORRECT = 0,
+    SPU_HALT_STATE = 1 << 1,
+    SPU_DIVISION_BY_ZERO = 1 << 2,
+    SPU_INVALID_COMMAND = 1 << 3,
+    SPU_STACK_ERROR = 1 << 4,
+    SPU_PROCESSOR_NULL = 1 << 5,
+    SPU_REG_NULL = 1 << 6,
+    SPU_BUFFER_NULL = 1 << 7,
+    SPU_INVALID_REGISTER = 1 << 8
+} spu_err;
+
 int get_int(char* buffer, size_t len);
 
 int spu_halt    (SPU* processor);

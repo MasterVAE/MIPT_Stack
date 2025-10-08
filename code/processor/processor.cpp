@@ -5,15 +5,13 @@
 
 #include "stack.h"
 #include "../language.h"
+#include "../lib.h"
+#include "../colors.h"
 #include "../assembler/assembler_read.h"
 #include "processor_functions.h"
 
 #define SPU_MODE
 #include "../commands.h"
-
-#define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {stack->err_code = *err; return SPU_STACK_ERROR;}
-#define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0){stack->err_code = err; return SPU_STACK_ERROR;}
-#define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) {stack->err_code = error; return SPU_STACK_ERROR;}}
 
 int run             (SPU* processor);
 int IsError         (int error, int check);
@@ -22,6 +20,7 @@ void SPUDestroy     (SPU* processor);
 void SPUDump        (SPU* processor);
 int SPUVerify       (SPU* processor);
 void SPUErrorParser (int error);
+void print_buffer(FILE* stream, SPU* processor);
 
 int main()
 {
@@ -37,11 +36,9 @@ int main()
         StackDestroy(&spu_main.stack);
         return 1;
     }
-    size_t size = 0;
-    
-    initialize_buffer(&spu_main.buffer, &size, input_file);
-    fclose(input_file);
 
+    initialize_buffer(&spu_main.buffer, &spu_main.buffer_size, input_file);
+    fclose(input_file);
     while (1)
     {
         error = run(&spu_main);
@@ -52,8 +49,8 @@ int main()
             SPUDump(&spu_main);
             break;
         }
+        //SPUDump(&spu_main);
     }
-    //SPUDump(&spu_main);
     SPUDestroy(&spu_main);
     printf("SPU TURNING OFF...\n");
     return 0;
@@ -82,18 +79,20 @@ int SPUInit(SPU* processor)
         return SPU_STACK_ERROR;
     }
     processor->reg = (int*)calloc(REG_SIZE, sizeof(int));
+    processor->offcet = 0;
+    processor->buffer_size = 0;
     processor->err_code = 0;
     return SPU_CORRECT;
 }
 
 void SPUDump(SPU* processor)
 {
-        fprintf(ERROR_STREAM, MAGENTA "\n\n- - - SPU dumping start - - -\n" CLEAN);
+        fprintf(ERROR_STREAM, RED "\n\n- - - SPU dumping start - - -\n" CLEAN);
     SPUErrorParser(processor->err_code);
     if(processor == NULL)
     {
         fprintf(ERROR_STREAM, RED "Processor NULL\n" CLEAN); 
-        fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
+        fprintf(ERROR_STREAM, RED "\n- - - SPU dumping end - - -\n\n" CLEAN);
         return;
     }
     if(processor->buffer == NULL)
@@ -102,22 +101,24 @@ void SPUDump(SPU* processor)
     }
     else
     {
-        fprintf(ERROR_STREAM, "Buffer:\n\n%s\n\n", processor->buffer);
+        fprintf(ERROR_STREAM, "Buffer:\n\n");
+        print_buffer(ERROR_STREAM, processor);
+        fprintf(ERROR_STREAM, "\n\n");
     }
         fprintf(ERROR_STREAM, "Offcet: %lu\n", processor->offcet);
         StackDump(&processor->stack);
     if(processor->reg == NULL)
     {
         fprintf(ERROR_STREAM, RED "Register NULL\n" CLEAN);
-        fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
+        fprintf(ERROR_STREAM, RED "\n- - - SPU dumping end - - -\n\n" CLEAN);
         return;
     }
-        fprintf(ERROR_STREAM, "Register:\n\n");
+        fprintf(ERROR_STREAM, "Register:    ");
     for(size_t i = 0; i < REG_SIZE; i++)
     {
-        fprintf(ERROR_STREAM, "  " PINK "[%lu]" CYAN " %d\n" CLEAN, i, processor->reg[i]);
+        fprintf(ERROR_STREAM, PINK "[%lu]" CYAN " %d " CLEAN, i, processor->reg[i]);
     }
-        fprintf(ERROR_STREAM, MAGENTA "\n- - - SPU dumping end - - -\n\n" CLEAN);
+        fprintf(ERROR_STREAM, RED "\n\n- - - SPU dumping end - - -\n\n" CLEAN);
 }
 
 int SPUVerify(SPU* processor)
@@ -155,4 +156,14 @@ void SPUErrorParser(int error)
     if(IsError(error, SPU_REG_NULL))            fprintf(ERROR_STREAM, "Error: register NULL\n");
     if(IsError(error, SPU_BUFFER_NULL))         fprintf(ERROR_STREAM, "Error: buffer null\n");
     if(IsError(error, SPU_INVALID_REGISTER))    fprintf(ERROR_STREAM, "Error: invalid register\n");
+}
+
+
+void print_buffer(FILE* stream, SPU* processor)
+{   
+    for(size_t i = 0; i < processor->buffer_size; i++)
+    {
+        if(i != processor->offcet-1)  fprintf(stream, "%x ", (__uint8_t)*(processor->buffer+i));
+        else    fprintf(stream, GREEN "%x " CLEAN, (__uint8_t)*(processor->buffer+i));
+    }
 }

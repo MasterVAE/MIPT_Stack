@@ -3,6 +3,7 @@
 
 #include "stack.h"
 #include "../language.h"
+#include "../colors.h"
 
 void ErrorParser(int error);
 
@@ -139,7 +140,7 @@ void StackDump(Stack_t* stack)
         fprintf(ERROR_STREAM, "Data: \n\n");
     for(size_t i = 1; i < stack->capacity + 1 * shield_size; i++)
     {
-        if(i < stack->size)
+        if(i <= stack->size)
         {
         fprintf(ERROR_STREAM, " *" PINK "[%lu]" GREEN " %d" CLEAN "\n", i, stack->data[i]);
         }

@@ -1,6 +1,6 @@
-SOURCES_ASSEMBLER = code/assembler/assembler.cpp code/assembler/assembler_read.cpp code/assembler/assembler_func.cpp
-SOURCES_DISASSEMBLER = code/disassembler/disassembler.cpp
-SOURCES_PROCESSOR = code/processor/processor.cpp code/processor/stack.cpp code/assembler/assembler_read.cpp code/processor/processor_functions.cpp
+SOURCES_ASSEMBLER = $(wildcard code/assembler/*.cpp) code/lib.cpp
+SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp)
+SOURCES_PROCESSOR = $(wildcard code/processor/*.cpp) code/lib.cpp
 
 OBJ_DIR = obj
 SOURCE_DIR = ./

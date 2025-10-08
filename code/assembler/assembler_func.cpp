@@ -5,7 +5,7 @@
 #include "../language.h"
 #include "../commands.h"
 
-#define REG_CMP(reg, num) if(!strcmp(arg, reg)) {bytecode_value(out_file, num); return SPU_CORRECT;}
+#define REG_CMP(reg, num) if(!strcmp(arg, reg)) {bytecode_value(out_file, num); return ASS_CORRECT;}
 
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int command);

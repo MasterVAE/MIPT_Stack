@@ -36,6 +36,7 @@ typedef struct processor
     Stack_t stack;
     char* buffer;
     size_t offcet;
+    size_t buffer_size;
 
     int* reg;
 
