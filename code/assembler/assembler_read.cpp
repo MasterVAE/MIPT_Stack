@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #include "assembler_read.h"
-#include "language.h"
+#include "../language.h"
 
 void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
 {
@@ -64,7 +64,7 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
         off = parse((*text)[i].line, (*text)[i].line, 10, &read);
         
         if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
-        for(j = 0; j < arg_limit; j++)
+        for(j = 0; j < ARG_LIMIT; j++)
         {
             size_t add = parse((*text)[i].line + off, (*text)[i].line + off, 10, &read);
             if(read == 0)

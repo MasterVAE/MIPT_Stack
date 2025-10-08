@@ -3,25 +3,25 @@
 #include <string.h>
 #include <math.h>
 
-#include "code/stack.h"
-#include "code/language.h"
-#include "code/assembler_read.h"
-#include "code/processor_functions.h"
+#include "stack.h"
+#include "../language.h"
+#include "../assembler/assembler_read.h"
+#include "processor_functions.h"
 
 #define SPU_MODE
-#include "code/commands.h"
+#include "../commands.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) {stack->err_code = *err; return SPU_STACK_ERROR;}
 #define INIT_ERR(stack, num) int err = StackInit(stack, num); if(err != 0){stack->err_code = err; return SPU_STACK_ERROR;}
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) {stack->err_code = error; return SPU_STACK_ERROR;}}
 
-int run(SPU* processor);
-int IsError(int error, int check);
-int SPUInit(SPU* processor);
-void SPUDestroy(SPU* processor);
-void SPUDump(SPU* processor);
-int SPUVerify(SPU* processor);
-void SPUErrorParser(int error);
+int run             (SPU* processor);
+int IsError         (int error, int check);
+int SPUInit         (SPU* processor);
+void SPUDestroy     (SPU* processor);
+void SPUDump        (SPU* processor);
+int SPUVerify       (SPU* processor);
+void SPUErrorParser (int error);
 
 int main()
 {
@@ -61,8 +61,8 @@ int main()
 
 int run(SPU* processor)
 {
-    int inp = get_int(processor->buffer + processor->offcet, command_size);
-    processor->offcet += command_size;
+    int inp = get_int(processor->buffer + processor->offcet, sizeof(COMMAND_TYPE));
+    processor->offcet += sizeof(COMMAND_TYPE);
 
     for(int i = 0; i < COMMANDS_COUNT; i++)
     {
@@ -81,7 +81,7 @@ int SPUInit(SPU* processor)
         processor->stack.err_code = error;
         return SPU_STACK_ERROR;
     }
-    processor->reg = (int*)calloc(register_size, sizeof(int));
+    processor->reg = (int*)calloc(REG_SIZE, sizeof(int));
     processor->err_code = 0;
     return SPU_CORRECT;
 }
@@ -113,7 +113,7 @@ void SPUDump(SPU* processor)
         return;
     }
         fprintf(ERROR_STREAM, "Register:\n\n");
-    for(size_t i = 0; i < register_size; i++)
+    for(size_t i = 0; i < REG_SIZE; i++)
     {
         fprintf(ERROR_STREAM, "  " PINK "[%lu]" CYAN " %d\n" CLEAN, i, processor->reg[i]);
     }

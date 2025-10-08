@@ -2,14 +2,16 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
-#include "code/assembler_read.h"
-#include "code/language.h"
-#include "code/commands.h"
+#include "../language.h"
+#include "../commands.h"
 
-int disassemble(char* buffer, size_t size, FILE* out_file);
-void error_parser(int error);
-int disbytecode(char* buffer, size_t size);
+int     disassemble         (char* buffer, size_t size, FILE* out_file);
+void    error_parser        (int error);
+int     debytecode          (char* code, size_t size);
+void    initialize_buffer   (char** buffer, size_t* size, FILE* input_file);
+size_t  file_len            (FILE* file);
 
 enum disassembler_errors
 {
@@ -96,11 +98,11 @@ int disassemble(char* buffer, size_t size, FILE* out_file)
     size_t i = 0;
     while(i < size)
     {
-        if(i + command_size > size)
+        if(i + sizeof(COMMAND_TYPE) > size)
         {
             return DIS_SYNTAX_ERROR;
         }
-        int comm = disbytecode(buffer + i, command_size);
+        int comm = debytecode(buffer + i, sizeof(COMMAND_TYPE));
         int found = 0;
         for(int j = 0; j < COMMANDS_COUNT; j++)
         {    
@@ -108,32 +110,32 @@ int disassemble(char* buffer, size_t size, FILE* out_file)
             {
                 if(!strcmp(COMMANDS[j].name, "PUSH"))
                 {
-                    if(i + command_size + value_size > size)
+                    if(i + sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE) > size)
                     {
                         return DIS_PUSH_ARGUMENT_INVALID;
                     }
-                    int value = disbytecode(buffer + i + command_size, value_size);
-                    i += value_size;
+                    int value = debytecode(buffer + i + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+                    i += sizeof(VALUE_TYPE);
                     fprintf(out_file, "PUSH %d\n", value);
                 }
                 else if(!strcmp(COMMANDS[j].name, "PUSHR"))
                 {
-                    if(i + command_size + value_size > size)
+                    if(i + sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE) > size)
                     {
                         return DIS_PUSH_ARGUMENT_INVALID;
                     }
-                    int value = disbytecode(buffer + i + command_size, value_size);
-                    i += value_size;
+                    int value = debytecode(buffer + i + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+                    i += sizeof(VALUE_TYPE);
                     fprintf(out_file, "PUSHR %s\n", regs[value]);
                 }
                 else if(!strcmp(COMMANDS[j].name, "POPR"))
                 {
-                    if(i + command_size + value_size > size)
+                    if(i + sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE) > size)
                     {
                         return DIS_PUSH_ARGUMENT_INVALID;
                     }
-                    int value = disbytecode(buffer + i + command_size, value_size);
-                    i += value_size;
+                    int value = debytecode(buffer + i + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+                    i += sizeof(VALUE_TYPE);
                     fprintf(out_file, "POPR %s\n", regs[value]);
                 }
                 else fprintf(out_file, "%s\n", COMMANDS[j].name);
@@ -145,7 +147,7 @@ int disassemble(char* buffer, size_t size, FILE* out_file)
         {
             return DIS_SYNTAX_ERROR;
         }
-        i += command_size;
+        i += sizeof(COMMAND_TYPE);
     }
     return DIS_CORRECT;
 }
@@ -192,14 +194,34 @@ void error_parser(int error)
     }
 }
 
-
-int disbytecode(char* buffer, size_t size)
+int debytecode(char* code, size_t size)
 {
-    int ans = 0;
-    for(size_t i = 0; i < size; i++)
-    {
-        ans *= 2;
-        ans += buffer[i] - '0';
-    }
-    return ans;
+    int value;
+    memcpy(&value, code, size);
+    return value;
+}
+
+size_t file_len(FILE* file)
+{
+    struct stat file_info;
+    fstat(fileno(file), &file_info);
+    return (size_t)file_info.st_size;
+}
+
+
+void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
+{
+    assert(buffer != NULL);
+    assert(size != NULL);
+    assert(input_file != NULL);
+
+    *size = file_len(input_file);
+
+    char* buff = (char*)calloc(*size + 1, sizeof(char));
+    size_t len = fread(buff, sizeof(char), *size, input_file);
+
+    buff[len] = '\0';
+
+    *size = len;
+    *buffer = buff;
 }

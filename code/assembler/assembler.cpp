@@ -3,18 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "code/assembler_read.h"
-#include "code/language.h"
-#include "code/assembler_func.h"
+#include "assembler_read.h"
+#include "../language.h"
+#include "assembler_func.h"
 
 #define ASS_MODE
-#include "code/commands.h"
+#include "../commands.h"
 
-int assemble(Line* text, size_t count, FILE* out_file);
-void error_parser(int error);
-int bytecode_comm(FILE* output_file, int command);
-int bytecode_value(FILE* output_file, int value);
-int command_parse(char** line, size_t line_ind, FILE* out_file);
+
+int assemble        (Line* text, size_t count, FILE* out_file);
+void error_parser   (int error);
 
 int main(int argc, char *argv[])
 {

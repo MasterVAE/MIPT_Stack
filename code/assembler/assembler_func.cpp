@@ -2,62 +2,61 @@
 #include <string.h>
 
 #include "assembler_func.h"
-#include "language.h"
-#include "commands.h"
-#include "processor_functions.h"
+#include "../language.h"
+#include "../commands.h"
 
 #define REG_CMP(reg, num) if(!strcmp(arg, reg)) {bytecode_value(out_file, num); return SPU_CORRECT;}
 
 int bytecode_comm(FILE* output_file, int command);
 int bytecode_value(FILE* output_file, int command);
 
-int ASS_HALT    (Line*, int, FILE* out_file, int my_ind) 
+int ass_halt(Line*, int, FILE* out_file, int my_ind) 
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_ADD     (Line*, int, FILE* out_file, int my_ind)
+int ass_add(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_SUB     (Line*, int, FILE* out_file, int my_ind)
+int ass_sub(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_MUL     (Line*, int, FILE* out_file, int my_ind)
+int ass_mul(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_DIV     (Line*, int, FILE* out_file, int my_ind)
+int ass_div(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_SQRT    (Line*, int, FILE* out_file, int my_ind)
+int ass_sqrt(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ASS_OUT     (Line*, int, FILE* out_file, int my_ind)
+int ass_out(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
-int ASS_IN      (Line*, int, FILE* out_file, int my_ind)
+int ass_in(Line*, int, FILE* out_file, int my_ind)
 {
     bytecode_comm(out_file, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
-int ASS_PUSHR   (Line* text, int list_ind, FILE* out_file, int my_ind)
+int ass_pushr(Line* text, int list_ind, FILE* out_file, int my_ind)
 {
     char* arg = text[list_ind].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -73,7 +72,7 @@ int ASS_PUSHR   (Line* text, int list_ind, FILE* out_file, int my_ind)
     REG_CMP("SR8", 7);
     return ASS_ARGUMENT_INVALID;
 }
-int ASS_POPR    (Line* text, int list_ind, FILE* out_file, int my_ind)
+int ass_popr(Line* text, int list_ind, FILE* out_file, int my_ind)
 {
     char* arg = text[list_ind].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -89,7 +88,7 @@ int ASS_POPR    (Line* text, int list_ind, FILE* out_file, int my_ind)
     REG_CMP("SR8", 7);
     return ASS_ARGUMENT_INVALID;
 }
-int ASS_PUSH    (Line* text, int line_ind, FILE* out_file, int my_ind)
+int ass_push(Line* text, int line_ind, FILE* out_file, int my_ind)
 {
     int value = 0;
     char* arg = NULL;
@@ -118,33 +117,14 @@ int ASS_PUSH    (Line* text, int line_ind, FILE* out_file, int my_ind)
 int bytecode_comm(FILE* output_file, int command)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
-
-    char bytecode[command_size + 2] = {};
-    for(int i = command_size - 1; i >= 0; i--)
-    {
-        bytecode[i] = '0'+ (char)command%2;
-        command/=2;
-    }
-    //bytecode[command_size] = ' ';
-    fprintf(output_file, "%s", bytecode);
-    
+    fwrite(&command, sizeof(__uint8_t), 1, output_file);
     return ASS_CORRECT;
 }
 
 int bytecode_value(FILE* output_file, int value)
 {
     if(output_file == NULL) return ASS_NULL_OUTPUT_FILE;
-
-    unsigned int value_u = (unsigned)value;
-    char bytecode[value_size + 2] = {};
-    for(int i = value_size - 1; i >= 0; i--)
-    {
-        bytecode[i] = '0'+ (unsigned char)value_u%2;
-        value_u/=2;
-    }
-    //bytecode[value_size] = ' ';
-    fprintf(output_file, "%s", bytecode);
-    
+    fwrite(&value, sizeof(__uint32_t), 1, output_file);
     return ASS_CORRECT;
 }
 

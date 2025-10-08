@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "stack.h"
-#include "language.h"
+#include "../language.h"
 
 void ErrorParser(int error);
 

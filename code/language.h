@@ -1,14 +1,13 @@
 #ifndef LANGUAGE_H_
 #define LANGUAGE_H_
 
-#define RED "\033[91m"
-#define CLEAN "\033[0m"
-#define GREEN "\033[92m"
-#define BLUE "\033[94m"
+#define RED     "\033[91m"
+#define CLEAN   "\033[0m"
+#define GREEN   "\033[92m"
+#define BLUE    "\033[94m"
 #define MAGENTA "\033[35m"
-#define CYAN "\033[96m"
-#define PINK "\033[95m"
-
+#define CYAN    "\033[96m"
+#define PINK    "\033[95m"
 
 enum assembler_errors
 {
@@ -23,12 +22,11 @@ enum assembler_errors
     ASS_TO_MUCH_ARGUMENT
 };
 
-const size_t command_size = 6;
-const size_t value_size = 32;
+#define COMMAND_TYPE __uint8_t
+#define VALUE_TYPE __uint32_t
 
-const size_t register_size = 8;
-
-const size_t arg_limit = 10;
+const size_t REG_SIZE = 8;
+const size_t ARG_LIMIT = 10;
 
 typedef int stack_type;
 

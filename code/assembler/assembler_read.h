@@ -3,13 +3,13 @@
 
 #include <stdio.h>
 
-#include "language.h"
+#include "../language.h"
 
 typedef struct Line
 {
     char* line;
 
-    char* args[arg_limit];
+    char* args[ARG_LIMIT];
 
     size_t arg_count;
     

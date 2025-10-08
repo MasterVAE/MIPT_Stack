@@ -2,28 +2,30 @@
 
 #include "processor_functions.h"
 #include "stack.h"
+#include "../language.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); if(*err != 0) return SPU_STACK_ERROR;
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); if(error != 0) return SPU_STACK_ERROR;}
 
 
-int get_int(char* buffer, size_t len)
+int get_int(char* code, size_t size)
 {
-    unsigned int ans = 0;
-    for(size_t i = 0; i < len; i++)
+    int ans = 0;
+    for(int i = (int)size-1; i >= 0; i--)
     {
-        ans *= 2;
-        ans += (unsigned int)(buffer[i] - '0');
+        ans *= 256;
+        ans += *(code+i);
     }
-    return (int)ans;
+    return ans;
 }
 
-int SPU_HALT(SPU*)
+
+int spu_halt(SPU*)
 {
     return SPU_HALT_STATE;
 }
 
-int SPU_ADD(SPU* processor)
+int spu_add(SPU* processor)
 {
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -33,7 +35,7 @@ int SPU_ADD(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_SUB(SPU* processor)
+int spu_sub(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -43,7 +45,7 @@ int SPU_SUB(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_MUL(SPU* processor)
+int spu_mul(SPU* processor)
 {
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -53,7 +55,7 @@ int SPU_MUL(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_DIV(SPU* processor)
+int spu_div(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -69,7 +71,7 @@ int SPU_DIV(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_SQRT(SPU* processor)
+int spu_sqrt(SPU* processor)
 {
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
@@ -77,15 +79,15 @@ int SPU_SQRT(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_PUSH(SPU* processor)
+int spu_push(SPU* processor)
 {
-    stack_type value = get_int(processor->buffer + processor->offcet, value_size);
-    processor->offcet += value_size;
+    stack_type value = get_int(processor->buffer + processor->offcet, sizeof(VALUE_TYPE));
+    processor->offcet += sizeof(VALUE_TYPE);
     PUSH_ERR(&processor->stack, value);
     return SPU_CORRECT;
 }
 
-int SPU_OUT(SPU* processor)
+int spu_out(SPU* processor)
 {
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
@@ -93,7 +95,7 @@ int SPU_OUT(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_IN(SPU* processor)
+int spu_in(SPU* processor)
 {
     printf("SPU IN: ");  
     stack_type value = 0;
@@ -103,20 +105,20 @@ int SPU_IN(SPU* processor)
     return SPU_CORRECT;
 }
 
-int SPU_PUSHR(SPU* processor)
+int spu_pushr(SPU* processor)
 {
-    int reg = get_int(processor->buffer + processor->offcet, value_size);
-    if(reg < 0 || reg >= (int)register_size) return SPU_INVALID_REGISTER;
-    processor->offcet += value_size;
+    int reg = get_int(processor->buffer + processor->offcet, sizeof(VALUE_TYPE));
+    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
+    processor->offcet += sizeof(VALUE_TYPE);
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
     return SPU_CORRECT;
 }
 
-int SPU_POPR(SPU* processor)
+int spu_popr(SPU* processor)
 {
-    int reg = get_int(processor->buffer + processor->offcet, value_size);
-    if(reg < 0 || reg >= (int)register_size) return SPU_INVALID_REGISTER;
-    processor->offcet += value_size;
+    int reg = get_int(processor->buffer + processor->offcet, sizeof(VALUE_TYPE));
+    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
+    processor->offcet += sizeof(VALUE_TYPE);
     int err = 0;
     processor->reg[reg] = POP_ERR(&processor->stack, &err);
    
