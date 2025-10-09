@@ -1,5 +1,5 @@
 SOURCES_ASSEMBLER = $(wildcard code/assembler/*.cpp) code/lib.cpp
-SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp)
+SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp) code/lib.cpp
 SOURCES_PROCESSOR = $(wildcard code/processor/*.cpp) code/lib.cpp
 
 OBJ_DIR = obj
