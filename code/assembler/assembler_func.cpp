@@ -64,9 +64,11 @@ int ass_pushr(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
+    
     int reg = reg_cmp(arg);
     if(reg == -1) return ASS_ARGUMENT_INVALID;
+
+    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     bytecode_value(asm_ptr, reg);
     return ASS_CORRECT;
 }
@@ -113,9 +115,9 @@ int ass_jump(Assembler* asm_ptr, size_t my_ind)
     asm_ptr->jumps[asm_ptr->current_jump_memory].offcet = asm_ptr->offset+sizeof(COMMAND_TYPE);
     asm_ptr->jumps[asm_ptr->current_jump_memory].label = value;
     asm_ptr->current_jump_memory++;
+    
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num); 
     bytecode_value(asm_ptr, -1);
-
     return ASS_CORRECT;
 }
 

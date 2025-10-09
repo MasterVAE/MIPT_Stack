@@ -20,8 +20,8 @@ enum assembler_errors
     ASS_TOO_MANY_JUMPS
 };
 
-int bytecode_comm(Assembler* asm_ptr, int command);
-int bytecode_value(Assembler* asm_ptr, int command);
+int bytecode_comm   (Assembler* asm_ptr, int command);
+int bytecode_value  (Assembler* asm_ptr, int command);
 
 int ass_halt    (Assembler* asm_ptr, size_t my_ind);
 

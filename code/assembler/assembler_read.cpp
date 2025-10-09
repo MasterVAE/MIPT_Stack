@@ -44,8 +44,8 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
     {
         size_t read = 0;
         size_t off = parse((*text)[i].line, (*text)[i].line, 10, &read);
-        
-        if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
+
+        if((i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) || i == count-1) off++;
         for(j = 0; j < ARG_LIMIT; j++)
         {
             size_t add = parse((*text)[i].line + off, (*text)[i].line + off, 10, &read);
