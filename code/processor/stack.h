@@ -35,10 +35,10 @@ typedef struct processor
 {
     Stack_t stack;
     char* buffer;
-    size_t offcet;
+    size_t offset;
     size_t buffer_size;
 
-    int* reg;
+    int reg[REG_SIZE];
 
     int err_code;
     

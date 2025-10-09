@@ -42,8 +42,7 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
     for(size_t i = 0; i < count; i++)
     {
         size_t read = 0;
-        size_t off = 0;
-        off = parse((*text)[i].line, (*text)[i].line, 10, &read);
+        size_t off = parse((*text)[i].line, (*text)[i].line, 10, &read);
         
         if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
         for(j = 0; j < ARG_LIMIT; j++)
@@ -73,10 +72,10 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
 
     if(read != NULL) *read = 0;
 
-    size_t offcet = 0;
+    size_t offset = 0;
     char c = '\0';
     int space = 1;
-    while((c = source[offcet]) != '\0' && c != '\n' && c != EOF && offcet < max)
+    while((c = source[offset]) != '\0' && c != '\n' && c != EOF && offset < max)
     {
         if(space && c != ' ')
         {
@@ -91,8 +90,8 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
         {
             break;
         }
-        offcet++;    
+        offset++;    
     }
     *dist = '\0';
-    return offcet;
+    return offset;
 }

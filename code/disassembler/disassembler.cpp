@@ -104,7 +104,7 @@ int disassemble(char* buffer, size_t size, FILE* out_file)
         }
         int comm = debytecode(buffer + i, sizeof(COMMAND_TYPE));
         int found = 0;
-        for(int j = 0; j < COMMANDS_COUNT; j++)
+        for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {    
             if(COMMANDS[j].num == comm)
             {

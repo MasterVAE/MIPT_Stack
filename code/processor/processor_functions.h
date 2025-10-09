@@ -19,15 +19,25 @@ typedef enum processor_errors
 int get_int(char* buffer, size_t len);
 
 int spu_halt    (SPU* processor);
+
 int spu_add     (SPU* processor);
 int spu_sub     (SPU* processor);
 int spu_mul     (SPU* processor);
 int spu_div     (SPU* processor);
 int spu_sqrt    (SPU* processor);
+
 int spu_push    (SPU* processor);
 int spu_out     (SPU* processor);
 int spu_in      (SPU* processor);
 int spu_pushr   (SPU* processor);
 int spu_popr    (SPU* processor);
+
+int spu_jmp     (SPU* processor);
+int spu_jb      (SPU* processor);
+int spu_jbe     (SPU* processor);
+int spu_ja      (SPU* processor);
+int spu_jae     (SPU* processor);
+int spu_je      (SPU* processor);
+int spu_jne     (SPU* processor);
 
 #endif

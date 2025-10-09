@@ -12,17 +12,21 @@
 #include "../commands.h"
 
 
-int assemble        (Line* text, size_t count, FILE* out_file);
+int assemble        (Line* text, size_t count, Assembler* ass);
 void error_parser   (int error);
+
+const char* input_file_name = "files/code.asm";
+const char* output_file_name = "files/code.bcode";
+
+const size_t buffer_start_size = 5;
+const size_t buffer_size_mult = 2;
 
 int main(int argc, char *argv[])
 {
-    const char* input_file_name = "files/code.asm";
-    const char* output_file_name = "files/code.bcode";
-    if(argc >= 2)
+    if(argc > 1)
     {
         input_file_name = argv[1];
-        if(argc >= 3)
+        if(argc > 2)
         {
             output_file_name = argv[2];
         }
@@ -30,10 +34,17 @@ int main(int argc, char *argv[])
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
 
+    //FIXME ass_init
+    Assembler ass = {};
+    ass.buffer_size = buffer_start_size;
+    ass.buffer = (char*)calloc(ass.buffer_size, sizeof(char));
+    for(int i = 0; i < 10; ass.labels[i++] = -1);
+    
     FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
     {
         error_parser(ASS_NULL_INPUT_FILE);
+        free(ass.buffer);
         return 1;
     }
 
@@ -48,18 +59,20 @@ int main(int argc, char *argv[])
 
     fclose(input_file);
     
+    int error = assemble(text, count, &ass);
+
     FILE* output_file = fopen(output_file_name, "w");
     if(output_file == NULL)
     {
         error_parser(ASS_NULL_OUTPUT_FILE);
+        free(ass.buffer);
         return 1;
     }
-
-    int error = assemble(text, count, output_file);
-
+    fwrite(ass.buffer, sizeof(char), ass.offset, output_file);
     fclose(output_file);
 
     free(buffer);
+    free(ass.buffer);
     free(text);
 
     if(error != ASS_CORRECT)
@@ -70,32 +83,41 @@ int main(int argc, char *argv[])
     printf("Success compiling: %s -> %s\n", input_file_name, output_file_name);
 }
 
-int assemble(Line* text, size_t count, FILE* out_file)
+int assemble(Line* text, size_t count, Assembler* ass)
 {
     if(text == NULL) return ASS_NULL_TEXT_POINTER;
-    if(out_file == NULL) return ASS_NULL_OUTPUT_FILE;
+    if(ass == NULL) return ASS_NULL_OUTPUT_FILE;
     if(count == 0) return ASS_EMPTY_PROGRAMM;
     
     for(size_t i = 0; i < count; i++)
     {
+        if(!strcmp(text[i].line, "")) continue;
+
+        if(ass->buffer_size - ass->offset < buffer_start_size)
+        {
+            ass->buffer_size *= buffer_size_mult;
+            ass->buffer = (char*)realloc(ass->buffer, ass->buffer_size);
+        }
+
         int found = 0;
-        for(int j = 0; j < COMMANDS_COUNT; j++)
+        for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {
             if(!strcmp(text[i].line, COMMANDS[j].name))
             {
                 found = 1;
-                int error = COMMANDS[j].ass_func(text, (int)i, out_file, j);
-                if(error != ASS_CORRECT) return error;
+                int error = COMMANDS[j].ass_func(text, i, ass, j);
+                if(error != ASS_CORRECT)
+                {
+                    printf("ERROR AT LINE %s:%lu    %s\n", input_file_name, i, text[i].line);
+                    return error;
+                }
             }
         }
-        if(!found) return ASS_SYNTAX_ERROR;
+        if(!found ) return ASS_SYNTAX_ERROR;
     }
-
-    //if(text[count-1].line != NULL && strcmp(text[count-1].line, "HLT")) return ASS_HLT_NOT_FOUND;
-
     return ASS_CORRECT;
 }
-
+//FIXME в функцию
 void error_parser(int error)
 {
     switch (error)
