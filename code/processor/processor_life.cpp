@@ -52,7 +52,7 @@ void SPUDump(SPU* processor)
     StackDump(&processor->stack);
     
         fprintf(ERROR_STREAM, "Register:    ");
-    for(size_t i = 0; i < REG_SIZE; i++)
+    for(size_t i = 0; i < REG_COUNT; i++)
     {
         fprintf(ERROR_STREAM, PINK "[%lu]" CYAN " %d " CLEAN, i, processor->reg[i]);
     }

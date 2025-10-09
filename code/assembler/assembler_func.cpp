@@ -8,8 +8,6 @@
 #define ASS_MODE
 #include "../commands.h"
 
-#define REG_CMP(reg, num) if(!strcmp(arg, reg)) return num;
-
 int reg_cmp(const char* arg);
 
 int ass_halt(Assembler* asm_ptr, size_t my_ind) 
@@ -155,13 +153,12 @@ int bytecode_value(Assembler* asm_ptr, int value)
 
 int reg_cmp(const char* arg)
 {
-    REG_CMP("SR1", 0);
-    REG_CMP("SR2", 1);
-    REG_CMP("SR3", 2);
-    REG_CMP("SR4", 3);
-    REG_CMP("SR5", 4);
-    REG_CMP("SR6", 5);
-    REG_CMP("SR7", 6);
-    REG_CMP("SR8", 7);
+    for(size_t i = 0; i < REG_COUNT; i++)
+    {
+        if(!strcmp(arg, regs[i]))
+        {
+            return (int)i;
+        }
+    }
     return -1;
 }

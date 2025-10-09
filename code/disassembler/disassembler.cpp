@@ -13,8 +13,9 @@
 #include "disassembler_life.h"
 #include "disassembler_func.h"
 
-int     disassemble         (Disassembler* dis, FILE* out_file);
-void    error_parser        (int error);
+int disassemble(Disassembler* dis, FILE* out_file);
+void error_printer(int error);
+const char* error_parser(int error);
 
 int main(int argc, char *argv[])
 {
@@ -37,7 +38,7 @@ int main(int argc, char *argv[])
     FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
     {
-        error_parser(DIS_NULL_INPUT_FILE);
+        error_printer(DIS_NULL_INPUT_FILE);
         DISDestroy(&dis);
         return 1;
     }
@@ -49,7 +50,7 @@ int main(int argc, char *argv[])
     FILE* output_file = fopen(output_file_name, "w");
     if(output_file == NULL)
     {
-        error_parser(DIS_NULL_OUTPUT_FILE);
+        error_printer(DIS_NULL_OUTPUT_FILE);
         DISDestroy(&dis);
         return 1;
     }
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
 
     if(error != DIS_CORRECT)
     { 
-        error_parser(error);
+        error_printer(error);
         return 1;
     }
 
@@ -94,51 +95,31 @@ int disassemble(Disassembler* dis, FILE* out_file)
         }
         if(!found)
         {
-            return DIS_SYNTAX_ERROR;
+            return DIS_UNKNOWN_COMMAND;
         }
     }
     return DIS_CORRECT;
 }
 
-void error_parser(int error)
+void error_printer(int error)
+{
+    fprintf(stderr, "%s\n", error_parser(error));
+}
+
+const char* error_parser(int error)
 {
     switch (error)
     {
-        case DIS_PUSH_ARGUMENT_INVALID:
-        {
-            fprintf(stderr, "PUSH argument invalid\n");
-            break;
-        }
-        case DIS_EMPTY_PROGRAMM:
-        {
-            fprintf(stderr, "Empty programm\n");
-            break;
-        }
-        case DIS_NULL_INPUT_FILE:
-        {
-            fprintf(stderr, "Input file NULL\n");
-            break;
-        }
-        case DIS_NULL_BUFFER:
-        {
-            fprintf(stderr, "Buffer NULL\n");
-            break;
-        }
-        case DIS_NULL_OUTPUT_FILE:
-        {
-            fprintf(stderr, "Output file NULL\n");
-            break;
-        }
-        case DIS_SYNTAX_ERROR:
-        {
-            fprintf(stderr, "Syntax error\n");
-            break;
-        }
-        default:
-        {
-            fprintf(stderr, "Unknown error: %d\n", error);
-            break;
-        }
+        case DIS_CORRECT:           return "Correct";
+        case DIS_NULL_DISASSEMBLER: return "Disassembler NULL";
+        case DIS_NULL_BUFFER:       return "Buffer NULL";
+        case DIS_NULL_INPUT_FILE:   return "Error opening input file";
+        case DIS_NULL_OUTPUT_FILE:  return "Error opening outpur file";
+        case DIS_EMPTY_PROGRAMM:    return "Empty programm";
+        case DIS_UNKNOWN_COMMAND:   return "Unknown command";
+        case DIS_SYNTAX_ERROR:      return "Syntax error";
+        case DIS_ARGUMENT_INVALID:  return "Argument invalid";
+        default:                    return "Unknown error";
     }
 }
 

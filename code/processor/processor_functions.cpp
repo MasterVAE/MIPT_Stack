@@ -108,7 +108,7 @@ int spu_in(SPU* processor)
 int spu_pushr(SPU* processor)
 {
     int reg = get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
+    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
     processor->offset += sizeof(VALUE_TYPE);
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
     return SPU_CORRECT;
@@ -117,7 +117,7 @@ int spu_pushr(SPU* processor)
 int spu_popr(SPU* processor)
 {
     size_t reg = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg >= REG_SIZE) return SPU_INVALID_REGISTER;
+    if(reg >= REG_COUNT) return SPU_INVALID_REGISTER;
     processor->offset += sizeof(VALUE_TYPE);
     int err = 0;
     processor->reg[reg] = POP_ERR(&processor->stack, &err);

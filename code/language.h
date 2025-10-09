@@ -4,9 +4,21 @@
 #define COMMAND_TYPE __uint8_t
 #define VALUE_TYPE __uint32_t
 
-const size_t REG_SIZE = 8; // FIXME другое количество
-const size_t ARG_LIMIT = 10;
-
 typedef int stack_type;
+
+const char* const regs[] = 
+{
+    "SR1",
+    "SR2",
+    "SR3",
+    "SR4",
+    "SR5",
+    "SR6",
+    "SR7",
+    "SR8"
+};
+
+const size_t REG_COUNT = sizeof(regs)/sizeof(char*);
+const size_t ARG_LIMIT = 10;
 
 #endif

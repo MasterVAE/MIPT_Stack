@@ -38,7 +38,7 @@ typedef struct processor
     size_t offset;
     size_t buffer_size;
 
-    int reg[REG_SIZE];
+    int reg[REG_COUNT];
 
     int err_code;
     
