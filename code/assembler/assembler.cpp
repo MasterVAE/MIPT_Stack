@@ -31,14 +31,14 @@ int main(int argc, char *argv[])
     }
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
-
+    //FIXME последняя команда с аргументом
     Assembler ass = {};
     ASSInit(&ass);
     
     FILE* input_file = fopen(input_file_name, "r");
     if(input_file == NULL) 
     {
-        error_parser(ASS_NULL_INPUT_FILE);
+        error_printer(ASS_NULL_INPUT_FILE);
         free(ass.buffer);
         return 1;
     }
@@ -52,18 +52,18 @@ int main(int argc, char *argv[])
     
     int error = assemble(&ass);
     free(buffer);
+    error |= ASSPostCompile(&ass);
     if(error != ASS_CORRECT)
     { 
-        error_parser(error);
+        error_printer(error);
         ASSDestroy(&ass);
-        free(buffer);
         return 1;
     }
 
     FILE* output_file = fopen(output_file_name, "w");
     if(output_file == NULL)
     {
-        error_parser(ASS_NULL_OUTPUT_FILE);
+        error_printer(ASS_NULL_OUTPUT_FILE);
         ASSDestroy(&ass);
         return 1;
     }
@@ -112,7 +112,6 @@ int assemble(Assembler* ass)
     }
     return ASS_CORRECT;
 }
-//FIXME в функцию
 
 void error_printer(int error)
 {
@@ -134,6 +133,8 @@ const char* error_parser(int error)
         case ASS_NULL_OUTPUT_FILE:      return "Error opening output file";
         case ASS_SYNTAX_ERROR:          return "Syntax error";
         case ASS_USED_LABEL:            return "Label overriding";
+        case ASS_LABEL_INVALID:         return "Label incorrect";
+        case ASS_TOO_MANY_JUMPS:        return "Too many jumps";
         default:                        return "Unknown error";
     }
 }

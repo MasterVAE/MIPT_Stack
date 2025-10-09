@@ -15,8 +15,13 @@ enum assembler_errors
     ASS_NULL_INPUT_FILE,
     ASS_NULL_OUTPUT_FILE,
     ASS_SYNTAX_ERROR,
-    ASS_USED_LABEL
+    ASS_USED_LABEL,
+    ASS_LABEL_INVALID,
+    ASS_TOO_MANY_JUMPS
 };
+
+int bytecode_comm(Assembler* asm_ptr, int command);
+int bytecode_value(Assembler* asm_ptr, int command);
 
 int ass_halt    (Assembler* asm_ptr, size_t my_ind);
 

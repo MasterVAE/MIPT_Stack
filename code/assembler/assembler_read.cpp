@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include "assembler_read.h"
+#include "assembler_func.h"
 #include "../language.h"
 
 size_t initialize_text(Line** text, char* buffer, size_t size)
@@ -104,10 +105,12 @@ int ASSInit(Assembler* ass)
     ass->line_offset = 0;
     ass->buffer_size = buffer_start_size;
     ass->buffer = (char*)calloc(ass->buffer_size, sizeof(char));
-    for(int i = 0; i < 10; ass->labels[i++] = -1);
+    ass->current_jump_memory = 0;
+    
+    for(size_t i = 0; i < MAX_LABELS; ass->labels[i++] = -1);
+    for(size_t i = 0; i < MAX_JUMPS; ass->jumps[i++] = {-1, 0});
 
     return 0;
-
 }
 
 void ASSDestroy(Assembler* ass)
@@ -115,5 +118,27 @@ void ASSDestroy(Assembler* ass)
     if(ass == NULL) return;
     free(ass->buffer);
     free(ass->text);
-    memset(ass, 0, sizeof(Assembler));
+    ass->buffer = NULL;
+    ass->text = NULL;
+}
+
+bool correct_label(int label)
+{
+    if(label < 0 || label >= (int)MAX_LABELS) return 0;
+    return 1;
+}
+
+int ASSPostCompile(Assembler* ass)
+{
+    size_t max_offset = ass->offset;
+    if(ass == NULL) return ASS_ASSEMBLER_NULL;
+    for(size_t i = 0; i < ass->current_jump_memory; i++)
+    {
+        if(!correct_label(ass->jumps[i].label)) return ASS_LABEL_INVALID;
+
+        ass->offset = ass->jumps[i].offcet;
+        bytecode_value(ass, ass->labels[ass->jumps[i].label]);
+    }
+    ass->offset = max_offset;
+    return ASS_CORRECT;
 }

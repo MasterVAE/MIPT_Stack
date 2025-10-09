@@ -128,7 +128,7 @@ int spu_popr(SPU* processor)
 int spu_jmp(SPU* processor)
 {
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -146,7 +146,7 @@ int spu_jb(SPU* processor)
     }
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -164,7 +164,7 @@ int spu_jbe(SPU* processor)
     }
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -182,7 +182,7 @@ int spu_ja(SPU* processor)
     }
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -200,7 +200,7 @@ int spu_jae(SPU* processor)
     }
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -219,7 +219,7 @@ int spu_je(SPU* processor)
 
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
@@ -237,7 +237,7 @@ int spu_jne(SPU* processor)
     }
 
     size_t offset = (size_t)get_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(offset >= processor->offset) return SPU_INVALID_COMMAND;
+    if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }

@@ -34,6 +34,7 @@ int main()
     }
 
     initialize_buffer(&spu_main.buffer, &spu_main.buffer_size, input_file);
+    //SPUDump(&spu_main);
     fclose(input_file);
     error = SPU_CORRECT;
     while(error != SPU_HALT_STATE)
