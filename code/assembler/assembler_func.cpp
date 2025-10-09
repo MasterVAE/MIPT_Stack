@@ -14,57 +14,57 @@ int bytecode_comm(Assembler* asm_ptr, int command);
 int bytecode_value(Assembler* asm_ptr, int command);
 int reg_cmp(const char* arg);
 
-int ass_halt(Line*, size_t, Assembler* asm_ptr, size_t my_ind) 
+int ass_halt(Assembler* asm_ptr, size_t my_ind) 
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_add(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_add(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_sub(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_sub(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_mul(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_mul(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_div(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_div(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_sqrt(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_sqrt(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_out(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_out(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_in(Line*, size_t, Assembler* asm_ptr, size_t my_ind)
+int ass_in(Assembler* asm_ptr, size_t my_ind)
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_pushr(Line* text, size_t list_ind, Assembler* asm_ptr, size_t my_ind)
+int ass_pushr(Assembler* asm_ptr, size_t my_ind)
 {
-    char* arg = text[list_ind].args[0];
+    char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     int reg = reg_cmp(arg);
@@ -73,9 +73,9 @@ int ass_pushr(Line* text, size_t list_ind, Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_popr(Line* text, size_t list_ind, Assembler* asm_ptr, size_t my_ind)
+int ass_popr(Assembler* asm_ptr, size_t my_ind)
 {
-    char* arg = text[list_ind].args[0];
+    char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
     int reg = reg_cmp(arg);
@@ -86,10 +86,10 @@ int ass_popr(Line* text, size_t list_ind, Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_push(Line* text, size_t line_ind, Assembler* asm_ptr, size_t my_ind)
+int ass_push(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
-    if((arg = text[line_ind].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
+    if((arg = asm_ptr->text[asm_ptr->line_offset].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
     
     int value = 0;
     if(!sscanf(arg, "%10d", &value)) return ASS_ARGUMENT_INVALID;
@@ -99,37 +99,40 @@ int ass_push(Line* text, size_t line_ind, Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_jump(Line* text, size_t list_ind, Assembler* asm_ptr, size_t my_ind)
+int ass_jump(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
-    if((arg = text[list_ind].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
+    if((arg = asm_ptr->text[asm_ptr->line_offset].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
     int value = 0;
     if(!sscanf(arg, "%10d", &value)) return ASS_ARGUMENT_INVALID;
     if(asm_ptr->labels[value] != -1)
     {
         bytecode_comm(asm_ptr, COMMANDS[my_ind].num); 
-        bytecode_value(asm_ptr, -1);
+        bytecode_value(asm_ptr, asm_ptr->labels[value]);
         return ASS_CORRECT; 
     }
     //FIXME структура послекомпиляционного прогона
     return ASS_ARGUMENT_INVALID;
 }
 
-int ass_label(Line* text, size_t list_ind, Assembler* asm_ptr, size_t)
+int ass_label(Assembler* asm_ptr, size_t)
 {
     char* arg = NULL;
-    if((arg = text[list_ind].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
+    if((arg = asm_ptr->text[asm_ptr->line_offset].args[0]) == NULL) return ASS_ARGUMENT_INVALID;;
     size_t value = 0;
     if(!sscanf(arg, "%10lu", &value)) return ASS_ARGUMENT_INVALID;
     if(value >= 10) return ASS_ARGUMENT_INVALID;
-    if(asm_ptr->labels[value] != -1) return ASS_ARGUMENT_INVALID;
+
+    if(asm_ptr->labels[value] != -1) return ASS_USED_LABEL;
     asm_ptr->labels[value] = (int)asm_ptr->offset;
     return ASS_CORRECT; 
 }
 
 int bytecode_comm(Assembler* asm_ptr, int command)
 {
-    if(asm_ptr == NULL) return ASS_NULL_OUTPUT_FILE;
+    if(asm_ptr == NULL) return ASS_ASSEMBLER_NULL;
+    if(asm_ptr->buffer == NULL) return ASS_NULL_BUFFER_POINTER;
+
     memcpy(asm_ptr->buffer + asm_ptr->offset, &command, sizeof(COMMAND_TYPE));
     asm_ptr->offset += sizeof(COMMAND_TYPE);
     return ASS_CORRECT;
@@ -137,7 +140,9 @@ int bytecode_comm(Assembler* asm_ptr, int command)
 
 int bytecode_value(Assembler* asm_ptr, int value)
 {
-    if(asm_ptr == NULL) return ASS_NULL_OUTPUT_FILE;
+    if(asm_ptr == NULL) return ASS_ASSEMBLER_NULL;
+    if(asm_ptr->buffer == NULL) return ASS_NULL_BUFFER_POINTER;
+
     memcpy(asm_ptr->buffer + asm_ptr->offset, &value, sizeof(VALUE_TYPE));
     asm_ptr->offset += sizeof(VALUE_TYPE);
     return ASS_CORRECT;

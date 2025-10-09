@@ -21,8 +21,20 @@ typedef struct Assembler
     char* buffer;
     size_t buffer_size;
     size_t offset;
+
+    size_t lines_count;
+    size_t line_offset;
+
+    Line* text;
+
     int labels[10];
 
 } Assembler;
+
+int ASSInit(Assembler* ass);
+void ASSDestroy(Assembler* ass);
+
+const size_t buffer_start_size = 5;
+const size_t buffer_size_mult = 2;
 
 #endif

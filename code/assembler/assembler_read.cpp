@@ -95,3 +95,25 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
     *dist = '\0';
     return offset;
 }
+
+int ASSInit(Assembler* ass)
+{
+    if(ass == NULL) return 1;
+    ass->offset = 0;
+    ass->lines_count = 0;
+    ass->line_offset = 0;
+    ass->buffer_size = buffer_start_size;
+    ass->buffer = (char*)calloc(ass->buffer_size, sizeof(char));
+    for(int i = 0; i < 10; ass->labels[i++] = -1);
+
+    return 0;
+
+}
+
+void ASSDestroy(Assembler* ass)
+{
+    if(ass == NULL) return;
+    free(ass->buffer);
+    free(ass->text);
+    memset(ass, 0, sizeof(Assembler));
+}

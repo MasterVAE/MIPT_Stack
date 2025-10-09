@@ -16,7 +16,7 @@ typedef struct instruction
     const int num;
     
     #ifdef ASS_MODE
-    int (*ass_func) (Line*, size_t, Assembler*, size_t);
+    int (*ass_func) (Assembler*, size_t);
     #endif
     
     #ifdef SPU_MODE
