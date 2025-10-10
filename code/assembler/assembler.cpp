@@ -18,13 +18,13 @@
 #define OPEN_R(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
     if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
 
-#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
+#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "w+"); \
     if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
 
 #define CHECK(error) if(error != ASS_CORRECT) {error_printer(error);ASSDestroy(&ass);return 1;}
 
 
-int assemble(Assembler* ass);
+ass_err assemble(Assembler* ass);
 
 const char* input_file_name = "files/code.asm";
 const char* output_file_name = "files/code.bcode";
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     ARG_PARSE
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
-    //FIXME последняя команда с аргументом
+    //FIXME scanf ограничение 10 откуда константа
     Assembler ass = {};
     ASSInit(&ass);
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     fclose(input_file);   
     ass.lines_count = initialize_text(&ass.text, buffer, size);
     
-    int error = assemble(&ass);
+    ass_err error = assemble(&ass);
     free(buffer);
     CHECK(error)
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int assemble(Assembler* ass)
+ass_err assemble(Assembler* ass)
 {
     if(ass == NULL)             return ASS_ASSEMBLER_NULL;
     if(ass->text == NULL)       return ASS_NULL_TEXT_POINTER;
@@ -87,7 +87,7 @@ int assemble(Assembler* ass)
             if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[j].name))
             {
                 found = 1;
-                int error = COMMANDS[j].ass_func(ass, j);
+                ass_err error = COMMANDS[j].ass_func(ass, j);
                 if(error != ASS_CORRECT)
                 {
                     printf(RED "ERROR " CLEAN "%s:%lu    %s\n",
@@ -100,4 +100,3 @@ int assemble(Assembler* ass)
     }
     return ASS_CORRECT;
 }
-

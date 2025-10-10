@@ -14,7 +14,7 @@
 #define OPEN_R(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
     if(file_ptr == NULL) {  error_printer(DIS_NULL_FILE); DISDestroy(&dis);   return 1;}
 
-#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "w"); \
+#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "w+"); \
     if(file_ptr == NULL) {  error_printer(DIS_NULL_FILE); DISDestroy(&dis);   return 1;}
 
 #define ARG_PARSE if(argc >= 2) {   input_file_name = argv[1];if(argc >= 3) \
@@ -22,8 +22,8 @@
 
 #define CHECK(error) if(error != DIS_CORRECT){ error_printer(error);DISDestroy(&dis);return 1;}
 
-int disassemble(Disassembler* dis, FILE* out_file);
-int label_search(Disassembler* dis);
+dis_err disassemble(Disassembler* dis, FILE* out_file);
+dis_err label_search(Disassembler* dis);
 void insert_label(Disassembler* dis, FILE* output_file);
 
 const char* input_file_name = "files/code.bcode";
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
     OPEN_W(output_file, output_file_name)
 
-    int error = label_search(&dis);
+    dis_err error = label_search(&dis);
     CHECK(error)
     
     error = disassemble(&dis, output_file);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-int label_search(Disassembler* dis)
+dis_err label_search(Disassembler* dis)
 {
     if(dis->buffer == NULL) return DIS_NULL_BUFFER;
     if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
@@ -112,7 +112,7 @@ void insert_label(Disassembler* dis, FILE* output_file)
     }
 }
 
-int disassemble(Disassembler* dis, FILE* out_file)
+dis_err disassemble(Disassembler* dis, FILE* out_file)
 {
     if(dis->buffer == NULL) return DIS_NULL_BUFFER;
     if(out_file == NULL) return DIS_NULL_FILE;

@@ -23,6 +23,12 @@ int SPUInit(SPU* processor)
         processor->stack.err_code = error;
         return SPU_STACK_ERROR;
     }
+    error = StackInit(&processor->return_stack, 0);
+    if(error != Verified)
+    {
+        processor->return_stack.err_code = error;
+        return SPU_STACK_ERROR;
+    }
     processor->offset = 0;
     processor->buffer_size = 0;
     processor->err_code = 0;
@@ -66,6 +72,7 @@ void SPUDump(SPU* processor)
     BufferDump(processor);
     StackDump(&processor->stack);
     RegisterDump(processor);
+    StackDump(&processor->return_stack);
         fprintf(ERROR_STREAM, RED "\n\n= = = SPU dumping end = = =\n\n" CLEAN);
 }
 
@@ -83,6 +90,7 @@ void SPUDestroy(SPU* processor)
 {
     if(processor == NULL) return;
     StackDestroy(&processor->stack);
+    StackDestroy(&processor->return_stack);
     free(processor->buffer);
     memset(processor, 0, sizeof(SPU));
 }

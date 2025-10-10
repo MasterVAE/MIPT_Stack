@@ -10,55 +10,13 @@
 
 int reg_cmp(const char* arg);
 
-int ass_halt(Assembler* asm_ptr, size_t my_ind) 
+ass_err ass_def(Assembler* asm_ptr, size_t my_ind) 
 {
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-int ass_add(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_sub(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_mul(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_div(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_sqrt(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_out(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_in(Assembler* asm_ptr, size_t my_ind)
-{
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
-    return ASS_CORRECT;
-}
-
-int ass_pushr(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_pushr(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -71,7 +29,7 @@ int ass_pushr(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_popr(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_popr(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -84,7 +42,7 @@ int ass_popr(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_push(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_push(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].args[0]) == NULL) return ASS_ARGUMENT_INVALID;
@@ -97,7 +55,7 @@ int ass_push(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_jump(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_jump(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     int value = 0;
@@ -119,7 +77,7 @@ int ass_jump(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-int ass_label(Assembler* asm_ptr, size_t)
+ass_err ass_label(Assembler* asm_ptr, size_t)
 {
     char* arg = NULL;
     int value = 0;

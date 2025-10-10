@@ -128,7 +128,7 @@ bool correct_label(int label)
     return 1;
 }
 
-int ASSPostCompile(Assembler* ass)
+ass_err ASSPostCompile(Assembler* ass)
 {
     size_t max_offset = ass->offset;
     if(ass == NULL) return ASS_ASSEMBLER_NULL;

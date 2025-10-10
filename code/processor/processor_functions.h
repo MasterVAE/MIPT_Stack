@@ -3,7 +3,7 @@
 
 #include "stack.h"
 
-typedef enum processor_errors
+typedef enum spu_err
 {
     SPU_CORRECT = 0,
     SPU_HALT_STATE = 1 << 1,
@@ -16,26 +16,28 @@ typedef enum processor_errors
     SPU_INVALID_REGISTER = 1 << 8
 } spu_err;
 
-int spu_halt    (SPU* processor);
+spu_err spu_halt    (SPU* processor);
 
-int spu_add     (SPU* processor);
-int spu_sub     (SPU* processor);
-int spu_mul     (SPU* processor);
-int spu_div     (SPU* processor);
-int spu_sqrt    (SPU* processor);
+spu_err spu_add     (SPU* processor);
+spu_err spu_sub     (SPU* processor);
+spu_err spu_mul     (SPU* processor);
+spu_err spu_div     (SPU* processor);
+spu_err spu_sqrt    (SPU* processor);
 
-int spu_push    (SPU* processor);
-int spu_out     (SPU* processor);
-int spu_in      (SPU* processor);
-int spu_pushr   (SPU* processor);
-int spu_popr    (SPU* processor);
+spu_err spu_push    (SPU* processor);
+spu_err spu_out     (SPU* processor);
+spu_err spu_in      (SPU* processor);
+spu_err spu_pushr   (SPU* processor);
+spu_err spu_popr    (SPU* processor);
 
-int spu_jmp     (SPU* processor);
-int spu_jb      (SPU* processor);
-int spu_jbe     (SPU* processor);
-int spu_ja      (SPU* processor);
-int spu_jae     (SPU* processor);
-int spu_je      (SPU* processor);
-int spu_jne     (SPU* processor);
+spu_err spu_jmp     (SPU* processor);
+spu_err spu_jb      (SPU* processor);
+spu_err spu_jbe     (SPU* processor);
+spu_err spu_ja      (SPU* processor);
+spu_err spu_jae     (SPU* processor);
+spu_err spu_je      (SPU* processor);
+spu_err spu_jne     (SPU* processor);
+spu_err spu_call    (SPU* processor);
+spu_err spu_ret     (SPU* processor);
 
 #endif

@@ -5,7 +5,7 @@
 
 #include "../language.h"
 
-enum disassembler_errors
+typedef enum dis_err
 {
     DIS_CORRECT = 0,
     DIS_NULL_DISASSEMBLER,
@@ -15,7 +15,7 @@ enum disassembler_errors
     DIS_UNKNOWN_COMMAND,
     DIS_SYNTAX_ERROR,
     DIS_ARGUMENT_INVALID
-};
+} dis_err;
 
 const size_t MAX_LABELS = 10;
 
@@ -30,7 +30,7 @@ typedef struct Disassembler
 
 int DISInit(Disassembler* dis);
 void DISDestroy(Disassembler* dis);
-void error_printer(int error);
-const char* error_parser(int error);
+void error_printer(dis_err error);
+const char* error_parser(dis_err error);
 
 #endif

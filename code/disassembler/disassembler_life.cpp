@@ -19,12 +19,12 @@ void DISDestroy(Disassembler* dis)
     memset(dis, 0, sizeof(Disassembler));
 }
 
-void error_printer(int error)
+void error_printer(dis_err error)
 {
     fprintf(stderr, "%s\n", error_parser(error));
 }
 
-const char* error_parser(int error)
+const char* error_parser(dis_err error)
 {
     switch (error)
     {

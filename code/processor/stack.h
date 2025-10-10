@@ -10,7 +10,7 @@ const int SHIELD_END = 0x7BADF00D;
 #define ERROR_STREAM stderr
 const int STACK_MULTIPLIER = 2;
 
-enum StackError
+typedef enum StackError
 {
     Verified = 0,
     StackNull = 1 << 1,
@@ -19,7 +19,7 @@ enum StackError
     DataCorrupted = 1 << 4,
     CapacityInvalid = 1 << 5,
     StackUnderflow = 1 << 6
-};
+} stk_err;
 
 bool IsError(int error, StackError check);
 
@@ -37,6 +37,7 @@ typedef struct processor
     char* buffer;
     size_t offset;
     size_t buffer_size;
+    Stack_t return_stack;
 
     int reg[REG_COUNT];
 
@@ -48,7 +49,7 @@ void StackDump(Stack_t* stack);
 int StackVerify(Stack_t* stack);
 int StackInit(Stack_t* stack, size_t capacity);
 int StackPush(Stack_t* stack, stack_type value);
-int StackPop(Stack_t* stack, int* err = NULL);
+stack_type StackPop(Stack_t* stack, int* err = NULL);
 void StackDestroy(Stack_t* stack);
 
 const int shield_size = 1;

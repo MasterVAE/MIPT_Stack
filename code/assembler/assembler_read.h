@@ -5,6 +5,22 @@
 
 #include "../language.h"
 
+typedef enum assembler_errors
+{
+    ASS_CORRECT, 
+    ASS_ASSEMBLER_NULL,
+    ASS_NULL_TEXT_POINTER,
+    ASS_NULL_BUFFER_POINTER,
+    ASS_EMPTY_PROGRAMM,
+    ASS_UNKNOWN_COMMAND,
+    ASS_ARGUMENT_INVALID,
+    ASS_NULL_FILE,
+    ASS_SYNTAX_ERROR,
+    ASS_USED_LABEL,
+    ASS_LABEL_INVALID,
+    ASS_TOO_MANY_JUMPS
+} ass_err;
+
 typedef struct Line
 {
     char* line;
@@ -50,6 +66,6 @@ typedef struct Assembler
 
 int ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);
-int ASSPostCompile(Assembler* ass);
+ass_err ASSPostCompile(Assembler* ass);
 
 #endif

@@ -3,9 +3,9 @@
 
 #include "disassembler_life.h"
 
-int dis_def(Disassembler* dis, size_t my_ind, FILE* output_file);
-int dis_push(Disassembler* dis, size_t my_ind, FILE* output_file);
-int dis_popr(Disassembler* dis, size_t my_ind, FILE* output_file);
-int dis_jump(Disassembler* dis, size_t my_ind, FILE* output_file);
+dis_err dis_def(Disassembler* dis, size_t my_ind, FILE* output_file);
+dis_err dis_push(Disassembler* dis, size_t my_ind, FILE* output_file);
+dis_err dis_popr(Disassembler* dis, size_t my_ind, FILE* output_file);
+dis_err dis_jump(Disassembler* dis, size_t my_ind, FILE* output_file);
 
 #endif
