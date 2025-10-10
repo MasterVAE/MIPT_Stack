@@ -4,6 +4,8 @@
 #include "disassembler_func.h"
 #include "disassembler_life.h"
 
+#include "../lib.h"
+
 #define DIS_MODE
 #include "../commands.h"
 
@@ -19,7 +21,7 @@ int dis_push(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+    int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
     dis->offset += sizeof(VALUE_TYPE);
     fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, value);
     return DIS_CORRECT;
@@ -31,7 +33,7 @@ int dis_popr(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+    int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
     dis->offset += sizeof(VALUE_TYPE);
     fprintf(out_file, "%s %s\n", COMMANDS[my_ind].name, regs[value]);
     return DIS_CORRECT;
@@ -43,16 +45,8 @@ int dis_jump(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+    int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
     dis->offset += sizeof(VALUE_TYPE);
     fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, value);
     return DIS_CORRECT;
-}
-
-
-int debytecode(char* code, size_t size)
-{
-    int value;
-    memcpy(&value, code, size);
-    return value;
 }

@@ -16,8 +16,6 @@ typedef enum processor_errors
     SPU_INVALID_REGISTER = 1 << 8
 } spu_err;
 
-int get_int(char* buffer, size_t len);
-
 int spu_halt    (SPU* processor);
 
 int spu_add     (SPU* processor);

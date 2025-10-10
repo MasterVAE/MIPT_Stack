@@ -34,7 +34,6 @@ int main()
     }
 
     initialize_buffer(&spu_main.buffer, &spu_main.buffer_size, input_file);
-    //SPUDump(&spu_main);
     fclose(input_file);
     error = SPU_CORRECT;
     while(error != SPU_HALT_STATE)
@@ -56,10 +55,9 @@ int main()
 
 int run(SPU* processor)
 {
-    int inp = get_int(processor->buffer + processor->offset, sizeof(COMMAND_TYPE));
+    int inp = debytecode_int(processor->buffer + processor->offset, sizeof(COMMAND_TYPE));
     processor->offset += sizeof(COMMAND_TYPE);
 
-    //printf("input %d\n", inp);
     for(size_t i = 0; i < COMMANDS_COUNT; i++)
     {
         if(inp == COMMANDS[i].num)  return COMMANDS[i].spu_func(processor);
