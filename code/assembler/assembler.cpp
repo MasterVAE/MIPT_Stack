@@ -5,43 +5,40 @@
 
 #include "assembler_read.h"
 #include "../language.h"
+#include "../colors.h"
 #include "../lib.h"
 #include "assembler_func.h"
 
 #define ASS_MODE
 #include "../commands.h"
 
+#define ARG_PARSE if(argc >= 2) {   input_file_name = argv[1];if(argc >= 3) \
+    output_file_name = argv[2];}
 
-int assemble            (Assembler* ass);
-void error_printer      (int error);
-const char* error_parser(int error);
+#define OPEN_R(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
+    if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
+
+#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
+    if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
+
+#define CHECK(error) if(error != ASS_CORRECT) {error_printer(error);ASSDestroy(&ass);return 1;}
+
+
+int assemble(Assembler* ass);
 
 const char* input_file_name = "files/code.asm";
 const char* output_file_name = "files/code.bcode";
 
 int main(int argc, char *argv[])
 {
-    if(argc > 1)
-    {
-        input_file_name = argv[1];
-        if(argc > 2)
-        {
-            output_file_name = argv[2];
-        }
-    }
+    ARG_PARSE
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
     //FIXME последняя команда с аргументом
     Assembler ass = {};
     ASSInit(&ass);
-    
-    FILE* input_file = fopen(input_file_name, "r");
-    if(input_file == NULL) 
-    {
-        error_printer(ASS_NULL_INPUT_FILE);
-        free(ass.buffer);
-        return 1;
-    }
+
+    OPEN_R(input_file, input_file_name)
 
     char* buffer = NULL;
     size_t size = 0;
@@ -52,36 +49,27 @@ int main(int argc, char *argv[])
     
     int error = assemble(&ass);
     free(buffer);
-    error |= ASSPostCompile(&ass);
-    if(error != ASS_CORRECT)
-    { 
-        error_printer(error);
-        ASSDestroy(&ass);
-        return 1;
-    }
+    CHECK(error)
 
-    FILE* output_file = fopen(output_file_name, "w");
-    if(output_file == NULL)
-    {
-        error_printer(ASS_NULL_OUTPUT_FILE);
-        ASSDestroy(&ass);
-        return 1;
-    }
+    error = ASSPostCompile(&ass);
+    CHECK(error)
+
+    OPEN_W(output_file, output_file_name)
+
     fwrite(ass.buffer, sizeof(char), ass.offset, output_file);
     fclose(output_file);
-
     
     ASSDestroy(&ass);
-    printf("Success compiling: %s -> %s\n", input_file_name, output_file_name);
+    printf(GREEN "Success compiling: " CLEAN "%s -> %s\n", input_file_name, output_file_name);
     return 0;
 }
 
 int assemble(Assembler* ass)
 {
-    if(ass == NULL) return ASS_ASSEMBLER_NULL;
-    if(ass->text == NULL) return ASS_NULL_TEXT_POINTER;
-    if(ass->buffer == NULL) return ASS_NULL_BUFFER_POINTER;
-    if(ass->lines_count == 0) return ASS_EMPTY_PROGRAMM;
+    if(ass == NULL)             return ASS_ASSEMBLER_NULL;
+    if(ass->text == NULL)       return ASS_NULL_TEXT_POINTER;
+    if(ass->buffer == NULL)     return ASS_NULL_BUFFER_POINTER;
+    if(ass->lines_count == 0)   return ASS_EMPTY_PROGRAMM;
     
     for(ass->line_offset = 0; ass->line_offset < ass->lines_count; ass->line_offset++)
     {
@@ -93,7 +81,7 @@ int assemble(Assembler* ass)
             ass->buffer = (char*)realloc(ass->buffer, ass->buffer_size);
         }
 
-        int found = 0;
+        bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {
             if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[j].name))
@@ -102,39 +90,14 @@ int assemble(Assembler* ass)
                 int error = COMMANDS[j].ass_func(ass, j);
                 if(error != ASS_CORRECT)
                 {
-                    printf("ERROR AT LINE %s:%lu    %s\n",
+                    printf(RED "ERROR " CLEAN "%s:%lu    %s\n",
                         input_file_name, ass->line_offset, ass->text[ass->line_offset].line);
                     return error;
                 }
             }
         }
-        if(!found ) return ASS_UNKNOWN_COMMAND;
+        if(!found) return ASS_UNKNOWN_COMMAND;
     }
     return ASS_CORRECT;
 }
 
-void error_printer(int error)
-{
-    fprintf(stderr, "%s\n", error_parser(error));
-}
-
-const char* error_parser(int error)
-{
-    switch (error)
-    {
-        case ASS_CORRECT:               return "Correct";
-        case ASS_ASSEMBLER_NULL:        return "Assembler NULL";
-        case ASS_NULL_TEXT_POINTER:     return "NULL text pointet";
-        case ASS_NULL_BUFFER_POINTER:   return "NULL buffer pointer";
-        case ASS_EMPTY_PROGRAMM:        return "Empty programm";
-        case ASS_UNKNOWN_COMMAND:       return "Unknown command";
-        case ASS_ARGUMENT_INVALID:      return "Argument invalid";
-        case ASS_NULL_INPUT_FILE:       return "Error opening input file";
-        case ASS_NULL_OUTPUT_FILE:      return "Error opening output file";
-        case ASS_SYNTAX_ERROR:          return "Syntax error";
-        case ASS_USED_LABEL:            return "Label overriding";
-        case ASS_LABEL_INVALID:         return "Label incorrect";
-        case ASS_TOO_MANY_JUMPS:        return "Too many jumps";
-        default:                        return "Unknown error";
-    }
-}

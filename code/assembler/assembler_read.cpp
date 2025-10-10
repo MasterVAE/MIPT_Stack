@@ -142,3 +142,28 @@ int ASSPostCompile(Assembler* ass)
     ass->offset = max_offset;
     return ASS_CORRECT;
 }
+
+void error_printer(int error)
+{
+    fprintf(stderr, "%s\n", error_parser(error));
+}
+
+const char* error_parser(int error)
+{
+    switch (error)
+    {
+        case ASS_CORRECT:               return "Correct";
+        case ASS_ASSEMBLER_NULL:        return "Assembler NULL";
+        case ASS_NULL_TEXT_POINTER:     return "NULL text pointet";
+        case ASS_NULL_BUFFER_POINTER:   return "NULL buffer pointer";
+        case ASS_EMPTY_PROGRAMM:        return "Empty programm";
+        case ASS_UNKNOWN_COMMAND:       return "Unknown command";
+        case ASS_ARGUMENT_INVALID:      return "Argument invalid";
+        case ASS_NULL_FILE:             return "Error opening file";
+        case ASS_SYNTAX_ERROR:          return "Syntax error";
+        case ASS_USED_LABEL:            return "Label overriding";
+        case ASS_LABEL_INVALID:         return "Label incorrect";
+        case ASS_TOO_MANY_JUMPS:        return "Too many jumps";
+        default:                        return "Unknown error";
+    }
+}
