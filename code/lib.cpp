@@ -37,3 +37,21 @@ int debytecode_int(char* code, size_t size)
     memcpy(&value, code, size);
     return value;
 }
+
+int IsError(int error, int check)
+{
+    return error & check;
+}
+
+string itos(unsigned value, unsigned base, size_t len)
+{
+    string ans = {};
+    for(int i = (int)len-1; i >= 0; i--)
+    {
+        unsigned vl = value % base;
+        if(vl < 10 )    ans.str[i] = (char)vl + '0';
+        else            ans.str[i] = (char)vl + 'a';
+        value /= base;
+    }
+    return ans;
+}

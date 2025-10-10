@@ -36,6 +36,7 @@ int main()
     initialize_buffer(&spu_main.buffer, &spu_main.buffer_size, input_file);
     fclose(input_file);
     error = SPU_CORRECT;
+
     while(error != SPU_HALT_STATE)
     {
         error = run(&spu_main);
@@ -47,6 +48,7 @@ int main()
             SPUDump(&spu_main);
             break;
         }
+        //SPUDump(&spu_main);
     }
     SPUDestroy(&spu_main);
     printf("SPU TURNING OFF...\n");

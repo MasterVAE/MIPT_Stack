@@ -1,8 +1,8 @@
 #ifndef LANGUAGE_H_
 #define LANGUAGE_H_
 
-#define COMMAND_TYPE __uint8_t
-#define VALUE_TYPE __uint32_t
+#define COMMAND_TYPE char
+#define VALUE_TYPE int
 
 typedef int stack_type;
 

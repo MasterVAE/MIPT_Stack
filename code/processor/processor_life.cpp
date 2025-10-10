@@ -10,7 +10,8 @@
 #include "processor_functions.h"
 
 void print_buffer(FILE* stream, SPU* processor);
-int IsError(int error, int check);
+void RegisterDump(SPU* processor);
+void BufferDump(SPU* processor);
 
 int SPUInit(SPU* processor)
 {
@@ -28,9 +29,33 @@ int SPUInit(SPU* processor)
     return SPU_CORRECT;
 }
 
+void BufferDump(SPU* processor)
+{
+        fprintf(ERROR_STREAM, RED "\n\n- - - BUFFER dumping - - -\n" CLEAN);
+        fprintf(ERROR_STREAM, "OFFSET --> %lu\n\n", processor->offset);
+    if(processor->buffer == NULL)
+    {
+        fprintf(ERROR_STREAM, "Buffer NULL\n");
+    }
+    else
+    {
+        print_buffer(ERROR_STREAM, processor);
+        fprintf(ERROR_STREAM, "\n\n");
+    }
+}
+
+void RegisterDump(SPU* processor)
+{
+        fprintf(ERROR_STREAM, RED "\n\n- - - REGISTER dumping - - -\n" CLEAN);
+    for(size_t i = 0; i < REG_COUNT; i++)
+    {
+        fprintf(ERROR_STREAM, PINK "[%s]" CYAN " %d " CLEAN, regs[i], processor->reg[i]);
+    }
+}
+
 void SPUDump(SPU* processor)
 {
-        fprintf(ERROR_STREAM, RED "\n\n- - - SPU dumping start - - -\n" CLEAN);
+        fprintf(ERROR_STREAM, RED "\n\n= = = SPU dumping start = = =\n" CLEAN);
     SPUErrorParser(processor->err_code);
     if(processor == NULL)
     {
@@ -38,25 +63,10 @@ void SPUDump(SPU* processor)
         fprintf(ERROR_STREAM, RED "\n- - - SPU dumping end - - -\n\n" CLEAN);
         return;
     }
-    if(processor->buffer == NULL)
-    {
-        fprintf(ERROR_STREAM, "Buffer NULL\n");
-    }
-    else
-    {
-        fprintf(ERROR_STREAM, "Buffer:\n\n");
-        print_buffer(ERROR_STREAM, processor);
-        fprintf(ERROR_STREAM, "\n\n");
-    }
-        fprintf(ERROR_STREAM, "Offcet: %lu\n", processor->offset);
+    BufferDump(processor);
     StackDump(&processor->stack);
-    
-        fprintf(ERROR_STREAM, "Register:    ");
-    for(size_t i = 0; i < REG_COUNT; i++)
-    {
-        fprintf(ERROR_STREAM, PINK "[%lu]" CYAN " %d " CLEAN, i, processor->reg[i]);
-    }
-        fprintf(ERROR_STREAM, RED "\n\n- - - SPU dumping end - - -\n\n" CLEAN);
+    RegisterDump(processor);
+        fprintf(ERROR_STREAM, RED "\n\n= = = SPU dumping end = = =\n\n" CLEAN);
 }
 
 int SPUVerify(SPU* processor)
@@ -77,11 +87,6 @@ void SPUDestroy(SPU* processor)
     memset(processor, 0, sizeof(SPU));
 }
 
-int IsError(int error, int check)
-{
-    return error & check;
-}
-
 void SPUErrorParser(int error)
 {   
     if(IsError(error, SPU_HALT_STATE))          fprintf(ERROR_STREAM, "Error: SPU halted\n");
@@ -97,8 +102,14 @@ void SPUErrorParser(int error)
 void print_buffer(FILE* stream, SPU* processor)
 {   
     for(size_t i = 0; i < processor->buffer_size; i++)
-    {//FIXME __uint8_t
-        if(i != processor->offset)  fprintf(stream, "%x ", (__uint8_t)*(processor->buffer+i));
-        else    fprintf(stream, GREEN "%x " CLEAN, (__uint8_t)*(processor->buffer+i));
+    {
+        if(i < processor->offset)\
+        fprintf(stream, BLUE "%s "CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
+        else if(i == processor->offset)\
+        fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
+        else\
+        fprintf(stream, "%s ", itos((unsigned)*(processor->buffer+i), 16, 2).str);
+        if(i%8 == 7)\
+        fprintf(stream, "\n");
     }
 }

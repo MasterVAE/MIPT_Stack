@@ -8,5 +8,6 @@
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[96m"
 #define PINK    "\033[95m"
+#define YELLOW  "\033[93m"
 
 #endif
