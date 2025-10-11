@@ -31,7 +31,6 @@ typedef struct Line
 
 size_t initialize_text(Line** text, char* buffer, size_t size);
 size_t parse(char* source, char* dist, size_t max, size_t* read = NULL);
-bool correct_label(int label);
 void error_printer(int error);
 const char* error_parser(int error);
 
@@ -41,11 +40,19 @@ const size_t buffer_size_mult = 2;
 const size_t MAX_JUMPS = 10;
 const size_t MAX_LABELS = 10;
 
+const size_t MAX_COMMAND_LENGHT = 20;
+
 typedef struct jump_memory
 {
-    int label;
+    char label[MAX_COMMAND_LENGHT];
     size_t offcet;
 } jump_memory;
+
+typedef struct label
+{
+    char name[MAX_COMMAND_LENGHT];;
+    int value;
+} label;
 
 typedef struct Assembler 
 {
@@ -58,7 +65,7 @@ typedef struct Assembler
 
     Line* text;
 
-    int labels[MAX_LABELS];
+    label labels[MAX_LABELS];
     jump_memory jumps[MAX_JUMPS];
     size_t current_jump_memory = 0;
 
@@ -67,5 +74,8 @@ typedef struct Assembler
 int ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);
 ass_err ASSPostCompile(Assembler* ass);
+
+label* get_label(Assembler* ass, char* label_name);
+void add_label(Assembler* ass, char* name, int value); 
 
 #endif

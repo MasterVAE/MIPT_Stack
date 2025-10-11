@@ -3,9 +3,11 @@
 
 #include "stdio.h"
 
+const size_t MAX_STRING_LENGHT = 100;
+
 typedef struct string
 {
-    char str[10];
+    char str[MAX_STRING_LENGHT];
 }   string;
 
 size_t file_len(FILE* file);

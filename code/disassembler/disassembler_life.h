@@ -32,5 +32,6 @@ int DISInit(Disassembler* dis);
 void DISDestroy(Disassembler* dis);
 void error_printer(dis_err error);
 const char* error_parser(dis_err error);
+int find_label(Disassembler* dis, int label_value);
 
 #endif

@@ -39,3 +39,13 @@ const char* error_parser(dis_err error)
         default:                    return "Unknown error";
     }
 }
+
+int find_label(Disassembler* dis, int label_value)
+{
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        if(dis->labels[i] == label_value) return (int)i;
+    }
+
+    return -1;
+}

@@ -7,6 +7,8 @@
 #include "assembler_func.h"
 #include "../language.h"
 
+bool correct_label(Assembler* ass, label* lbl);
+
 size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
@@ -43,12 +45,12 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
     for(size_t i = 0; i < count; i++)
     {
         size_t read = 0;
-        size_t off = parse((*text)[i].line, (*text)[i].line, 10, &read);
+        size_t off = parse((*text)[i].line, (*text)[i].line, MAX_COMMAND_LENGHT, &read);
 
         if((i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) || i == count-1) off++;
         for(j = 0; j < ARG_LIMIT; j++)
         {
-            size_t add = parse((*text)[i].line + off, (*text)[i].line + off, 10, &read);
+            size_t add = parse((*text)[i].line + off, (*text)[i].line + off, MAX_COMMAND_LENGHT, &read);
             if(read == 0)
             {
                 (*text)[i].args[j] = NULL;
@@ -107,8 +109,8 @@ int ASSInit(Assembler* ass)
     ass->buffer = (char*)calloc(ass->buffer_size, sizeof(char));
     ass->current_jump_memory = 0;
     
-    for(size_t i = 0; i < MAX_LABELS; ass->labels[i++] = -1);
-    for(size_t i = 0; i < MAX_JUMPS; ass->jumps[i++] = {-1, 0});
+    for(size_t i = 0; i < MAX_LABELS; ass->labels[i++] = {"", -1});
+    for(size_t i = 0; i < MAX_JUMPS; ass->jumps[i++] = {"", 0});
 
     return 0;
 }
@@ -122,10 +124,28 @@ void ASSDestroy(Assembler* ass)
     ass->text = NULL;
 }
 
-bool correct_label(int label)
+bool correct_label(Assembler* ass, label* lbl)
 {
-    if(label < 0 || label >= (int)MAX_LABELS) return 0;
-    return 1;
+    assert(ass);
+    assert(lbl);
+
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        if(!strcmp(ass->labels[i].name, lbl->name)) return 1;
+    }
+    return 0;
+}
+
+label* get_label(Assembler* ass, char* label_name)
+{
+    assert(ass);
+    assert(label_name);
+
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        if(!strcmp(ass->labels[i].name, label_name)) return ass->labels + i;
+    }
+    return NULL;
 }
 
 ass_err ASSPostCompile(Assembler* ass)
@@ -134,13 +154,31 @@ ass_err ASSPostCompile(Assembler* ass)
     if(ass == NULL) return ASS_ASSEMBLER_NULL;
     for(size_t i = 0; i < ass->current_jump_memory; i++)
     {
-        if(!correct_label(ass->jumps[i].label)) return ASS_LABEL_INVALID;
+        label fake = {{}, -1};
+        memcpy(fake.name, ass->jumps[i].label, MAX_COMMAND_LENGHT);  
+        if(!correct_label(ass, &fake)) return ASS_LABEL_INVALID;
 
         ass->offset = ass->jumps[i].offcet;
-        bytecode_value(ass, ass->labels[ass->jumps[i].label]);
+        bytecode_value(ass, get_label(ass, ass->jumps[i].label)->value);
     }
     ass->offset = max_offset;
     return ASS_CORRECT;
+}
+
+void add_label(Assembler* ass, char* name, int value)
+{
+    assert(ass);
+    assert(name);
+
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        if(ass->labels[i].value == -1)
+        {
+            strcpy(ass->labels[i].name, name);
+            ass->labels[i].value = value;
+            break;
+        }
+    }
 }
 
 void error_printer(int error)

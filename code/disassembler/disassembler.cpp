@@ -106,7 +106,7 @@ void insert_label(Disassembler* dis, FILE* output_file)
     {
         if(dis->labels[i] == (int)dis->offset)
         {
-            fprintf(output_file, "LABEL %lu\n", i);
+            fprintf(output_file, "\nLABEL %lu\n", i);
             return;
         }
     }

@@ -47,6 +47,6 @@ dis_err dis_jump(Disassembler* dis, size_t my_ind, FILE* out_file)
     }
     int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
     dis->offset += sizeof(VALUE_TYPE);
-    fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, value);
+    fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, find_label(dis, value));
     return DIS_CORRECT;
 }

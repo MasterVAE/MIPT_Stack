@@ -49,7 +49,7 @@ string itos(unsigned value, unsigned base, size_t len)
     for(int i = (int)len-1; i >= 0; i--)
     {
         unsigned vl = value % base;
-        if(vl < 10 )    ans.str[i] = (char)(vl + '0');
+        if(vl < 10)    ans.str[i] = (char)(vl + '0');
         else            ans.str[i] = (char)(vl + 'A');
         value /= base;
     }

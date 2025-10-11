@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
     ARG_PARSE
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
-    //FIXME scanf ограничение 10 откуда константа
     Assembler ass = {};
     ASSInit(&ass);
 
@@ -80,7 +79,7 @@ ass_err assemble(Assembler* ass)
             ass->buffer_size *= buffer_size_mult;
             ass->buffer = (char*)realloc(ass->buffer, ass->buffer_size);
         }
-
+        //printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
         bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {
