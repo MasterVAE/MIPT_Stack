@@ -15,10 +15,7 @@
 #define ARG_PARSE if(argc >= 2) {   input_file_name = argv[1];if(argc >= 3) \
     output_file_name = argv[2];}
 
-#define OPEN_R(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "r"); \
-    if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
-
-#define OPEN_W(file_ptr, file_name) FILE* file_ptr = fopen(file_name, "w+"); \
+#define OPEN(file_ptr, file_name, type) FILE* file_ptr = fopen(file_name, type); \
     if(file_ptr == NULL) {  error_printer(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
 
 #define CHECK(error) if(error != ASS_CORRECT) {error_printer(error);ASSDestroy(&ass);return 1;}
@@ -37,7 +34,7 @@ int main(int argc, char *argv[])
     Assembler ass = {};
     ASSInit(&ass);
 
-    OPEN_R(input_file, input_file_name)
+    OPEN(input_file, input_file_name, "r")
 
     char* buffer = NULL;
     size_t size = 0;
@@ -53,7 +50,7 @@ int main(int argc, char *argv[])
     error = ASSPostCompile(&ass);
     CHECK(error)
 
-    OPEN_W(output_file, output_file_name)
+    OPEN(output_file, output_file_name, "w+")
 
     fwrite(ass.buffer, sizeof(char), ass.offset, output_file);
     fclose(output_file);

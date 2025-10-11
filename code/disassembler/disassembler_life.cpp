@@ -3,6 +3,10 @@
 #include <string.h>
 
 #include "disassembler_life.h"
+#include "../lib.h"
+
+#define DIS_MODE
+#include "../commands.h"
 
 int DISInit(Disassembler* dis)
 {
@@ -46,6 +50,59 @@ int find_label(Disassembler* dis, int label_value)
     {
         if(dis->labels[i] == label_value) return (int)i;
     }
-
     return -1;
+}
+
+//====== ПОИСК ВСЕХ МЕТОК В КОДЕ ======//
+dis_err label_search(Disassembler* dis)
+{
+    if(dis->buffer == NULL) return DIS_NULL_BUFFER;
+    if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
+
+    for(dis->offset = 0; dis->offset < dis->buffer_size;)
+    {
+        if(dis->offset + sizeof(COMMAND_TYPE) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
+        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(COMMAND_TYPE));
+        bool found = 0;
+        for(size_t j = 0; j < COMMANDS_COUNT; j++)
+        {    
+            if(COMMANDS[j].num != comm) continue;
+            found = 1;
+            if(COMMANDS[j].dis_func != dis_jump)
+            {
+                dis->offset += COMMANDS[j].byte_size;
+                break;
+            }
+            if(dis->offset + sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE) > dis->buffer_size)
+            {
+                return DIS_ARGUMENT_INVALID;
+            }
+            int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+            for(size_t k = 0; k < MAX_LABELS; k++)
+            {
+                if(dis->labels[k] == -1 || dis->labels[k] == value)
+                {
+                    dis->labels[k] = value;
+                    break;
+                }
+            }
+            dis->offset += COMMANDS[j].byte_size;
+            break;
+        }
+        if(!found) return DIS_UNKNOWN_COMMAND;
+    }
+    return DIS_CORRECT;
+}
+
+//====== ВСТАВКА МЕТКИ В КОД ======//
+void insert_label(Disassembler* dis, FILE* output_file)
+{
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        if(dis->labels[i] == (int)dis->offset)
+        {
+            fprintf(output_file, "\nLABEL %lu\n", i);
+            return;
+        }
+    }
 }

@@ -105,6 +105,8 @@ int bytecode_value(Assembler* asm_ptr, int value)
     return ASS_CORRECT;
 }
 
+
+//======= ПОИСК РЕГИСТРА ПО ИМЕНИ =======//
 int reg_cmp(const char* arg)
 {
     for(size_t i = 0; i < REG_COUNT; i++)

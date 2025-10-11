@@ -9,6 +9,7 @@
 
 bool correct_label(Assembler* ass, label* lbl);
 
+//====== РАЗБИЕНИЕ КОДА НА КОМАНДЫ И АРГУМЕНТЫ ======//
 size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
@@ -67,7 +68,7 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
     return count;
 }
 
-
+//====== УДАЛЕНИЕ ЛИШНИХ ПРОБЕЛЬНЫХ СИМВОЛОВ ИЗ СТРОКИ ======//
 size_t parse(char* source, char* dist, size_t max, size_t* read)
 {
     assert(source != NULL);
@@ -124,6 +125,7 @@ void ASSDestroy(Assembler* ass)
     ass->text = NULL;
 }
 
+//======= ПРОВЕРКА СУЩЕСТВОВАНИЯ МЕТКИ ПО ИМЕНИ =======//
 bool correct_label(Assembler* ass, label* lbl)
 {
     assert(ass);
@@ -148,6 +150,7 @@ label* get_label(Assembler* ass, char* label_name)
     return NULL;
 }
 
+//======= ПОСТКОМПИЛЯЦИЯ ДЛЯ РАССТАНОВКИ МЕТОК =======//
 ass_err ASSPostCompile(Assembler* ass)
 {
     size_t max_offset = ass->offset;
@@ -165,6 +168,7 @@ ass_err ASSPostCompile(Assembler* ass)
     return ASS_CORRECT;
 }
 
+//====== СОЗДАНИЕ НОВОЙ МЕТКИ ======//
 void add_label(Assembler* ass, char* name, int value)
 {
     assert(ass);
