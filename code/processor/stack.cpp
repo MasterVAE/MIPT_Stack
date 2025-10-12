@@ -26,13 +26,13 @@ void ErrorParser(int error)
 
 int StackVerify(Stack_t* stack)
 {
+    if(stack == NULL) return StackNull;
     stack->err_code = Verified;
-
-    if(stack == NULL) return stack->err_code |= StackNull;
     if(stack->capacity == 0) stack->err_code |= CapacityInvalid;
     if(stack->size > stack->capacity) stack->err_code |= StackOverflow;
     if(stack->data == NULL) return stack->err_code |= DataNull;
-    if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) return stack->err_code |= DataCorrupted;
+    if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) \
+    return stack->err_code |= DataCorrupted;
 
     return stack->err_code;
 }
