@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h> 
 
 #include "stack.h"
 #include "../language.h"
@@ -15,6 +16,7 @@
 #include "../commands.h"
 
 int run(SPU* processor); 
+void vram_dump(SPU* processor);
 
 const char* input_filename = "files/code.bcode";
 
@@ -58,11 +60,14 @@ int main()
 int run(SPU* processor)
 {
     int inp = debytecode_int(processor->buffer + processor->offset, sizeof(COMMAND_TYPE));
-    processor->offset += sizeof(COMMAND_TYPE);
 
     for(size_t i = 0; i < COMMANDS_COUNT; i++)
     {
-        if(inp == COMMANDS[i].num)  return COMMANDS[i].spu_func(processor);
+        if(inp == COMMANDS[i].num)
+        {    
+            processor->offset += sizeof(COMMAND_TYPE);
+            return COMMANDS[i].spu_func(processor);
+        }
     }
     return SPU_INVALID_COMMAND;
 }

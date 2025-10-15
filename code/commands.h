@@ -54,6 +54,7 @@ static const instruction COMMANDS[] =
     #endif
 
     CMD("HLT",  0b1000000, ass_def, spu_halt, dis_def,  sizeof(COMMAND_TYPE)),
+    CMD("DRAW",  0b1000001, ass_def, spu_draw, dis_def,  sizeof(COMMAND_TYPE)),
 
     CMD("ADD",  0b0000001, ass_def,  spu_add,  dis_def,  sizeof(COMMAND_TYPE)),
     CMD("SUB",  0b0000010, ass_def,  spu_sub,  dis_def,  sizeof(COMMAND_TYPE)),  
@@ -65,8 +66,11 @@ static const instruction COMMANDS[] =
     CMD("IN",   0b0001000, ass_def,  spu_in,   dis_def,  sizeof(COMMAND_TYPE)),
     CMD("OUT",  0b0001001, ass_def,  spu_out,  dis_def,  sizeof(COMMAND_TYPE)),
     CMD("POPR", 0b0010000, ass_popr, spu_popr, dis_popr, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
-    CMD("PUSHR",0b0010001, ass_pushr,spu_pushr,dis_popr, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
+    CMD("PUSHR",0b0010001, ass_popr,spu_pushr, dis_popr, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
+    CMD("POPM", 0b0010010, ass_popm, spu_popm, dis_popr, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
+    CMD("PUSHM",0b0010011, ass_popm,spu_pushm, dis_popr, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
     
+
     CMD("JMP",  0b0100000, ass_jump, spu_jmp,  dis_jump, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
     CMD("JB",   0b0100001, ass_jump, spu_jb,   dis_jump, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),
     CMD("JBE",  0b0100010, ass_jump, spu_jbe,  dis_jump, sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE)),

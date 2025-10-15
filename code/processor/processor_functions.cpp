@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "processor_functions.h"
 #include "stack.h"
@@ -13,9 +14,28 @@ if(err != 0) {(stack)->err_code = err; return SPU_STACK_ERROR;}
 #define PUSH_ERR(stack, value) {int error = StackPush(stack, value); \
 if(error != 0) {(stack)->err_code = error; return SPU_STACK_ERROR;}}
 
+void draw(SPU* processor);
+
+void draw(SPU* processor)
+{
+    usleep(300000);
+    printf("VRAM\n");
+    for(size_t i = 0; i < RAM_COUNT; i++)
+    {
+        if(i % VRAM_BY_LINE == 0) printf("\n");
+        printf("%c", processor->ram[i]);
+    }
+    printf("\n");
+}
 spu_err spu_halt(SPU*)
 {
     return SPU_HALT_STATE;
+}
+
+spu_err spu_draw(SPU* processor)
+{
+    draw(processor);
+    return SPU_CORRECT;
 }
 
 spu_err spu_add(SPU* processor)
@@ -117,6 +137,27 @@ spu_err spu_popr(SPU* processor)
    
     return SPU_CORRECT;
 } 
+
+//ПРОВЕРКА НА ВАЛИДНОСТЬ ЯЧЕЙКИ ПАМЯТИ
+spu_err spu_pushm(SPU* processor)
+{
+    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
+    processor->offset += sizeof(VALUE_TYPE);
+    PUSH_ERR(&processor->stack, processor->ram[processor->reg[reg]]); 
+    return SPU_CORRECT;
+}
+
+spu_err spu_popm(SPU* processor)
+{
+    size_t reg = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    if(reg >= REG_COUNT) return SPU_INVALID_REGISTER;
+    processor->offset += sizeof(VALUE_TYPE);
+    int err = 0;
+    processor->ram[processor->reg[reg]] = (char)POP_ERR(&processor->stack, &err);
+   
+    return SPU_CORRECT;
+}
 
 spu_err spu_jmp(SPU* processor)
 {

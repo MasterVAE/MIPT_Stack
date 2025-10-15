@@ -9,8 +9,8 @@ int bytecode_value  (Assembler* asm_ptr, int command);
 ass_err ass_def    (Assembler* asm_ptr, size_t my_ind);
 
 ass_err ass_push    (Assembler* asm_ptr, size_t my_ind);
-ass_err ass_pushr   (Assembler* asm_ptr, size_t my_ind);
 ass_err ass_popr    (Assembler* asm_ptr, size_t my_ind);
+ass_err ass_popm    (Assembler* asm_ptr, size_t my_ind);
 
 ass_err ass_jump    (Assembler* asm_ptr, size_t my_ind);
 

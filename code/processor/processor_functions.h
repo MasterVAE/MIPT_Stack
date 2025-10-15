@@ -17,6 +17,7 @@ typedef enum spu_err
 } spu_err;
 
 spu_err spu_halt    (SPU* processor);
+spu_err spu_draw    (SPU* processor);
 
 spu_err spu_add     (SPU* processor);
 spu_err spu_sub     (SPU* processor);
@@ -29,6 +30,8 @@ spu_err spu_out     (SPU* processor);
 spu_err spu_in      (SPU* processor);
 spu_err spu_pushr   (SPU* processor);
 spu_err spu_popr    (SPU* processor);
+spu_err spu_pushm   (SPU* processor);
+spu_err spu_popm    (SPU* processor);
 
 spu_err spu_jmp     (SPU* processor);
 spu_err spu_jb      (SPU* processor);

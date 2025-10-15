@@ -33,7 +33,7 @@ size_t file_len(FILE* file)
 
 int debytecode_int(char* code, size_t size)
 {
-    int value;
+    int value = 0;
     memcpy(&value, code, size);
     return value;
 }

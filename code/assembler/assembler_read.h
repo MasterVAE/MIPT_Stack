@@ -37,8 +37,8 @@ const char* error_parser(int error);
 const size_t buffer_start_size = 5;
 const size_t buffer_size_mult = 2;
 
-const size_t MAX_JUMPS = 10;
-const size_t MAX_LABELS = 10;
+const size_t MAX_JUMPS = 40;
+const size_t MAX_LABELS = 40;
 
 const size_t MAX_COMMAND_LENGHT = 20;
 

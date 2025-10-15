@@ -40,6 +40,7 @@ typedef struct processor
     Stack_t return_stack;
 
     int reg[REG_COUNT];
+    char ram[RAM_COUNT]; //ВЫНЕСТИ В КУЧУ
 
     int err_code;
     

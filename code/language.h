@@ -5,6 +5,8 @@ typedef char    COMMAND_TYPE;
 typedef int     VALUE_TYPE;
 
 typedef int stack_type;
+const size_t RAM_COUNT = 400;
+const size_t VRAM_BY_LINE = 20;
 
 const char* const regs[] = 
 {
@@ -14,8 +16,8 @@ const char* const regs[] =
     "SR4",
     "SR5",
     "SR6",
-    "SR7",
-    "SR8"
+    "SRX",
+    "SRY"
 };
 
 const size_t REG_COUNT = sizeof(regs)/sizeof(char*);

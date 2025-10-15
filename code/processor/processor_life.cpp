@@ -32,6 +32,7 @@ int SPUInit(SPU* processor)
     processor->offset = 0;
     processor->buffer_size = 0;
     processor->err_code = 0;
+    for(size_t i = 0; i < RAM_COUNT; i++)   processor->ram[i] = 95;
     return SPU_CORRECT;
 }
 

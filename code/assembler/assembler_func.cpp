@@ -16,11 +16,11 @@ ass_err ass_def(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-ass_err ass_pushr(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_popr(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
-    
+
     int reg = reg_cmp(arg);
     if(reg == -1) return ASS_ARGUMENT_INVALID;
 
@@ -29,7 +29,7 @@ ass_err ass_pushr(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-ass_err ass_popr(Assembler* asm_ptr, size_t my_ind)
+ass_err ass_popm(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
