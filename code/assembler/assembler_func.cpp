@@ -34,7 +34,9 @@ ass_err ass_popm(Assembler* asm_ptr, size_t my_ind)
     char* arg = asm_ptr->text[asm_ptr->line_offset].args[0];
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
-    int reg = reg_cmp(arg);
+    char arg2[11] = {};
+    if(!sscanf(arg, "[%3s]", arg2)) return ASS_ARGUMENT_INVALID;
+    int reg = reg_cmp(arg2);
     if(reg == -1) return ASS_ARGUMENT_INVALID;
 
     bytecode_comm(asm_ptr, COMMANDS[my_ind].num);
@@ -48,11 +50,28 @@ ass_err ass_push(Assembler* asm_ptr, size_t my_ind)
     if((arg = asm_ptr->text[asm_ptr->line_offset].args[0]) == NULL) return ASS_ARGUMENT_INVALID;
     
     int value = 0;
-    if(!sscanf(arg, "%10d", &value)) return ASS_ARGUMENT_INVALID;
-
-    bytecode_comm(asm_ptr, COMMANDS[my_ind].num); 
-    bytecode_value(asm_ptr, value);
-    return ASS_CORRECT;
+    char data[11] = {};
+    if(sscanf(arg, "%10d", &value))
+    {
+        bytecode_comm(asm_ptr, COMMANDS[my_ind].num); 
+        bytecode_value(asm_ptr, value);
+        return ASS_CORRECT;
+    }
+    if(sscanf(arg, "[%3s]", data))
+    {
+        for(size_t i = 0; i < COMMANDS_COUNT; i++)
+        {
+            if(!strcmp(COMMANDS[i].name, "PUSHM"))  return ass_popm(asm_ptr, i);
+        }
+    }
+    if(sscanf(arg, "%10s", data))
+    {
+        for(size_t i = 0; i < COMMANDS_COUNT; i++)
+        {
+            if(!strcmp(COMMANDS[i].name, "PUSHR"))  return ass_popr(asm_ptr, i);
+        }
+    }
+    return ASS_ARGUMENT_INVALID;
 }
 
 ass_err ass_jump(Assembler* asm_ptr, size_t my_ind)

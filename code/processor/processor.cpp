@@ -22,6 +22,8 @@ const char* input_filename = "files/code.bcode";
 
 int main()
 {
+    setvbuf(stdout, NULL, _IONBF, 0);
+    
     printf("SPU STARTING...\n");
     SPU spu_main = {};
     int error = SPUInit(&spu_main);

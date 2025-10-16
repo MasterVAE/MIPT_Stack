@@ -1,6 +1,7 @@
 SOURCES_ASSEMBLER = $(wildcard code/assembler/*.cpp) code/lib.cpp
 SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp) code/lib.cpp
 SOURCES_PROCESSOR = $(wildcard code/processor/*.cpp) code/lib.cpp
+SOURCES_PNG = $(wildcard code/png_parser/*.cpp)
 
 OBJ_DIR = obj
 SOURCE_DIR = ./
@@ -14,11 +15,15 @@ SOURCES_DISASSEMBLER  := $(addprefix $(SOURCE_DIR)/, $(SOURCES_DISASSEMBLER))
 OBJECTS_PROCESSOR := $(addprefix $(OBJ_DIR)/, $(SOURCES_PROCESSOR:.cpp=.o))
 SOURCES_PROCESSOR := $(addprefix $(SOURCE_DIR)/, $(SOURCES_PROCESSOR))
 
+OBJECTS_PNG := $(addprefix $(OBJ_DIR)/, $(SOURCES_PNG:.cpp=.o))
+SOURCES_PNG := $(addprefix $(SOURCE_DIR)/, $(SOURCES_PNG))
+
 HEADERS = $(wildcard $(SOURCE_DIR)/*.h)
 
 TARGET_ASSEMBLER = build/asm.out
 TARGET_DISASSEMBLER = build/dis.out
 TARGET_PROCESSOR = build/spu.out
+TARGET_PNG = build/png.out
 
 CC = g++
 
@@ -32,15 +37,19 @@ $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(HEADERS)
 
 $(TARGET_ASSEMBLER): $(OBJECTS_ASSEMBLER)
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "Linked Successfully"
+	@echo "LINKED ASSEMBLER"
 
 $(TARGET_DISASSEMBLER): $(OBJECTS_DISASSEMBLER)
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "Linked Successfully"
+	@echo "LINKED DISASSEMBLER"
 
 $(TARGET_PROCESSOR): $(OBJECTS_PROCESSOR)
 	@$(CC) $(CFLAGS) $^ -o $@
-	@echo "Linked Successfully"
+	@echo "LINKED PROCESSOR"
+
+$(TARGET_PNG): $(OBJECTS_PNG)
+	@$(CC) $(CFLAGS) $^ -o $@ -lpng
+	@echo "LINKED PNG"
 
 asm: $(TARGET_ASSEMBLER)	
 	@./$(TARGET_ASSEMBLER)
@@ -51,15 +60,20 @@ dis: $(TARGET_DISASSEMBLER)
 spu: $(TARGET_PROCESSOR)
 	@./$(TARGET_PROCESSOR)
 
+png: $(TARGET_PNG)
+	@./$(TARGET_PNG)
+
 asm_b: $(TARGET_ASSEMBLER)	
 dis_b: $(TARGET_DISASSEMBLER)
 spu_b: $(TARGET_PROCESSOR)
+png_b: $(TARGET_PNG)
 
-all: asm_b spu_b dis_b
+all: asm_b spu_b dis_b png_b
 
 clean:
 	@rm -rf $(OBJ_DIR)
 	@rm -f $(TARGET_ASSEMBLER)
 	@rm -f $(TARGET_PROCESSOR)
 	@rm -f $(TARGET_DISASSEMBLER)
-	@echo "Cleaned Successfully"
+	@rm -f $(TARGET_PNG)
+	@echo "CLEANED"

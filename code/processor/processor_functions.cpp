@@ -6,6 +6,7 @@
 #include "stack.h"
 #include "../language.h"
 #include "../lib.h"
+#include "../colors.h"
 
 #define POP_ERR(stack, err) StackPop(stack, err); \
 if(*err != 0) {(stack)->err_code = *err; return SPU_STACK_ERROR;}
@@ -16,16 +17,23 @@ if(error != 0) {(stack)->err_code = error; return SPU_STACK_ERROR;}}
 
 void draw(SPU* processor);
 
+
 void draw(SPU* processor)
 {
-    usleep(300000);
-    printf("VRAM\n");
+    usleep(100);
+    size_t vbuf_size = 2 * RAM_COUNT + RAM_COUNT/VRAM_BY_LINE + 1;
+    char* vbuf = (char*)calloc(vbuf_size, sizeof(char));
+    size_t vbuf_counter = 0;
+    printf("\033[2J\033[fVRAM\n");
     for(size_t i = 0; i < RAM_COUNT; i++)
     {
-        if(i % VRAM_BY_LINE == 0) printf("\n");
-        printf("%c", processor->ram[i]);
+        if(i % VRAM_BY_LINE == 0) vbuf[vbuf_counter++] = '\n';
+        vbuf[vbuf_counter++] = processor->ram[i];
+        vbuf[vbuf_counter++] = ' ';
     }
-    printf("\n");
+    vbuf[vbuf_counter++] = '\n';
+    write(STDOUT_FILENO, vbuf, vbuf_size);
+    free(vbuf);
 }
 spu_err spu_halt(SPU*)
 {
@@ -138,20 +146,27 @@ spu_err spu_popr(SPU* processor)
     return SPU_CORRECT;
 } 
 
-//ПРОВЕРКА НА ВАЛИДНОСТЬ ЯЧЕЙКИ ПАМЯТИ
 spu_err spu_pushm(SPU* processor)
 {
     int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
     if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
     processor->offset += sizeof(VALUE_TYPE);
-    PUSH_ERR(&processor->stack, processor->ram[processor->reg[reg]]); 
+
+    int ram = processor->reg[reg];
+    if(ram < 0 || ram >= (int)RAM_COUNT) return SPU_INVALID_RAM;
+
+    PUSH_ERR(&processor->stack, processor->ram[ram]); 
     return SPU_CORRECT;
 }
 
 spu_err spu_popm(SPU* processor)
 {
-    size_t reg = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg >= REG_COUNT) return SPU_INVALID_REGISTER;
+    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
+
+    int ram = processor->reg[reg];
+    if(ram < 0 || ram >= (int)RAM_COUNT) return SPU_INVALID_RAM;
+    
     processor->offset += sizeof(VALUE_TYPE);
     int err = 0;
     processor->ram[processor->reg[reg]] = (char)POP_ERR(&processor->stack, &err);

@@ -13,7 +13,8 @@ typedef enum spu_err
     SPU_PROCESSOR_NULL = 1 << 5,
     SPU_REG_NULL = 1 << 6,
     SPU_BUFFER_NULL = 1 << 7,
-    SPU_INVALID_REGISTER = 1 << 8
+    SPU_INVALID_REGISTER = 1 << 8,
+    SPU_INVALID_RAM = 1 << 9
 } spu_err;
 
 spu_err spu_halt    (SPU* processor);

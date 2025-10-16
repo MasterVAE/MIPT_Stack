@@ -106,6 +106,7 @@ void SPUErrorParser(int error)
     if(IsError(error, SPU_REG_NULL))            fprintf(ERROR_STREAM, "Error: register NULL\n");
     if(IsError(error, SPU_BUFFER_NULL))         fprintf(ERROR_STREAM, "Error: buffer null\n");
     if(IsError(error, SPU_INVALID_REGISTER))    fprintf(ERROR_STREAM, "Error: invalid register\n");
+    if(IsError(error, SPU_INVALID_RAM))         fprintf(ERROR_STREAM, "Error: invalid RAM adress\n");
 }
 
 void print_buffer(FILE* stream, SPU* processor)
