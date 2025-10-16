@@ -20,7 +20,7 @@ void draw(SPU* processor);
 
 void draw(SPU* processor)
 {
-    usleep(100);
+    usleep(10000);
     size_t vbuf_size = 2 * RAM_COUNT + RAM_COUNT/VRAM_BY_LINE + 1;
     char* vbuf = (char*)calloc(vbuf_size, sizeof(char));
     size_t vbuf_counter = 0;

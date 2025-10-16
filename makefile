@@ -1,3 +1,7 @@
+FFMPEG_LIBS = -lavformat -lavcodec -lavutil -lswscale
+PNG_LIBS = -lpng -lz
+MATH_LIB = -lm
+
 SOURCES_ASSEMBLER = $(wildcard code/assembler/*.cpp) code/lib.cpp
 SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp) code/lib.cpp
 SOURCES_PROCESSOR = $(wildcard code/processor/*.cpp) code/lib.cpp
@@ -48,12 +52,12 @@ $(TARGET_PROCESSOR): $(OBJECTS_PROCESSOR)
 	@echo "LINKED PROCESSOR"
 
 $(TARGET_PNG): $(OBJECTS_PNG)
-	@$(CC) $(CFLAGS) $^ -o $@ -lpng
+	@$(CC) $(CFLAGS) $^ -o $@ $(FFMPEG_LIBS)
 	@echo "LINKED PNG"
 
 asm: $(TARGET_ASSEMBLER)	
 	@./$(TARGET_ASSEMBLER)
-
+$(ALL_LIBS)
 dis: $(TARGET_DISASSEMBLER)
 	@./$(TARGET_DISASSEMBLER)
 
