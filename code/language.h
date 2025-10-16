@@ -5,6 +5,7 @@ typedef char    COMMAND_TYPE;
 typedef int     VALUE_TYPE;
 
 typedef int stack_type;
+
 const size_t RAM_COUNT = 80 * 45;
 const size_t VRAM_BY_LINE = 80;
 

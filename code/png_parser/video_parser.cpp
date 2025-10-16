@@ -1,155 +1,93 @@
 extern "C" {
     #include <libavformat/avformat.h>
     #include <libavcodec/avcodec.h>
-    #include <libavutil/imgutils.h>
-    #include <libswscale/swscale.h>
 }
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
 
-//УВАГА
-//БОЛЬШУЮ ЧАСТЬ ЭТОЙ НУТЕЛЛЫ НАПИСАЛ DEEPSUCK
-//НЕ НАДО К НЕЙ ПРИДИРАТЬСЯ 
+#include "../language.h"
 
 const char* MP4_NAME = "files/ba.mp4";
 const char* ASM_NAME = "files/code.asm";
 
-char* last_frame;
+const size_t MAX_FRAMES = 10000;
 
-void process_frame(AVFrame *frame, int, FILE* asm_file) {
-    int width = frame->width;
-    int height = frame->height;
-    
-    for (int y = 0; y < height-2; y++) {
-        for (int x = 0; x < width; x++) {
-                int y_index = y * frame->linesize[0] + x;
-                int u_index = (y/2) * frame->linesize[1] + (x/2);
-                int v_index = (y/2) * frame->linesize[2] + (x/2);
-                
-                uint8_t Y = frame->data[0][y_index];
-                uint8_t U = frame->data[1][u_index];
-                uint8_t V = frame->data[2][v_index];
-                
-                int r = Y + 1.402 * (V - 128);
-                int g = Y - 0.344 * (U - 128) - 0.714 * (V - 128);
-                int b = Y + 1.772 * (U - 128);
+char last_frame[RAM_COUNT] = {0};
+
+void process_frame(AVFrame*, FILE*);
+
+void process_frame(AVFrame* frame, FILE* asm_file) 
+{
+    for (int y = 0; y < frame->height-2; y++) {
+        for (int x = 0; x < frame->width; x++) {
+            int y_idx = y * frame->linesize[0] + x;
+
+            uint8_t Y = frame->data[0][y_idx];
+            int brightness = (int)Y;
+            char pixel = (brightness > 150) ? '@' : ' ';
+            int index = y * 80 + x;
             
-                int ind = (y+1) * 80 + x;
-
-                if(r > 70 || g > 70 || b > 70)
-                {
-                    if(last_frame[ind] != '#')
-                    {
-                        fprintf(asm_file,\
-                            "PUSH %d\n"\
-                            "POPR SR1\n"\
-                            "PUSH 35\n"\
-                            "POPM [SR1]\n", ind);
-                        last_frame[ind] = '#';
-                     }
-                }
-                else
-                {
-                    if(last_frame[ind] != '_')
-                    {
-                        fprintf(asm_file,\
-                            "PUSH %d\n"\
-                            "POPR SR1\n"\
-                            "PUSH 95\n"\
-                            "POPM [SR1]\n", ind);
-                        last_frame[ind] = '_';
-                    }
-                }
+            if (last_frame[index] != pixel) {
+                fprintf(asm_file, 
+                    "PUSH %d\n"
+                    "POPR SR1\n"
+                    "PUSH %d\n"
+                    "POPM [SR1]\n", index, pixel);
+                last_frame[index] = pixel;
+            }
         }
     }
 }
 
-int main() {
-    AVFormatContext *format_ctx = NULL;
-    AVCodecContext *codec_ctx = NULL;
-    const AVCodec *codec = NULL;
-    AVPacket *packet = NULL;
-    AVFrame *frame = NULL;
-    int video_stream_index = -1;
-    int frame_count = 0;
-    const int MAX_FRAMES = 10000;
-    
-    AVCodecParameters *codec_params = NULL;
-    
-    format_ctx = NULL;
-    codec_ctx = NULL;
-    codec = NULL;
-    packet = NULL;
-    frame = NULL;
+int main() 
+{
+    AVFormatContext* fmt_ctx = NULL;
+    avformat_open_input(&fmt_ctx, MP4_NAME, NULL, NULL);
 
-    FILE *asm_file = fopen(ASM_NAME, "w+");
-    avformat_open_input(&format_ctx, MP4_NAME, NULL, NULL);
-    avformat_find_stream_info(format_ctx, NULL);
+    avformat_find_stream_info(fmt_ctx, NULL);
 
-    for (int i = 0; i < format_ctx->nb_streams; i++) {
-        if (format_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            video_stream_index = i;
+    int video_stream = -1;
+    for (size_t i = 0; i < fmt_ctx->nb_streams; i++) {
+        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            video_stream = (int)i;
             break;
         }
     }
-    
 
-    codec_params = format_ctx->streams[video_stream_index]->codecpar;
-    codec = avcodec_find_decoder(codec_params->codec_id);
-    
-    codec_ctx = avcodec_alloc_context3(codec);
-    
-    avcodec_parameters_to_context(codec_ctx, codec_params);
+    AVCodecParameters* codec_par = fmt_ctx->streams[video_stream]->codecpar;
+    const AVCodec* codec = avcodec_find_decoder(codec_par->codec_id);
+    AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
+    avcodec_parameters_to_context(codec_ctx, codec_par);
     avcodec_open2(codec_ctx, codec, NULL);
-
-    printf("=== Информация о видео ===\n");
-    printf("Формат: %s\n", format_ctx->iformat->name);
-    printf("Длительность: %ld секунд\n", format_ctx->duration / AV_TIME_BASE);
-    printf("Разрешение: %dx%d\n", codec_ctx->width, codec_ctx->height);
-    printf("Битрейт: %ld\n", format_ctx->bit_rate);
-    printf("Кодек: %s\n", codec->name);
-    printf("Пиксельный формат: %s\n", av_get_pix_fmt_name(codec_ctx->pix_fmt));
-    printf("==========================\n\n");
     
-    packet = av_packet_alloc();
-    frame = av_frame_alloc();
+    FILE* asm_file = fopen(ASM_NAME, "w");
+    AVPacket* packet = av_packet_alloc();
+    AVFrame* frame = av_frame_alloc();
 
-    last_frame = (char*)calloc(codec_ctx->width * codec_ctx->height, sizeof(char));
-    while (av_read_frame(format_ctx, packet) >= 0) {
-        if (packet->stream_index == video_stream_index) {
-            int send_ret = avcodec_send_packet(codec_ctx, packet);
-
-            
-            while (send_ret >= 0) {
-                send_ret = avcodec_receive_frame(codec_ctx, frame);
-                if (send_ret == AVERROR(EAGAIN) || send_ret == AVERROR_EOF) {
-                    break;
-                }     
-                if(frame_count % 1 == 0)
-                {
-                    process_frame(frame, frame_count, asm_file);
-                    fprintf(asm_file, "DRAW\n");
-                }
+    size_t frame_count = 0;
+    
+    while (av_read_frame(fmt_ctx, packet) >= 0 && frame_count < MAX_FRAMES) {
+        if (packet->stream_index == video_stream) {
+            avcodec_send_packet(codec_ctx, packet);
+            if (avcodec_receive_frame(codec_ctx, frame) == 0) {
+                process_frame(frame, asm_file);
+                fprintf(asm_file, "DRAW\n");
                 frame_count++;
-                
-                if (frame_count >= MAX_FRAMES) {
-                    printf("\nОбработано %d кадров (сработало ограничение)\n", frame_count);
-                    goto cleanup;
-                }
             }
         }
         av_packet_unref(packet);
     }
-
-cleanup:
-    if (packet) av_packet_free(&packet);
-    if (frame) av_frame_free(&frame);
-    if (codec_ctx) avcodec_free_context(&codec_ctx);
-    if (format_ctx) avformat_close_input(&format_ctx);
-    fprintf(asm_file, "HLT\n");
-    printf("\nОбработка завершена. Всего обработано кадров: %d\n", frame_count);
     
+    fprintf(asm_file, "HLT\n");
+    fclose(asm_file);
+    
+    av_frame_free(&frame);
+    av_packet_free(&packet);
+    avcodec_free_context(&codec_ctx);
+    avformat_close_input(&fmt_ctx);
+    
+    printf("FRAMES PROCESSED: %lu\n", frame_count);
     return 0;
 }
