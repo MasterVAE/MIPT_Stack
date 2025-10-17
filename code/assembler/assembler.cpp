@@ -21,7 +21,7 @@
 #define CHECK(error) if(error != ASS_CORRECT) {error_printer(error);ASSDestroy(&ass);return 1;}
 
 
-ass_err assemble(Assembler* ass);
+ASSErr_t assemble(Assembler* ass);
 
 const char* input_file_name = "files/code.asm";
 const char* output_file_name = "files/code.bcode";
@@ -32,19 +32,20 @@ int main(int argc, char *argv[])
 
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
     Assembler ass = {};
-    ASSInit(&ass);
+    ASSErr_t error = ASSInit(&ass);
+    CHECK(error)
 
     OPEN(input_file, input_file_name, "r")
 
-    char* buffer = NULL;
-    size_t size = 0;
+    char* input_file_buffer = NULL;
+    size_t input_buffer_size = 0;
 
-    initialize_buffer(&buffer, &size, input_file);
+    initialize_buffer(&input_file_buffer, &input_buffer_size, input_file);
     fclose(input_file);   
-    ass.lines_count = initialize_text(&ass.text, buffer, size);
+    ass.lines_count = initialize_text(&ass.text, input_file_buffer, input_buffer_size);
     
-    ass_err error = assemble(&ass);
-    free(buffer);
+    error = assemble(&ass);
+    free(input_file_buffer);
     CHECK(error)
 
     error = ASSPostCompile(&ass);
@@ -52,15 +53,16 @@ int main(int argc, char *argv[])
 
     OPEN(output_file, output_file_name, "w+")
 
-    fwrite(ass.buffer, sizeof(char), ass.offset, output_file);
+    fwrite(ass.buffer, sizeof(ass.buffer[0]), ass.offset, output_file);
     fclose(output_file);
     
     ASSDestroy(&ass);
     printf(GREEN "Success compiling: " CLEAN "%s -> %s\n", input_file_name, output_file_name);
+
     return 0;
 }
 
-ass_err assemble(Assembler* ass)
+ASSErr_t assemble(Assembler* ass)
 {
     if(ass == NULL)             return ASS_ASSEMBLER_NULL;
     if(ass->text == NULL)       return ASS_NULL_TEXT_POINTER;
@@ -83,7 +85,7 @@ ass_err assemble(Assembler* ass)
             if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[j].name))
             {
                 found = 1;
-                ass_err error = COMMANDS[j].ass_func(ass, j);
+                ASSErr_t error = COMMANDS[j].ass_func(ass, j);
                 if(error != ASS_CORRECT)
                 {
                     printf(RED "ERROR " CLEAN "%s:%lu    %s\n",

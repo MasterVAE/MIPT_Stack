@@ -17,15 +17,14 @@ if(error != 0) {(stack)->err_code = error; return SPU_STACK_ERROR;}}
 
 void draw(SPU* processor);
 
-
 void draw(SPU* processor)
 {
     usleep(20000);
-    size_t vbuf_size = 2 * RAM_COUNT + RAM_COUNT/VRAM_BY_LINE + 1;
+    size_t vbuf_size = 2 * RAM_SIZE + RAM_SIZE/VRAM_BY_LINE + 1;
     char* vbuf = (char*)calloc(vbuf_size, sizeof(char));
     size_t vbuf_counter = 0;
     printf("\033[2J\033[fVRAM\n");
-    for(size_t i = 0; i < RAM_COUNT; i++)
+    for(size_t i = 0; i < RAM_SIZE; i++)
     {
         if(i % VRAM_BY_LINE == 0) vbuf[vbuf_counter++] = '\n';
         vbuf[vbuf_counter++] = processor->ram[i];
@@ -35,18 +34,19 @@ void draw(SPU* processor)
     write(STDOUT_FILENO, vbuf, vbuf_size);
     free(vbuf);
 }
-spu_err spu_halt(SPU*)
+
+SPUErr_t spu_halt(SPU*)
 {
     return SPU_HALT_STATE;
 }
 
-spu_err spu_draw(SPU* processor)
+SPUErr_t spu_draw(SPU* processor)
 {
     draw(processor);
     return SPU_CORRECT;
 }
 
-spu_err spu_add(SPU* processor)
+SPUErr_t spu_add(SPU* processor)
 {
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -56,7 +56,7 @@ spu_err spu_add(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_sub(SPU* processor)
+SPUErr_t spu_sub(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -66,7 +66,7 @@ spu_err spu_sub(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_mul(SPU* processor)
+SPUErr_t spu_mul(SPU* processor)
 {
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -76,7 +76,7 @@ spu_err spu_mul(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_div(SPU* processor)
+SPUErr_t spu_div(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -92,7 +92,7 @@ spu_err spu_div(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_sqrt(SPU* processor)
+SPUErr_t spu_sqrt(SPU* processor)
 {
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
@@ -100,15 +100,15 @@ spu_err spu_sqrt(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_push(SPU* processor)
+SPUErr_t spu_push(SPU* processor)
 {
-    stack_type value = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    processor->offset += sizeof(VALUE_TYPE);
+    stack_type value = debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
+    processor->offset += sizeof(value_type);
     PUSH_ERR(&processor->stack, value);
     return SPU_CORRECT;
 }
 
-spu_err spu_out(SPU* processor)
+SPUErr_t spu_out(SPU* processor)
 {
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
@@ -116,7 +116,7 @@ spu_err spu_out(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_in(SPU* processor)
+SPUErr_t spu_in(SPU* processor)
 {
     printf("SPU IN: ");  
     stack_type value = 0;
@@ -126,63 +126,63 @@ spu_err spu_in(SPU* processor)
     return SPU_CORRECT;
 }
 
-spu_err spu_pushr(SPU* processor)
+SPUErr_t spu_pushr(SPU* processor)
 {
-    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
-    processor->offset += sizeof(VALUE_TYPE);
+    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
+    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
+    processor->offset += sizeof(value_type);
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
     return SPU_CORRECT;
 }
 
-spu_err spu_popr(SPU* processor)
+SPUErr_t spu_popr(SPU* processor)
 {
-    size_t reg = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg >= REG_COUNT) return SPU_INVALID_REGISTER;
-    processor->offset += sizeof(VALUE_TYPE);
+    size_t reg = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
+    if(reg >= REG_SIZE) return SPU_INVALID_REGISTER;
+    processor->offset += sizeof(value_type);
     int err = 0;
     processor->reg[reg] = POP_ERR(&processor->stack, &err);
    
     return SPU_CORRECT;
 } 
 
-spu_err spu_pushm(SPU* processor)
+SPUErr_t spu_pushm(SPU* processor)
 {
-    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
-    processor->offset += sizeof(VALUE_TYPE);
+    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
+    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
+    processor->offset += sizeof(value_type);
 
     int ram = processor->reg[reg];
-    if(ram < 0 || ram >= (int)RAM_COUNT) return SPU_INVALID_RAM;
+    if(ram < 0 || ram >= (int)RAM_SIZE) return SPU_INVALID_RAM;
 
     PUSH_ERR(&processor->stack, processor->ram[ram]); 
     return SPU_CORRECT;
 }
 
-spu_err spu_popm(SPU* processor)
+SPUErr_t spu_popm(SPU* processor)
 {
-    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
-    if(reg < 0 || reg >= (int)REG_COUNT) return SPU_INVALID_REGISTER;
+    int reg = debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
+    if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
 
     int ram = processor->reg[reg];
-    if(ram < 0 || ram >= (int)RAM_COUNT) return SPU_INVALID_RAM;
+    if(ram < 0 || ram >= (int)RAM_SIZE) return SPU_INVALID_RAM;
     
-    processor->offset += sizeof(VALUE_TYPE);
+    processor->offset += sizeof(value_type);
     int err = 0;
     processor->ram[processor->reg[reg]] = (char)POP_ERR(&processor->stack, &err);
    
     return SPU_CORRECT;
 }
 
-spu_err spu_jmp(SPU* processor)
+SPUErr_t spu_jmp(SPU* processor)
 {
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_jb(SPU* processor)
+SPUErr_t spu_jb(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -190,17 +190,17 @@ spu_err spu_jb(SPU* processor)
 
     if(a >= b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_jbe(SPU* processor)
+SPUErr_t spu_jbe(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -208,17 +208,17 @@ spu_err spu_jbe(SPU* processor)
 
     if(a > b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_ja(SPU* processor)
+SPUErr_t spu_ja(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -226,17 +226,17 @@ spu_err spu_ja(SPU* processor)
 
     if(a <= b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_jae(SPU* processor)
+SPUErr_t spu_jae(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -244,17 +244,17 @@ spu_err spu_jae(SPU* processor)
 
     if(a < b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_je(SPU* processor)
+SPUErr_t spu_je(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -262,17 +262,17 @@ spu_err spu_je(SPU* processor)
 
     if(a != b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_jne(SPU* processor)
+SPUErr_t spu_jne(SPU* processor)
 {
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -280,26 +280,26 @@ spu_err spu_jne(SPU* processor)
 
     if(a == b)
     {
-        processor->offset += sizeof(VALUE_TYPE);
+        processor->offset += sizeof(value_type);
         return SPU_CORRECT;
     }
 
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_call(SPU* processor)
+SPUErr_t spu_call(SPU* processor)
 {
-    PUSH_ERR(&processor->return_stack, (stack_type)(processor->offset + sizeof(VALUE_TYPE)));
-    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(VALUE_TYPE));
+    PUSH_ERR(&processor->return_stack, (stack_type)(processor->offset + sizeof(value_type)));
+    size_t offset = (size_t)debytecode_int(processor->buffer + processor->offset, sizeof(value_type));
     if(offset >= processor->buffer_size) return SPU_INVALID_COMMAND;
     processor->offset = offset;
     return SPU_CORRECT;
 }
 
-spu_err spu_ret(SPU* processor)
+SPUErr_t spu_ret(SPU* processor)
 {
     int err = 0;
     size_t offset = (size_t)POP_ERR(&processor->return_stack, &err);

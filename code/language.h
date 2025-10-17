@@ -1,12 +1,13 @@
 #ifndef LANGUAGE_H_
 #define LANGUAGE_H_
 
-typedef char    COMMAND_TYPE;
-typedef int     VALUE_TYPE;
+#include <stddef.h>
 
+typedef char command_type;
+typedef int value_type;
 typedef int stack_type;
 
-const size_t RAM_COUNT = 80 * 45;
+const size_t RAM_SIZE = 80 * 45;
 const size_t VRAM_BY_LINE = 80;
 
 const char* const regs[] = 
@@ -21,7 +22,7 @@ const char* const regs[] =
     "SRY"
 };
 
-const size_t REG_COUNT = sizeof(regs)/sizeof(char*);
+const size_t REG_SIZE = sizeof(regs)/sizeof(regs[0]);
 const size_t ARG_LIMIT = 10;
 
-#endif
+#endif //LANGUAGE_H_

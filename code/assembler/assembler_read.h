@@ -5,7 +5,7 @@
 
 #include "../language.h"
 
-typedef enum assembler_errors
+typedef enum ASSErr
 {
     ASS_CORRECT, 
     ASS_ASSEMBLER_NULL,
@@ -19,20 +19,19 @@ typedef enum assembler_errors
     ASS_USED_LABEL,
     ASS_LABEL_INVALID,
     ASS_TOO_MANY_JUMPS
-} ass_err;
+} ASSErr_t;
 
 typedef struct Line
 {
     char* line;
     char* args[ARG_LIMIT];
     size_t arg_count;
-    
-}   Line;
+} Line;
 
 size_t initialize_text(Line** text, char* buffer, size_t size);
 size_t parse(char* source, char* dist, size_t max, size_t* read = NULL);
-void error_printer(int error);
-const char* error_parser(int error);
+void error_printer(ASSErr_t error);
+const char* error_parser(ASSErr_t error);
 
 const size_t buffer_start_size = 5;
 const size_t buffer_size_mult = 2;
@@ -67,15 +66,15 @@ typedef struct Assembler
 
     label labels[MAX_LABELS];
     jump_memory jumps[MAX_JUMPS];
-    size_t current_jump_memory = 0;
+    size_t current_jump_memory;
 
 } Assembler;
 
-int ASSInit(Assembler* ass);
+ASSErr_t ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);
-ass_err ASSPostCompile(Assembler* ass);
+ASSErr_t ASSPostCompile(Assembler* ass);
 
 label* get_label(Assembler* ass, char* label_name);
 void add_label(Assembler* ass, char* name, int value); 
 
-#endif
+#endif //ASSEMBLER_READ_H_

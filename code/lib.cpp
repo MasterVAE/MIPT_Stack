@@ -6,7 +6,7 @@
 
 #include "lib.h"
 
-void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
+char* initialize_buffer(char** buffer, size_t* size, FILE* input_file)
 {
     assert(buffer != NULL);
     assert(size != NULL);
@@ -22,6 +22,8 @@ void initialize_buffer(char** buffer, size_t* size, FILE* input_file)
 
     *size = len;
     *buffer = buff;
+
+    return *buffer;
 }
 
 size_t file_len(FILE* file)

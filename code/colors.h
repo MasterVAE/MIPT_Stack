@@ -10,4 +10,4 @@
 #define PINK    "\033[95m"
 #define YELLOW  "\033[93m"
 
-#endif
+#endif //COLORS_H_

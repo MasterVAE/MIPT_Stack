@@ -23,16 +23,22 @@ int SPUInit(SPU* processor)
         processor->stack.err_code = error;
         return SPU_STACK_ERROR;
     }
+
     error = StackInit(&processor->return_stack, 0);
     if(error != Verified)
     {
         processor->return_stack.err_code = error;
         return SPU_STACK_ERROR;
     }
+
     processor->offset = 0;
     processor->buffer_size = 0;
     processor->err_code = 0;
-    for(size_t i = 0; i < RAM_COUNT; i++)   processor->ram[i] = 95;
+    processor->buffer = NULL;
+
+    for(size_t i = 0; i < REG_SIZE; i++)   processor->reg[i] = 0;
+    for(size_t i = 0; i < RAM_SIZE; i++)   processor->ram[i] = 95;
+
     return SPU_CORRECT;
 }
 
@@ -54,7 +60,7 @@ void BufferDump(SPU* processor)
 void RegisterDump(SPU* processor)
 {
         fprintf(ERROR_STREAM, RED "\n\n- - - REGISTER dumping - - -\n" CLEAN);
-    for(size_t i = 0; i < REG_COUNT; i++)
+    for(size_t i = 0; i < REG_SIZE; i++)
     {
         fprintf(ERROR_STREAM, PINK "[%s]" CYAN " %d " CLEAN, regs[i], processor->reg[i]);
     }

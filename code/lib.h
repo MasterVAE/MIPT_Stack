@@ -11,9 +11,9 @@ typedef struct string
 }   string;
 
 size_t file_len(FILE* file);
-void initialize_buffer(char** buffer, size_t* size, FILE* input_file);
+char* initialize_buffer(char** buffer, size_t* size, FILE* input_file);
 int debytecode_int(char* code, size_t size);
 int IsError(int error, int check);
 string itos(unsigned value, unsigned base, size_t len);
 
-#endif
+#endif //LIB_H_

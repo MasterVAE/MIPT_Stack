@@ -19,11 +19,11 @@ typedef enum StackError
     DataCorrupted = 1 << 4,
     CapacityInvalid = 1 << 5,
     StackUnderflow = 1 << 6
-} stk_err;
+} StackError_t;
 
-bool IsError(int error, StackError check);
+bool IsError(int error, StackError_t check);
 
-typedef struct Stack_t
+typedef struct Stack
 {
     stack_type* data;
     size_t size;
@@ -31,7 +31,7 @@ typedef struct Stack_t
     int err_code;
 } Stack_t;
 
-typedef struct processor
+typedef struct SPU // ВЫнести из стека
 {
     Stack_t stack;
     char* buffer;
@@ -39,8 +39,8 @@ typedef struct processor
     size_t buffer_size;
     Stack_t return_stack;
 
-    int reg[REG_COUNT];
-    char ram[RAM_COUNT]; //ВЫНЕСТИ В КУЧУ
+    int reg[REG_SIZE];
+    char ram[RAM_SIZE]; //ВЫНЕСТИ В КУЧУ
 
     int err_code;
     
@@ -55,4 +55,4 @@ void StackDestroy(Stack_t* stack);
 
 const int shield_size = 1;
 
-#endif
+#endif //STACK_H_

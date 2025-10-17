@@ -61,8 +61,8 @@ dis_err label_search(Disassembler* dis)
 
     for(dis->offset = 0; dis->offset < dis->buffer_size;)
     {
-        if(dis->offset + sizeof(COMMAND_TYPE) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
-        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(COMMAND_TYPE));
+        if(dis->offset + sizeof(command_type) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
+        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(command_type));
         bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {    
@@ -73,11 +73,11 @@ dis_err label_search(Disassembler* dis)
                 dis->offset += COMMANDS[j].byte_size;
                 break;
             }
-            if(dis->offset + sizeof(COMMAND_TYPE) + sizeof(VALUE_TYPE) > dis->buffer_size)
+            if(dis->offset + sizeof(command_type) + sizeof(value_type) > dis->buffer_size)
             {
                 return DIS_ARGUMENT_INVALID;
             }
-            int value = debytecode_int(dis->buffer + dis->offset + sizeof(COMMAND_TYPE), sizeof(VALUE_TYPE));
+            int value = debytecode_int(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
             for(size_t k = 0; k < MAX_LABELS; k++)
             {
                 if(dis->labels[k] == -1 || dis->labels[k] == value)

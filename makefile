@@ -9,6 +9,7 @@ SOURCES_PNG = $(wildcard code/png_parser/*.cpp)
 
 OBJ_DIR = obj
 SOURCE_DIR = ./
+TARGET_DIR = build
 
 OBJECTS_ASSEMBLER := $(addprefix $(OBJ_DIR)/, $(SOURCES_ASSEMBLER:.cpp=.o))
 SOURCES_ASSEMBLER  := $(addprefix $(SOURCE_DIR)/, $(SOURCES_ASSEMBLER))
@@ -76,8 +77,5 @@ all: asm_b spu_b dis_b png_b
 
 clean:
 	@rm -rf $(OBJ_DIR)
-	@rm -f $(TARGET_ASSEMBLER)
-	@rm -f $(TARGET_PROCESSOR)
-	@rm -f $(TARGET_DISASSEMBLER)
-	@rm -f $(TARGET_PNG)
+	@rm -rf $(TARGET_DIR)
 	@echo "CLEANED"

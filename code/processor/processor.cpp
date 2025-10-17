@@ -61,13 +61,13 @@ int main()
 
 int run(SPU* processor)
 {
-    int inp = debytecode_int(processor->buffer + processor->offset, sizeof(COMMAND_TYPE));
+    int inp = debytecode_int(processor->buffer + processor->offset, sizeof(command_type));
 
     for(size_t i = 0; i < COMMANDS_COUNT; i++)
     {
         if(inp == COMMANDS[i].num)
         {    
-            processor->offset += sizeof(COMMAND_TYPE);
+            processor->offset += sizeof(command_type);
             return COMMANDS[i].spu_func(processor);
         }
     }

@@ -100,9 +100,10 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
     return offset;
 }
 
-int ASSInit(Assembler* ass)
+ASSErr_t ASSInit(Assembler* ass)
 {
-    if(ass == NULL) return 1;
+    if(ass == NULL) return ASS_ASSEMBLER_NULL;
+
     ass->offset = 0;
     ass->lines_count = 0;
     ass->line_offset = 0;
@@ -110,10 +111,16 @@ int ASSInit(Assembler* ass)
     ass->buffer = (char*)calloc(ass->buffer_size, sizeof(char));
     ass->current_jump_memory = 0;
     
-    for(size_t i = 0; i < MAX_LABELS; ass->labels[i++] = {"", -1});
-    for(size_t i = 0; i < MAX_JUMPS; ass->jumps[i++] = {"", 0});
+    for(size_t i = 0; i < MAX_LABELS; i++)
+    {
+        ass->labels[i] = {"", -1};
+    }
+    for(size_t i = 0; i < MAX_JUMPS; i++)
+    {
+        ass->jumps[i] = {"", 0};
+    }
 
-    return 0;
+    return ASS_CORRECT;
 }
 
 void ASSDestroy(Assembler* ass)
@@ -151,10 +158,12 @@ label* get_label(Assembler* ass, char* label_name)
 }
 
 //======= ПОСТКОМПИЛЯЦИЯ ДЛЯ РАССТАНОВКИ МЕТОК =======//
-ass_err ASSPostCompile(Assembler* ass)
+ASSErr_t ASSPostCompile(Assembler* ass)
 {
-    size_t max_offset = ass->offset;
     if(ass == NULL) return ASS_ASSEMBLER_NULL;
+    
+    size_t max_offset = ass->offset;
+
     for(size_t i = 0; i < ass->current_jump_memory; i++)
     {
         label fake = {{}, -1};
@@ -185,12 +194,12 @@ void add_label(Assembler* ass, char* name, int value)
     }
 }
 
-void error_printer(int error)
+void error_printer(ASSErr_t error)
 {
     fprintf(stderr, "%s\n", error_parser(error));
 }
 
-const char* error_parser(int error)
+const char* error_parser(ASSErr_t error)
 {
     switch (error)
     {

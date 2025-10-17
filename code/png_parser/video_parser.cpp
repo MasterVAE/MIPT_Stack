@@ -14,7 +14,7 @@ const char* ASM_NAME = "files/code.asm";
 
 const size_t MAX_FRAMES = 10000;
 
-char last_frame[RAM_COUNT] = {0};
+char last_frame[RAM_SIZE] = {0};
 
 void process_frame(AVFrame*, FILE*);
 

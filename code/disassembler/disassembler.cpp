@@ -61,11 +61,11 @@ dis_err disassemble(Disassembler* dis, FILE* out_file)
     if(out_file == NULL) return DIS_NULL_FILE;
     if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
 
-    for(dis->offset = 0; dis->offset < dis->buffer_size; dis->offset+=sizeof(COMMAND_TYPE))
+    for(dis->offset = 0; dis->offset < dis->buffer_size; dis->offset+=sizeof(command_type))
     {
         insert_label(dis, out_file);
-        if(dis->offset + sizeof(COMMAND_TYPE) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
-        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(COMMAND_TYPE));
+        if(dis->offset + sizeof(command_type) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
+        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(command_type));
         
         bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)

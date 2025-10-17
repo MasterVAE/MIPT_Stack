@@ -1,5 +1,5 @@
-#ifndef PROCESSOR_LIFE_H
-#define PROCESSOR_LIFE_H
+#ifndef PROCESSOR_LIFE_H_
+#define PROCESSOR_LIFE_H_
 
 #include "stack.h"
 
@@ -9,4 +9,4 @@ void SPUDump        (SPU* processor);
 int SPUVerify       (SPU* processor);
 void SPUErrorParser (int error);
 
-#endif
+#endif //PROCESSOR_LIFE_H_

@@ -36,4 +36,4 @@ int find_label(Disassembler* dis, int label_value);
 dis_err label_search(Disassembler* dis);
 void insert_label(Disassembler* dis, FILE* output_file);
 
-#endif
+#endif //DISASSEMLER_LIFE_H_

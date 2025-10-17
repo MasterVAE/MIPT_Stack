@@ -1,9 +1,9 @@
-#ifndef PROCESSOR_FUNC_H
-#define PROCESSOR_FUNC_H
+#ifndef PROCESSOR_FUNC_H_
+#define PROCESSOR_FUNC_H_
 
 #include "stack.h"
 
-typedef enum spu_err
+typedef enum SPUErr
 {
     SPU_CORRECT = 0,
     SPU_HALT_STATE = 1 << 1,
@@ -15,33 +15,33 @@ typedef enum spu_err
     SPU_BUFFER_NULL = 1 << 7,
     SPU_INVALID_REGISTER = 1 << 8,
     SPU_INVALID_RAM = 1 << 9
-} spu_err;
+} SPUErr_t;
 
-spu_err spu_halt    (SPU* processor);
-spu_err spu_draw    (SPU* processor);
+SPUErr_t spu_halt    (SPU* processor);
+SPUErr_t spu_draw    (SPU* processor);
 
-spu_err spu_add     (SPU* processor);
-spu_err spu_sub     (SPU* processor);
-spu_err spu_mul     (SPU* processor);
-spu_err spu_div     (SPU* processor);
-spu_err spu_sqrt    (SPU* processor);
+SPUErr_t spu_add     (SPU* processor);
+SPUErr_t spu_sub     (SPU* processor);
+SPUErr_t spu_mul     (SPU* processor);
+SPUErr_t spu_div     (SPU* processor);
+SPUErr_t spu_sqrt    (SPU* processor);
 
-spu_err spu_push    (SPU* processor);
-spu_err spu_out     (SPU* processor);
-spu_err spu_in      (SPU* processor);
-spu_err spu_pushr   (SPU* processor);
-spu_err spu_popr    (SPU* processor);
-spu_err spu_pushm   (SPU* processor);
-spu_err spu_popm    (SPU* processor);
+SPUErr_t spu_push    (SPU* processor);
+SPUErr_t spu_out     (SPU* processor);
+SPUErr_t spu_in      (SPU* processor);
+SPUErr_t spu_pushr   (SPU* processor);
+SPUErr_t spu_popr    (SPU* processor);
+SPUErr_t spu_pushm   (SPU* processor);
+SPUErr_t spu_popm    (SPU* processor);
 
-spu_err spu_jmp     (SPU* processor);
-spu_err spu_jb      (SPU* processor);
-spu_err spu_jbe     (SPU* processor);
-spu_err spu_ja      (SPU* processor);
-spu_err spu_jae     (SPU* processor);
-spu_err spu_je      (SPU* processor);
-spu_err spu_jne     (SPU* processor);
-spu_err spu_call    (SPU* processor);
-spu_err spu_ret     (SPU* processor);
+SPUErr_t spu_jmp     (SPU* processor);
+SPUErr_t spu_jb      (SPU* processor);
+SPUErr_t spu_jbe     (SPU* processor);
+SPUErr_t spu_ja      (SPU* processor);
+SPUErr_t spu_jae     (SPU* processor);
+SPUErr_t spu_je      (SPU* processor);
+SPUErr_t spu_jne     (SPU* processor);
+SPUErr_t spu_call    (SPU* processor);
+SPUErr_t spu_ret     (SPU* processor);
 
-#endif
+#endif //PROCESSOR_FUNC_H_

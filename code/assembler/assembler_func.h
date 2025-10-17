@@ -6,14 +6,14 @@
 int bytecode_comm   (Assembler* asm_ptr, int command);
 int bytecode_value  (Assembler* asm_ptr, int command);
 
-ass_err ass_def    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_def    (Assembler* asm_ptr, size_t my_ind);
 
-ass_err ass_push    (Assembler* asm_ptr, size_t my_ind);
-ass_err ass_popr    (Assembler* asm_ptr, size_t my_ind);
-ass_err ass_popm    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_push    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_popr    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_popm    (Assembler* asm_ptr, size_t my_ind);
 
-ass_err ass_jump    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_jump    (Assembler* asm_ptr, size_t my_ind);
 
-ass_err ass_label   (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t ass_label   (Assembler* asm_ptr, size_t my_ind);
 
-#endif
+#endif //ASSEMBLER_FUNC_H
