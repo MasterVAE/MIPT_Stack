@@ -1,7 +1,7 @@
 #ifndef ASSEMBLER_FUNC_H
 #define ASSEMBLER_FUNC_H
 
-#include "assembler_read.h"
+#include "assembler_life.h"
 
 int bytecode_comm   (Assembler* asm_ptr, int command);
 int bytecode_value  (Assembler* asm_ptr, int command);

@@ -2,7 +2,7 @@
 #define STACK_H_
 
 #include <stdio.h>
-#include "../language.h"
+#include "../universal_constants.h"
 
 const int SHIELD_START = 0x6BADF00D;
 const int SHIELD_END = 0x7BADF00D;

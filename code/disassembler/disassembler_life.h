@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "../language.h"
+#include "../universal_constants.h"
 
 typedef enum dis_err
 {

@@ -7,7 +7,7 @@ extern "C" {
 #include <cstdlib>
 #include <cstdint>
 
-#include "../language.h"
+#include "../universal_constants.h"
 
 const char* MP4_NAME = "files/ba.mp4";
 const char* ASM_NAME = "files/code.asm";

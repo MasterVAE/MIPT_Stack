@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "assembler_read.h"
-#include "../language.h"
+#include "assembler_life.h"
+#include "../universal_constants.h"
 #include "../colors.h"
 #include "../lib.h"
 #include "assembler_func.h"

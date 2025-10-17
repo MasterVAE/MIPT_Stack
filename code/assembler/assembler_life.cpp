@@ -3,9 +3,9 @@
 #include <string.h>
 #include <assert.h>
 
-#include "assembler_read.h"
+#include "assembler_life.h"
 #include "assembler_func.h"
-#include "../language.h"
+#include "../universal_constants.h"
 
 //====== РАЗБИЕНИЕ КОДА НА КОМАНДЫ И АРГУМЕНТЫ ======//
 size_t initialize_text(Line** text, char* buffer, size_t size)

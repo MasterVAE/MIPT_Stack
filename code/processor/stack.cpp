@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "stack.h"
-#include "../language.h"
+#include "../universal_constants.h"
 #include "../colors.h"
 
 void ErrorParser(int error);

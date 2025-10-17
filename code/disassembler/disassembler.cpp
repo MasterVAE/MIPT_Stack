@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../language.h"
+#include "../universal_constants.h"
 #include "../lib.h"
 #include "../colors.h"
 

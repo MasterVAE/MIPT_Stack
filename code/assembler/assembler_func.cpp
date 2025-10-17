@@ -2,8 +2,8 @@
 #include <string.h>
 
 #include "assembler_func.h"
-#include "assembler_read.h"
-#include "../language.h"
+#include "assembler_life.h"
+#include "../universal_constants.h"
 
 #define ASS_MODE
 #include "../commands.h"

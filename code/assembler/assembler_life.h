@@ -1,9 +1,9 @@
-#ifndef ASSEMBLER_READ_H_
-#define ASSEMBLER_READ_H_
+#ifndef ASSEMBLER_LIFE_H_
+#define ASSEMBLER_LIFE_H_
 
 #include <stdio.h>
 
-#include "../language.h"
+#include "../universal_constants.h"
 
 typedef enum ASSErr
 {
@@ -77,4 +77,4 @@ ASSErr_t ASSPostCompile(Assembler* ass);
 label* get_label(Assembler* ass, char* label_name);
 void add_label(Assembler* ass, char* name, int value); 
 
-#endif //ASSEMBLER_READ_H_
+#endif //ASSEMBLER_LIFE_H_

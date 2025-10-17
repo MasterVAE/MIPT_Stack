@@ -10,4 +10,6 @@
 #define PINK    "\033[95m"
 #define YELLOW  "\033[93m"
 
+#define ESCAPE  "\033[2J\033[f"
+
 #endif //COLORS_H_

@@ -3,7 +3,7 @@
 
 #ifdef ASS_MODE
     #include "assembler/assembler_func.h"
-    #include "assembler/assembler_read.h"
+    #include "assembler/assembler_life.h"
 #endif
 
 #ifdef SPU_MODE
@@ -59,7 +59,7 @@ static const instruction COMMANDS[] =
     CMD("POPR", 0b0010000, ass_popr, spu_popr, dis_popr, sizeof(command_type) + sizeof(value_type)),
     
     CMD("HLT",  0b1000000, ass_def, spu_halt, dis_def,  sizeof(command_type)),
-    CMD("DRAW",  0b1000001, ass_def, spu_draw, dis_def,  sizeof(command_type)),
+    CMD("DRAW", 0b1000001, ass_def, spu_draw, dis_def,  sizeof(command_type)),
 
     CMD("ADD",  0b0000001, ass_def,  spu_add,  dis_def,  sizeof(command_type)),
     CMD("SUB",  0b0000010, ass_def,  spu_sub,  dis_def,  sizeof(command_type)),  

@@ -5,7 +5,7 @@
 #include <unistd.h> 
 
 #include "stack.h"
-#include "../language.h"
+#include "../universal_constants.h"
 #include "../lib.h"
 #include "../colors.h"
 #include "processor_functions.h"

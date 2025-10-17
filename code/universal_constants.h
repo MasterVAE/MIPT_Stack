@@ -1,5 +1,5 @@
-#ifndef LANGUAGE_H_
-#define LANGUAGE_H_
+#ifndef UNIVERSAL_CONSTANTS_H_
+#define UNIVERSAL_CONSTANTS_H_
 
 #include <stddef.h>
 
@@ -25,4 +25,6 @@ const char* const regs[] =
 const size_t REG_SIZE = sizeof(regs)/sizeof(regs[0]);
 const size_t ARG_LIMIT = 10;
 
-#endif //LANGUAGE_H_
+const size_t FRAME_DELAY = 20000;
+
+#endif //UNIVERSAL_CONSTANTS_H_

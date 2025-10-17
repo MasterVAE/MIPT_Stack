@@ -6,7 +6,7 @@
 #include "processor_life.h"
 
 #include "../colors.h"
-#include "../language.h"
+#include "../universal_constants.h"
 #include "../lib.h"
 #include "processor_functions.h"
 
