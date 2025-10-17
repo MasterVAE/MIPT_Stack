@@ -61,6 +61,9 @@ int main()
 
 int run(SPU* processor)
 {
+    int error = SPUVerify(processor);
+    if(error != SPU_CORRECT) return error;
+    
     int inp = debytecode_int(processor->buffer + processor->offset, sizeof(command_type));
 
     for(size_t i = 0; i < COMMANDS_COUNT; i++)

@@ -8,7 +8,7 @@
 #define ASS_MODE
 #include "../commands.h"
 
-int reg_cmp(const char* arg);
+static int reg_cmp(const char* arg);
 
 ASSErr_t ass_def(Assembler* asm_ptr, size_t my_ind) 
 {
@@ -126,7 +126,7 @@ int bytecode_value(Assembler* asm_ptr, int value)
 
 
 //======= ПОИСК РЕГИСТРА ПО ИМЕНИ =======//
-int reg_cmp(const char* arg)
+static int reg_cmp(const char* arg)
 {
     for(size_t i = 0; i < REG_SIZE; i++)
     {

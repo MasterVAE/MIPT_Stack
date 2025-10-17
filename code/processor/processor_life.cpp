@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "processor_life.h"
 #include "stack.h"
+#include "processor_life.h"
+
 #include "../colors.h"
 #include "../language.h"
 #include "../lib.h"

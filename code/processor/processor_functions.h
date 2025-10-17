@@ -1,7 +1,7 @@
 #ifndef PROCESSOR_FUNC_H_
 #define PROCESSOR_FUNC_H_
 
-#include "stack.h"
+#include "processor_life.h"
 
 typedef enum SPUErr
 {

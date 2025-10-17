@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "../language.h"
 
-
 const int SHIELD_START = 0x6BADF00D;
 const int SHIELD_END = 0x7BADF00D;
 #define ERROR_STREAM stderr
@@ -31,20 +30,6 @@ typedef struct Stack
     int err_code;
 } Stack_t;
 
-typedef struct SPU // ВЫнести из стека
-{
-    Stack_t stack;
-    char* buffer;
-    size_t offset;
-    size_t buffer_size;
-    Stack_t return_stack;
-
-    int reg[REG_SIZE];
-    char ram[RAM_SIZE]; //ВЫНЕСТИ В КУЧУ
-
-    int err_code;
-    
-} SPU;
 
 void StackDump(Stack_t* stack);
 int StackVerify(Stack_t* stack);

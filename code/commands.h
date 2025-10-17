@@ -8,6 +8,7 @@
 
 #ifdef SPU_MODE
     #include "processor/processor_functions.h"
+    #include "processor/processor_life.h"
 #endif
 
 #ifdef DIS_MODE

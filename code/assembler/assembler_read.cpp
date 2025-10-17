@@ -7,35 +7,33 @@
 #include "assembler_func.h"
 #include "../language.h"
 
-bool correct_label(Assembler* ass, label* lbl);
-
 //====== РАЗБИЕНИЕ КОДА НА КОМАНДЫ И АРГУМЕНТЫ ======//
 size_t initialize_text(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
     assert(text != NULL);
 
-    size_t count = 1;
+    size_t line_count = 1;
     for(size_t i = 0; i < size-1; i++)
     {
         if(buffer[i] == '\n')
         {
-            count++;
+            line_count++;
         }
     }
 
-    *text = (Line*)calloc(count, sizeof(Line));
+    *text = (Line*)calloc(line_count, sizeof(Line));
     assert(text != NULL);
 
     (*text)[0].line = buffer;
 
-    size_t j = 1;
+    line_count = 1;
     for(size_t i = 0; i < size-1; i++)
     {
         if(buffer[i] == '\n')
         {       
             buffer[i] = '\0';
-            (*text)[j++].line = buffer+i+1;
+            (*text)[line_count++].line = buffer+i+1;
         }
         else if(buffer[i] == ';')
         {
@@ -43,43 +41,48 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
         }
         
     } 
-    for(size_t i = 0; i < count; i++)
+    for(size_t current_line = 0; current_line < line_count; current_line++)
     {
         size_t read = 0;
-        size_t off = parse((*text)[i].line, (*text)[i].line, MAX_COMMAND_LENGHT, &read);
+        size_t off = parse((*text)[current_line].line, 
+            (*text)[current_line].line, MAX_COMMAND_LENGHT, &read);
 
-        if((i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) || i == count-1) off++;
-        for(j = 0; j < ARG_LIMIT; j++)
+        if((current_line < line_count-1 && 
+            (*text)[current_line].line + off + 1 < (*text)[current_line+1].line) || 
+            current_line == line_count-1) off++;
+        for(size_t current_arg = 0; current_arg < ARG_LIMIT; current_arg++)
         {
-            size_t add = parse((*text)[i].line + off, (*text)[i].line + off, MAX_COMMAND_LENGHT, &read);
+            size_t add = parse((*text)[current_line].line + off, 
+                               (*text)[current_line].line + off, MAX_COMMAND_LENGHT, &read);
             if(read == 0)
             {
-                (*text)[i].args[j] = NULL;
+                (*text)[current_line].args[current_arg] = NULL;
                 break;
             }
-            (*text)[i].args[j] = (*text)[i].line + off;
-            (*text)[i].arg_count++;
+            (*text)[current_line].args[current_arg] = (*text)[current_line].line + off;
+            (*text)[current_line].arg_count++;
             off += add;
-            if(i < count-1 && (*text)[i].line + off + 1 < (*text)[i+1].line) off++;
-            (*text)[i].args[j + 1] = (*text)[i].line + off;
+            if(current_line < line_count-1 && 
+                (*text)[current_line].line + off + 1 < (*text)[current_line+1].line) off++;
+            (*text)[current_line].args[current_arg + 1] = (*text)[current_line].line + off;
         }
     }
     
-    return count;
+    return line_count;
 }
 
 //====== УДАЛЕНИЕ ЛИШНИХ ПРОБЕЛЬНЫХ СИМВОЛОВ ИЗ СТРОКИ ======//
-size_t parse(char* source, char* dist, size_t max, size_t* read)
+size_t parse(const char* source, char* dest, size_t max, size_t* read)
 {
     assert(source != NULL);
-    assert(dist != NULL);
+    assert(dest != NULL);
 
     if(read != NULL) *read = 0;
 
     size_t offset = 0;
     char c = '\0';
     int space = 1;
-    while((c = source[offset]) != '\0' && c != '\n' && c != EOF && offset < max)
+    while((c = source[offset]) != '\0' && c != '\n' && offset < max)
     {
         if(space && c != ' ')
         {
@@ -87,7 +90,7 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
         }
         if(!space && c != ' ')
         {
-            *(dist++) = c;
+            *(dest++) = c;
             if(read != NULL) (*read)++;
         }
         else if(!space && c == ' ')
@@ -96,7 +99,7 @@ size_t parse(char* source, char* dist, size_t max, size_t* read)
         }
         offset++;    
     }
-    *dist = '\0';
+    *dest = '\0';
     return offset;
 }
 
@@ -132,19 +135,7 @@ void ASSDestroy(Assembler* ass)
     ass->text = NULL;
 }
 
-//======= ПРОВЕРКА СУЩЕСТВОВАНИЯ МЕТКИ ПО ИМЕНИ =======//
-bool correct_label(Assembler* ass, label* lbl)
-{
-    assert(ass);
-    assert(lbl);
-
-    for(size_t i = 0; i < MAX_LABELS; i++)
-    {
-        if(!strcmp(ass->labels[i].name, lbl->name)) return 1;
-    }
-    return 0;
-}
-
+//======= ПОЛУЧЕНИЕ МЕТКИ ПО ИМЕНИ =======//
 label* get_label(Assembler* ass, char* label_name)
 {
     assert(ass);
@@ -166,12 +157,11 @@ ASSErr_t ASSPostCompile(Assembler* ass)
 
     for(size_t i = 0; i < ass->current_jump_memory; i++)
     {
-        label fake = {{}, -1};
-        memcpy(fake.name, ass->jumps[i].label, MAX_COMMAND_LENGHT);  
-        if(!correct_label(ass, &fake)) return ASS_LABEL_INVALID;
+        label* lbl = get_label(ass, ass->jumps[i].label);
+        if(!lbl) return ASS_LABEL_INVALID;
 
         ass->offset = ass->jumps[i].offcet;
-        bytecode_value(ass, get_label(ass, ass->jumps[i].label)->value);
+        bytecode_value(ass, lbl->value);
     }
     ass->offset = max_offset;
     return ASS_CORRECT;

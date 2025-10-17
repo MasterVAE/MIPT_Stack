@@ -29,7 +29,7 @@ typedef struct Line
 } Line;
 
 size_t initialize_text(Line** text, char* buffer, size_t size);
-size_t parse(char* source, char* dist, size_t max, size_t* read = NULL);
+size_t parse(const char* source, char* dest, size_t max, size_t* read = NULL);
 void error_printer(ASSErr_t error);
 const char* error_parser(ASSErr_t error);
 
