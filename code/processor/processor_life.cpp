@@ -121,12 +121,12 @@ void print_buffer(FILE* stream, SPU* processor)
     for(size_t i = 0; i < processor->buffer_size; i++)
     {
         if(i < processor->offset)\
-        fprintf(stream, BLUE "%s "CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
+            fprintf(stream, BLUE "%s "CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
         else if(i == processor->offset)\
-        fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
+            fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
         else\
-        fprintf(stream, "%s ", itos((unsigned)*(processor->buffer+i), 16, 2).str);
-        if(i%8 == 7)\
-        fprintf(stream, "\n");
+            fprintf(stream, "%s ", itos((unsigned)*(processor->buffer+i), 16, 2).str);
+        if(i % BUFFER_CHARS_BY_LINE == BUFFER_CHARS_BY_LINE - 1)\
+            fprintf(stream, "\n");
     }
 }

@@ -17,7 +17,7 @@ if(error != 0) {(stack)->err_code = error; return SPU_STACK_ERROR;}}
 
 static void draw(SPU* processor);
 
-void draw(SPU* processor)
+static void draw(SPU* processor)
 {
     usleep(FRAME_DELAY);
     printf(ESCAPE "VRAM\n");
@@ -29,12 +29,13 @@ void draw(SPU* processor)
     for(size_t i = 0; i < RAM_SIZE; i++)
     {
         if(i % VRAM_BY_LINE == 0) vbuf[vbuf_counter++] = '\n';
+        
         vbuf[vbuf_counter++] = processor->ram[i];
         vbuf[vbuf_counter++] = ' ';
     }
     vbuf[vbuf_counter++] = '\n';
 
-    write(STDOUT_FILENO, vbuf, vbuf_size);
+    fwrite(vbuf, vbuf_size, 1, stdout);
     free(vbuf);
 }
 

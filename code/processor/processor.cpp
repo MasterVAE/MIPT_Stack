@@ -15,15 +15,12 @@
 #define SPU_MODE
 #include "../commands.h"
 
-int run(SPU* processor); 
-void vram_dump(SPU* processor);
+static int run(SPU* processor); 
 
 const char* input_filename = "files/code.bcode";
 
 int main()
 {
-    setvbuf(stdout, NULL, _IONBF, 0);
-    
     printf("SPU STARTING...\n");
     SPU spu_main = {};
     int error = SPUInit(&spu_main);
@@ -59,7 +56,7 @@ int main()
     return 0;
 }
 
-int run(SPU* processor)
+static int run(SPU* processor)
 {
     int error = SPUVerify(processor);
     if(error != SPU_CORRECT) return error;

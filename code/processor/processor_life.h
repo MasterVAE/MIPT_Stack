@@ -3,7 +3,7 @@
 
 #include "stack.h"
 
-typedef struct SPU // ВЫнести из стека
+typedef struct SPU
 {
     Stack_t stack;
     char* buffer;
@@ -18,10 +18,12 @@ typedef struct SPU // ВЫнести из стека
     
 } SPU;
 
-int SPUInit         (SPU* processor);
+int  SPUInit        (SPU* processor);
 void SPUDestroy     (SPU* processor);
 void SPUDump        (SPU* processor);
-int SPUVerify       (SPU* processor);
+int  SPUVerify      (SPU* processor);
 void SPUErrorParser (int error);
+
+const int BUFFER_CHARS_BY_LINE = 32;
 
 #endif //PROCESSOR_LIFE_H_

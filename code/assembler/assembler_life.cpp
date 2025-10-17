@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <ctype.h>
 
 #include "assembler_life.h"
 #include "assembler_func.h"
@@ -79,27 +80,31 @@ size_t parse(const char* source, char* dest, size_t max, size_t* read)
 
     if(read != NULL) *read = 0;
 
+    size_t letter_count = 0;
     size_t offset = 0;
+
     char c = '\0';
-    int space = 1;
+    bool state_space = true;
     while((c = source[offset]) != '\0' && c != '\n' && offset < max)
     {
-        if(space && c != ' ')
+        if(state_space && !isspace(c))
         {
-            space = 0;
+            state_space = false;
         }
-        if(!space && c != ' ')
+
+        if(!state_space)
         {
-            *(dest++) = c;
-            if(read != NULL) (*read)++;
-        }
-        else if(!space && c == ' ')
-        {
-            break;
+            if(isspace(c))  break;
+
+            *dest = c;
+            dest++;
+            
+            letter_count++;
         }
         offset++;    
     }
     *dest = '\0';
+    if(read != NULL) *read = letter_count; 
     return offset;
 }
 
