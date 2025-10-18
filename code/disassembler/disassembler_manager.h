@@ -5,7 +5,7 @@
 
 #include "../constants.h"
 
-typedef enum dis_err
+typedef enum DisErr_t
 {
     DIS_CORRECT = 0,
     DIS_NULL_DISASSEMBLER,
@@ -15,7 +15,7 @@ typedef enum dis_err
     DIS_UNKNOWN_COMMAND,
     DIS_SYNTAX_ERROR,
     DIS_ARGUMENT_INVALID
-} dis_err;
+} DisErr_t;
 
 const size_t MAX_LABELS = 10;
 
@@ -30,10 +30,10 @@ typedef struct Disassembler
 
 int DISInit(Disassembler* dis);
 void DISDestroy(Disassembler* dis);
-void ErrorPrinter(dis_err error);
-const char* ErrorParser(dis_err error);
+void ErrorPrinter(DisErr_t error);
+const char* ErrorParser(DisErr_t error);
 int FindLabel(Disassembler* dis, int label_value);
-dis_err LabelSearch(Disassembler* dis);
+DisErr_t LabelSearch(Disassembler* dis);
 void InsertLabel(Disassembler* dis, FILE* output_file);
 
 #endif // DISASSEMLER_MANAGER_H_

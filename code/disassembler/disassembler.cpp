@@ -19,7 +19,7 @@
 
 #define CHECK(error) if(error != DIS_CORRECT){ ErrorPrinter(error);DISDestroy(&dis);return 1;}
 
-dis_err Disassemble(Disassembler* dis, FILE* out_file);
+DisErr_t Disassemble(Disassembler* dis, FILE* out_file);
 
 const char* input_file_name = "files/code.bcode";
 const char* output_file_name = "files/code_disassembled.asm";
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     OPEN(output_file, output_file_name, "w+")
 
-    dis_err error = LabelSearch(&dis);
+    DisErr_t error = LabelSearch(&dis);
     CHECK(error)
     
     error = Disassemble(&dis, output_file);
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-dis_err Disassemble(Disassembler* dis, FILE* out_file)
+DisErr_t Disassemble(Disassembler* dis, FILE* out_file)
 {
     if(dis->buffer == NULL) return DIS_NULL_BUFFER;
     if(out_file == NULL) return DIS_NULL_FILE;
@@ -72,7 +72,7 @@ dis_err Disassemble(Disassembler* dis, FILE* out_file)
         {    
             if(COMMANDS[j].num == comm)
             {
-                COMMANDS[j].dis_func(dis, j, out_file);
+                COMMANDS[j].DisFunc(dis, j, out_file);
                 found = 1;
                 break;
             }

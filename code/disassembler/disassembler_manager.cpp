@@ -24,12 +24,12 @@ void DISDestroy(Disassembler* dis)
     memset(dis, 0, sizeof(Disassembler));
 }
 
-void ErrorPrinter(dis_err error)
+void ErrorPrinter(DisErr_t error)
 {
     fprintf(stderr, "%s\n", ErrorParser(error));
 }
 
-const char* ErrorParser(dis_err error)
+const char* ErrorParser(DisErr_t error)
 {
     switch (error)
     {
@@ -55,7 +55,7 @@ int FindLabel(Disassembler* dis, int label_value)
 }
 
 //====== ПОИСК ВСЕХ МЕТОК В КОДЕ ======//
-dis_err LabelSearch(Disassembler* dis)
+DisErr_t LabelSearch(Disassembler* dis)
 {
     if(dis->buffer == NULL) return DIS_NULL_BUFFER;
     if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
@@ -69,7 +69,7 @@ dis_err LabelSearch(Disassembler* dis)
         {    
             if(COMMANDS[j].num != comm) continue;
             found = 1;
-            if(COMMANDS[j].dis_func != dis_jump)
+            if(COMMANDS[j].DisFunc != DisJump)
             {
                 dis->offset += COMMANDS[j].byte_size;
                 break;

@@ -3,9 +3,9 @@
 
 #include "disassembler_manager.h"
 
-dis_err dis_def(Disassembler* dis, size_t my_ind, FILE* output_file);
-dis_err dis_push(Disassembler* dis, size_t my_ind, FILE* output_file);
-dis_err dis_popr(Disassembler* dis, size_t my_ind, FILE* output_file);
-dis_err dis_jump(Disassembler* dis, size_t my_ind, FILE* output_file);
+DisErr_t DisDef(Disassembler* dis, size_t my_ind, FILE* output_file);
+DisErr_t DisPush(Disassembler* dis, size_t my_ind, FILE* output_file);
+DisErr_t DisPopr(Disassembler* dis, size_t my_ind, FILE* output_file);
+DisErr_t DisJump(Disassembler* dis, size_t my_ind, FILE* output_file);
 
 #endif // DISASSEMBLER_FUNC_H

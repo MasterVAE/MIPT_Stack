@@ -66,22 +66,22 @@ ASSErr_t Assemble(Assembler* ass)
     if(ass->lines_count == 0)   return ASS_EMPTY_PROGRAMM;
     
     for(ass->line_offset = 0; ass->line_offset < ass->lines_count; ass->line_offset++)
-    {
-        if(!strcmp(ass->text[ass->line_offset].line, "")) continue;
+    {   
+        if(!ass->text[ass->line_offset].line) continue;
 
         if(ass->buffer_size - ass->offset < BUFFER_START_SIZE)
         {
             ass->buffer_size *= BUFFER_SIZE_MULT;
             ass->bin_buffer = (char*)realloc(ass->bin_buffer, ass->buffer_size);
         }
-        printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
+        //printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
         bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {
             if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[j].name))
             {
                 found = 1;
-                ASSErr_t error = COMMANDS[j].ass_func(ass, j);
+                ASSErr_t error = COMMANDS[j].AssFunc(ass, j);
                 if(error != ASS_CORRECT)
                 {
                     printf(RED "ERROR " CLEAN "%s:%lu    %s\n",
@@ -90,7 +90,11 @@ ASSErr_t Assemble(Assembler* ass)
                 }
             }
         }
-        if(!found) return ASS_UNKNOWN_COMMAND;
+        if(!found)
+        {
+            printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
+            return ASS_UNKNOWN_COMMAND;
+        }
     }
     return ASS_CORRECT;
 }

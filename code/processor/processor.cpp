@@ -68,7 +68,7 @@ static int run(SPU* processor)
         if(inp == COMMANDS[i].num)
         {    
             processor->command_pointer += sizeof(command_type);
-            return COMMANDS[i].spu_func(processor);
+            return COMMANDS[i].SpuFunc(processor);
         }
     }
     return SPU_INVALID_COMMAND;

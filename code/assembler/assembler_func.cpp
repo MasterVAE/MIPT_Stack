@@ -10,13 +10,13 @@
 
 static int RegCmp(const char* arg);
 
-ASSErr_t ass_def(Assembler* asm_ptr, size_t my_ind) 
+ASSErr_t AssDef(Assembler* asm_ptr, size_t my_ind) 
 {
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
     return ASS_CORRECT;
 }
 
-ASSErr_t ass_popr(Assembler* asm_ptr, size_t my_ind)
+ASSErr_t AssPopr(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].arg;
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -29,7 +29,7 @@ ASSErr_t ass_popr(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-ASSErr_t ass_popm(Assembler* asm_ptr, size_t my_ind)
+ASSErr_t AssPopm(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = asm_ptr->text[asm_ptr->line_offset].arg;
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
@@ -44,7 +44,7 @@ ASSErr_t ass_popm(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
-ASSErr_t ass_push(Assembler* asm_ptr, size_t my_ind)
+ASSErr_t AssPush(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
@@ -61,24 +61,24 @@ ASSErr_t ass_push(Assembler* asm_ptr, size_t my_ind)
     {
         for(size_t i = 0; i < COMMANDS_COUNT; i++)
         {
-            if(!strcmp(COMMANDS[i].name, "PUSHM"))  return ass_popm(asm_ptr, i);
+            if(!strcmp(COMMANDS[i].name, "PUSHM"))  return AssPopm(asm_ptr, i);
         }
     }
     if(sscanf(arg, "%10s", data))
     {
         for(size_t i = 0; i < COMMANDS_COUNT; i++)
         {
-            if(!strcmp(COMMANDS[i].name, "PUSHR"))  return ass_popr(asm_ptr, i);
+            if(!strcmp(COMMANDS[i].name, "PUSHR"))  return AssPopr(asm_ptr, i);
         }
     }
     return ASS_ARGUMENT_INVALID;
 }
 
-ASSErr_t ass_jump(Assembler* asm_ptr, size_t my_ind)
+ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
-    if(asm_ptr->current_jump_memory >= MAX_JUMPS) return ASS_TOO_MANY_JUMPS;
+    if(asm_ptr->lbl_table.current_forward_jump >= MAX_JUMPS) return ASS_TOO_MANY_JUMPS;
     label* lbl = GetLabel(asm_ptr, arg); 
     if(lbl)
     {
@@ -86,9 +86,11 @@ ASSErr_t ass_jump(Assembler* asm_ptr, size_t my_ind)
         BytecodeValue(asm_ptr, lbl->address);
         return ASS_CORRECT; 
     }
-    asm_ptr->jumps[asm_ptr->current_jump_memory].command_pointer = asm_ptr->offset+sizeof(command_type);
-    memcpy(asm_ptr->jumps[asm_ptr->current_jump_memory].label, arg, MAX_COMMAND_LENGHT);
-    asm_ptr->current_jump_memory++;
+    asm_ptr->lbl_table.forward_jumps[asm_ptr->lbl_table.current_forward_jump].command_pointer 
+        = asm_ptr->offset+sizeof(command_type);
+    memcpy(asm_ptr->lbl_table.forward_jumps[asm_ptr->lbl_table.current_forward_jump].label, 
+        arg, MAX_COMMAND_LENGHT);
+    asm_ptr->lbl_table.current_forward_jump++;
     
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
     BytecodeValue(asm_ptr, -1);

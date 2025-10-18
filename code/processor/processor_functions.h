@@ -17,31 +17,31 @@ typedef enum SPUErr
     SPU_INVALID_RAM = 1 << 9
 } SPUErr_t;
 
-SPUErr_t spu_halt    (SPU* processor);
-SPUErr_t spu_draw    (SPU* processor);
+SPUErr_t SpuHalt    (SPU* processor);
+SPUErr_t SpuDraw    (SPU* processor);
 
-SPUErr_t spu_add     (SPU* processor);
-SPUErr_t spu_sub     (SPU* processor);
-SPUErr_t spu_mul     (SPU* processor);
-SPUErr_t spu_div     (SPU* processor);
-SPUErr_t spu_sqrt    (SPU* processor);
+SPUErr_t SpuAdd     (SPU* processor);
+SPUErr_t SpuSub     (SPU* processor);
+SPUErr_t SpuMul     (SPU* processor);
+SPUErr_t SpuDiv     (SPU* processor);
+SPUErr_t SpuSqrt    (SPU* processor);
 
-SPUErr_t spu_push    (SPU* processor);
-SPUErr_t spu_out     (SPU* processor);
-SPUErr_t spu_in      (SPU* processor);
-SPUErr_t spu_pushr   (SPU* processor);
-SPUErr_t spu_popr    (SPU* processor);
-SPUErr_t spu_pushm   (SPU* processor);
-SPUErr_t spu_popm    (SPU* processor);
+SPUErr_t SpuPush    (SPU* processor);
+SPUErr_t SpuOut     (SPU* processor);
+SPUErr_t SpuIn      (SPU* processor);
+SPUErr_t SpuPushr   (SPU* processor);
+SPUErr_t SpuPopr    (SPU* processor);
+SPUErr_t SpuPushm   (SPU* processor);
+SPUErr_t SpuPopm    (SPU* processor);
 
-SPUErr_t spu_jmp     (SPU* processor);
-SPUErr_t spu_jb      (SPU* processor);
-SPUErr_t spu_jbe     (SPU* processor);
-SPUErr_t spu_ja      (SPU* processor);
-SPUErr_t spu_jae     (SPU* processor);
-SPUErr_t spu_je      (SPU* processor);
-SPUErr_t spu_jne     (SPU* processor);
-SPUErr_t spu_call    (SPU* processor);
-SPUErr_t spu_ret     (SPU* processor);
+SPUErr_t SpuJmp     (SPU* processor);
+SPUErr_t SpuJb      (SPU* processor);
+SPUErr_t SpuJbe     (SPU* processor);
+SPUErr_t SpuJa      (SPU* processor);
+SPUErr_t SpuJae     (SPU* processor);
+SPUErr_t SpuJe      (SPU* processor);
+SPUErr_t SpuJne      (SPU* processor);
+SPUErr_t SpuCall    (SPU* processor);
+SPUErr_t SpuRet     (SPU* processor);
 
 #endif // PROCESSOR_FUNC_H_

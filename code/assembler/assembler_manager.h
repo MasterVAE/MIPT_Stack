@@ -41,17 +41,24 @@ const size_t MAX_LABELS = 40;
 
 const size_t MAX_COMMAND_LENGHT = 20;
 
-typedef struct jump_memory
+typedef struct forward_jump
 {
     char label[MAX_COMMAND_LENGHT];
     size_t command_pointer;
-} jump_memory;
+} forward_jump;
 
 typedef struct label
 {
     char name[MAX_COMMAND_LENGHT];
     int address;
 } label;
+
+typedef struct label_table
+{
+    label labels[MAX_LABELS];
+    forward_jump forward_jumps[MAX_JUMPS];
+    size_t current_forward_jump;
+} label_table;
 
 typedef struct Assembler 
 {
@@ -64,13 +71,10 @@ typedef struct Assembler
     Line* text;
     size_t lines_count;
 
-    label labels[MAX_LABELS];
-    jump_memory jumps[MAX_JUMPS];
-    size_t current_jump_memory;
-
+    label_table lbl_table;
 } Assembler;
 
-//FIXME label_table jumps и lables
+const size_t asmsds = sizeof(Assembler);
 
 ASSErr_t ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);

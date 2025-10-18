@@ -6,13 +6,13 @@
 int BytecodeComm   (Assembler* asm_ptr, int command);
 int BytecodeValue  (Assembler* asm_ptr, int command);
 
-ASSErr_t ass_def    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t AssDef    (Assembler* asm_ptr, size_t my_ind);
 
-ASSErr_t ass_push    (Assembler* asm_ptr, size_t my_ind);
-ASSErr_t ass_popr    (Assembler* asm_ptr, size_t my_ind);
-ASSErr_t ass_popm    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t AssPush    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t AssPopr    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t AssPopm    (Assembler* asm_ptr, size_t my_ind);
 
-ASSErr_t ass_jump    (Assembler* asm_ptr, size_t my_ind);
+ASSErr_t AssJump    (Assembler* asm_ptr, size_t my_ind);
 
 ASSErr_t AssLabel   (Assembler* asm_ptr, size_t my_ind);
 

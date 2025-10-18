@@ -1,4 +1,5 @@
-extern "C" {
+extern "C" 
+{
     #include <libavformat/avformat.h>
     #include <libavcodec/avcodec.h>
 }
@@ -9,8 +10,8 @@ extern "C" {
 
 #include "../constants.h"
 
+const int DEFAULT_VIDEO_STREAM = 0;
 
-//FIXME весь код
 const char* MP4_NAME = "files/ba.mp4";
 const char* ASM_NAME = "files/code.asm";
 
@@ -18,12 +19,14 @@ const size_t MAX_FRAMES = 10000;
 
 char last_frame[RAM_SIZE] = {0};
 
-void process_frame(AVFrame*, FILE*);
+static void process_frame(AVFrame*, FILE*);
 
-void process_frame(AVFrame* frame, FILE* asm_file) 
+static void process_frame(AVFrame* frame, FILE* asm_file) 
 {
-    for (int y = 0; y < frame->height-2; y++) {
-        for (int x = 0; x < frame->width; x++) {
+    for (int y = 0; y < frame->height-2; y++) 
+    {
+        for (int x = 0; x < frame->width; x++) 
+        {
             int y_idx = y * frame->linesize[0] + x;
 
             uint8_t Y = frame->data[0][y_idx];
@@ -31,7 +34,8 @@ void process_frame(AVFrame* frame, FILE* asm_file)
             char pixel = (brightness > 150) ? '@' : ' ';
             int index = y * 80 + x;
             
-            if (last_frame[index] != pixel) {
+            if (last_frame[index] != pixel) 
+            {
                 fprintf(asm_file, 
                     "PUSH %d\n"
                     "POPR SR1\n"
@@ -50,15 +54,7 @@ int main()
 
     avformat_find_stream_info(fmt_ctx, NULL);
 
-    int video_stream = -1;
-    for (size_t i = 0; i < fmt_ctx->nb_streams; i++) {
-        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            video_stream = (int)i;
-            break;
-        }
-    }
-
-    AVCodecParameters* codec_par = fmt_ctx->streams[video_stream]->codecpar;
+    AVCodecParameters* codec_par = fmt_ctx->streams[DEFAULT_VIDEO_STREAM]->codecpar;
     const AVCodec* codec = avcodec_find_decoder(codec_par->codec_id);
     AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codec_ctx, codec_par);
@@ -70,10 +66,13 @@ int main()
 
     size_t frame_count = 0;
     
-    while (av_read_frame(fmt_ctx, packet) >= 0 && frame_count < MAX_FRAMES) {
-        if (packet->stream_index == video_stream) {
+    while (av_read_frame(fmt_ctx, packet) >= 0 && frame_count < MAX_FRAMES) 
+    {
+        if (packet->stream_index == DEFAULT_VIDEO_STREAM) 
+        {
             avcodec_send_packet(codec_ctx, packet);
-            if (avcodec_receive_frame(codec_ctx, frame) == 0) {
+            if (avcodec_receive_frame(codec_ctx, frame) == 0) 
+            {
                 process_frame(frame, asm_file);
                 fprintf(asm_file, "DRAW\n");
                 frame_count++;

@@ -9,13 +9,13 @@
 #define DIS_MODE
 #include "../commands.h"
 
-dis_err dis_def(Disassembler*, size_t my_ind, FILE* out_file)
+DisErr_t DisDef(Disassembler*, size_t my_ind, FILE* out_file)
 {
     fprintf(out_file, "%s\n", COMMANDS[my_ind].name);
     return DIS_CORRECT;
 }
 
-dis_err dis_push(Disassembler* dis, size_t my_ind, FILE* out_file)
+DisErr_t DisPush(Disassembler* dis, size_t my_ind, FILE* out_file)
 {
     if(dis->offset + sizeof(command_type) + sizeof(value_type) > dis->buffer_size)
     {
@@ -27,7 +27,7 @@ dis_err dis_push(Disassembler* dis, size_t my_ind, FILE* out_file)
     return DIS_CORRECT;
 }
 
-dis_err dis_popr(Disassembler* dis, size_t my_ind, FILE* out_file)
+DisErr_t DisPopr(Disassembler* dis, size_t my_ind, FILE* out_file)
 {
     if(dis->offset + sizeof(command_type) + sizeof(value_type) > dis->buffer_size)
     {
@@ -39,7 +39,7 @@ dis_err dis_popr(Disassembler* dis, size_t my_ind, FILE* out_file)
     return DIS_CORRECT;
 }
 
-dis_err dis_jump(Disassembler* dis, size_t my_ind, FILE* out_file)
+DisErr_t DisJump(Disassembler* dis, size_t my_ind, FILE* out_file)
 {
     if(my_ind + sizeof(command_type) + sizeof(value_type) > dis->buffer_size)
     {
