@@ -3,12 +3,12 @@
 
 #ifdef ASS_MODE
     #include "assembler/assembler_func.h"
-    #include "assembler/assembler_life.h"
+    #include "assembler/assembler_manager.h"
 #endif
 
 #ifdef SPU_MODE
     #include "processor/processor_functions.h"
-    #include "processor/processor_life.h"
+    #include "processor/processor_manager.h"
 #endif
 
 #ifdef DIS_MODE
@@ -51,7 +51,7 @@ typedef struct instruction
 static const instruction COMMANDS[] = 
 {
     #ifdef ASS_MODE
-    CMD("LABEL", 0, ass_label, NULL, dis_def, 0),
+    CMD("LABEL", 0, AssLabel, NULL, dis_def, 0),
     #endif
 
     CMD("POPM", 0b0010010, ass_popm, spu_popm, dis_popr, sizeof(command_type) + sizeof(value_type)),
@@ -89,4 +89,4 @@ static const instruction COMMANDS[] =
 
 static const size_t COMMANDS_COUNT = sizeof(COMMANDS) / sizeof(COMMANDS[0]);
 
-#endif //COMMANDS_H_
+#endif // COMMANDS_H_

@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "disassembler_func.h"
-#include "disassembler_life.h"
+#include "disassembler_manager.h"
 
 #include "../lib.h"
 
@@ -21,7 +21,7 @@ dis_err dis_push(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode_int(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
+    int value = DebytecodeInt(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
     dis->offset += sizeof(value_type);
     fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, value);
     return DIS_CORRECT;
@@ -33,7 +33,7 @@ dis_err dis_popr(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode_int(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
+    int value = DebytecodeInt(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
     dis->offset += sizeof(value_type);
     fprintf(out_file, "%s %s\n", COMMANDS[my_ind].name, regs[value]);
     return DIS_CORRECT;
@@ -45,8 +45,8 @@ dis_err dis_jump(Disassembler* dis, size_t my_ind, FILE* out_file)
     {
         return DIS_ARGUMENT_INVALID;
     }
-    int value = debytecode_int(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
+    int value = DebytecodeInt(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
     dis->offset += sizeof(value_type);
-    fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, find_label(dis, value));
+    fprintf(out_file, "%s %d\n", COMMANDS[my_ind].name, FindLabel(dis, value));
     return DIS_CORRECT;
 }

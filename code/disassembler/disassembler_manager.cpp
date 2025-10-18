@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "disassembler_life.h"
+#include "disassembler_manager.h"
 #include "../lib.h"
 
 #define DIS_MODE
 #include "../commands.h"
+
 
 int DISInit(Disassembler* dis)
 {
@@ -23,12 +24,12 @@ void DISDestroy(Disassembler* dis)
     memset(dis, 0, sizeof(Disassembler));
 }
 
-void error_printer(dis_err error)
+void ErrorPrinter(dis_err error)
 {
-    fprintf(stderr, "%s\n", error_parser(error));
+    fprintf(stderr, "%s\n", ErrorParser(error));
 }
 
-const char* error_parser(dis_err error)
+const char* ErrorParser(dis_err error)
 {
     switch (error)
     {
@@ -44,7 +45,7 @@ const char* error_parser(dis_err error)
     }
 }
 
-int find_label(Disassembler* dis, int label_value)
+int FindLabel(Disassembler* dis, int label_value)
 {
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
@@ -54,7 +55,7 @@ int find_label(Disassembler* dis, int label_value)
 }
 
 //====== ПОИСК ВСЕХ МЕТОК В КОДЕ ======//
-dis_err label_search(Disassembler* dis)
+dis_err LabelSearch(Disassembler* dis)
 {
     if(dis->buffer == NULL) return DIS_NULL_BUFFER;
     if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
@@ -62,7 +63,7 @@ dis_err label_search(Disassembler* dis)
     for(dis->offset = 0; dis->offset < dis->buffer_size;)
     {
         if(dis->offset + sizeof(command_type) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
-        int comm = debytecode_int(dis->buffer + dis->offset, sizeof(command_type));
+        int comm = DebytecodeInt(dis->buffer + dis->offset, sizeof(command_type));
         bool found = 0;
         for(size_t j = 0; j < COMMANDS_COUNT; j++)
         {    
@@ -77,7 +78,7 @@ dis_err label_search(Disassembler* dis)
             {
                 return DIS_ARGUMENT_INVALID;
             }
-            int value = debytecode_int(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
+            int value = DebytecodeInt(dis->buffer + dis->offset + sizeof(command_type), sizeof(value_type));
             for(size_t k = 0; k < MAX_LABELS; k++)
             {
                 if(dis->labels[k] == -1 || dis->labels[k] == value)
@@ -95,7 +96,7 @@ dis_err label_search(Disassembler* dis)
 }
 
 //====== ВСТАВКА МЕТКИ В КОД ======//
-void insert_label(Disassembler* dis, FILE* output_file)
+void InsertLabel(Disassembler* dis, FILE* output_file)
 {
     for(size_t i = 0; i < MAX_LABELS; i++)
     {

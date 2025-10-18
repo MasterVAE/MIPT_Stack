@@ -5,12 +5,12 @@
 #include <unistd.h> 
 
 #include "stack.h"
-#include "../universal_constants.h"
+#include "../constants.h"
 #include "../lib.h"
 #include "../colors.h"
 #include "processor_functions.h"
 
-#include "processor_life.h"
+#include "processor_manager.h"
 
 #define SPU_MODE
 #include "../commands.h"
@@ -34,7 +34,7 @@ int main()
         return 1;
     }
 
-    initialize_buffer(&spu_main.buffer, &spu_main.buffer_size, input_file);
+    spu_main.command_buffer = InitializeBuffer(&spu_main.command_buffer_size, input_file);
     fclose(input_file);
     error = SPU_CORRECT;
 
@@ -61,13 +61,13 @@ static int run(SPU* processor)
     int error = SPUVerify(processor);
     if(error != SPU_CORRECT) return error;
     
-    int inp = debytecode_int(processor->buffer + processor->offset, sizeof(command_type));
+    int inp = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(command_type));
 
     for(size_t i = 0; i < COMMANDS_COUNT; i++)
     {
         if(inp == COMMANDS[i].num)
         {    
-            processor->offset += sizeof(command_type);
+            processor->command_pointer += sizeof(command_type);
             return COMMANDS[i].spu_func(processor);
         }
     }

@@ -1,9 +1,9 @@
 FFMPEG_LIBS = -lavformat -lavcodec -lavutil -lswscale
 
-SOURCES_ASSEMBLER = $(wildcard code/assembler/*.cpp) code/lib.cpp
-SOURCES_DISASSEMBLER = $(wildcard code/disassembler/*.cpp) code/lib.cpp
-SOURCES_PROCESSOR = $(wildcard code/processor/*.cpp) code/lib.cpp
-SOURCES_PNG = $(wildcard code/png_parser/*.cpp)
+SOURCES_ASSEMBLER = code/assembler/assembler.cpp code/assembler/assembler_manager.cpp code/assembler/assembler_func.cpp code/lib.cpp
+SOURCES_DISASSEMBLER = code/assembler/disassembler.cpp code/assembler/disassembler_manager.cpp code/assembler/disassembler_func.cpp code/lib.cpp
+SOURCES_PROCESSOR = code/processor/processor.cpp code/processor/processor_manager.cpp code/processor/processor_functions.cpp code/lib.cpp
+SOURCES_PNG = code/png/video_parser.cpp
 
 OBJ_DIR = obj
 SOURCE_DIR = ./

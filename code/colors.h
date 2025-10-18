@@ -12,4 +12,4 @@
 
 #define ESCAPE  "\033[2J\033[f"
 
-#endif //COLORS_H_
+#endif // COLORS_H_

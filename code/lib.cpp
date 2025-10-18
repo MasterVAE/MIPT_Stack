@@ -6,13 +6,14 @@
 
 #include "lib.h"
 
-char* initialize_buffer(char** buffer, size_t* size, FILE* input_file)
+static size_t FileLen(FILE* file);
+
+char* InitializeBuffer(size_t* size, FILE* input_file)
 {
-    assert(buffer != NULL);
     assert(size != NULL);
     assert(input_file != NULL);
 
-    *size = file_len(input_file);
+    *size = FileLen(input_file);
 
     char* buff = (char*)calloc(*size + 2, sizeof(char));
     size_t len = fread(buff, sizeof(char), *size, input_file);
@@ -21,19 +22,18 @@ char* initialize_buffer(char** buffer, size_t* size, FILE* input_file)
     buff[len+1] = '\0';
 
     *size = len;
-    *buffer = buff;
 
-    return *buffer;
+    return buff;
 }
 
-size_t file_len(FILE* file)
+static size_t FileLen(FILE* file)
 {
     struct stat file_info;
     fstat(fileno(file), &file_info);
     return (size_t)file_info.st_size;
 }
 
-int debytecode_int(char* code, size_t size)
+int DebytecodeInt(char* code, size_t size)
 {
     int value = 0;
     memcpy(&value, code, size);

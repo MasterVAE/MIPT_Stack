@@ -1,7 +1,7 @@
 #ifndef PROCESSOR_FUNC_H_
 #define PROCESSOR_FUNC_H_
 
-#include "processor_life.h"
+#include "processor_manager.h"
 
 typedef enum SPUErr
 {
@@ -44,4 +44,4 @@ SPUErr_t spu_jne     (SPU* processor);
 SPUErr_t spu_call    (SPU* processor);
 SPUErr_t spu_ret     (SPU* processor);
 
-#endif //PROCESSOR_FUNC_H_
+#endif // PROCESSOR_FUNC_H_

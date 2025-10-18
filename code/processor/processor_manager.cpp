@@ -3,14 +3,18 @@
 #include <stdlib.h>
 
 #include "stack.h"
-#include "processor_life.h"
+#include "processor_manager.h"
 
 #include "../colors.h"
-#include "../universal_constants.h"
+#include "../constants.h"
 #include "../lib.h"
 #include "processor_functions.h"
 
-void print_buffer(FILE* stream, SPU* processor);
+#define FREE(var) free(var); var = NULL;
+
+const char RAM_DEFAULT_VALUE = '_';
+
+void PrintBuffer(FILE* stream, SPU* processor);
 void RegisterDump(SPU* processor);
 void BufferDump(SPU* processor);
 
@@ -32,13 +36,15 @@ int SPUInit(SPU* processor)
         return SPU_STACK_ERROR;
     }
 
-    processor->offset = 0;
-    processor->buffer_size = 0;
+    processor->command_pointer = 0;
+    processor->command_buffer_size = 0;
     processor->err_code = 0;
-    processor->buffer = NULL;
+    processor->command_buffer = NULL;
+
+    processor->ram = (char*)calloc(RAM_SIZE, sizeof(char));
 
     for(size_t i = 0; i < REG_SIZE; i++)   processor->reg[i] = 0;
-    for(size_t i = 0; i < RAM_SIZE; i++)   processor->ram[i] = 95;
+    for(size_t i = 0; i < RAM_SIZE; i++)   processor->ram[i] = RAM_DEFAULT_VALUE;
 
     return SPU_CORRECT;
 }
@@ -46,14 +52,14 @@ int SPUInit(SPU* processor)
 void BufferDump(SPU* processor)
 {
         fprintf(ERROR_STREAM, RED "\n\n- - - BUFFER dumping - - -\n" CLEAN);
-        fprintf(ERROR_STREAM, "OFFSET --> %lu\n\n", processor->offset);
-    if(processor->buffer == NULL)
+        fprintf(ERROR_STREAM, "OFFSET --> %lu\n\n", processor->command_pointer);
+    if(processor->command_buffer == NULL)
     {
         fprintf(ERROR_STREAM, "Buffer NULL\n");
     }
     else
     {
-        print_buffer(ERROR_STREAM, processor);
+        PrintBuffer(ERROR_STREAM, processor);
         fprintf(ERROR_STREAM, "\n\n");
     }
 }
@@ -90,7 +96,7 @@ int SPUVerify(SPU* processor)
 
     if(processor == NULL)                    return processor->err_code |= SPU_PROCESSOR_NULL;
     if(StackVerify(&processor->stack) != Verified)  processor->err_code |= SPU_STACK_ERROR;
-    if(processor->buffer == NULL)                   processor->err_code |= SPU_BUFFER_NULL;
+    if(processor->command_buffer == NULL)                   processor->err_code |= SPU_BUFFER_NULL;
     return                                          processor->err_code;
 }
 
@@ -99,7 +105,10 @@ void SPUDestroy(SPU* processor)
     if(processor == NULL) return;
     StackDestroy(&processor->stack);
     StackDestroy(&processor->return_stack);
-    free(processor->buffer);
+
+    FREE(processor->command_buffer)
+    FREE(processor->ram)
+
     memset(processor, 0, sizeof(SPU));
 }
 
@@ -116,17 +125,17 @@ void SPUErrorParser(int error)
     if(IsError(error, SPU_INVALID_RAM))         fprintf(ERROR_STREAM, "Error: invalid RAM adress\n");
 }
 
-void print_buffer(FILE* stream, SPU* processor)
+void PrintBuffer(FILE* stream, SPU* processor)
 {   
-    for(size_t i = 0; i < processor->buffer_size; i++)
+    for(size_t i = 0; i < processor->command_buffer_size; i++)
     {
-        if(i < processor->offset)\
-            fprintf(stream, BLUE "%s "CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
-        else if(i == processor->offset)\
-            fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->buffer+i), 16, 2).str);
-        else\
-            fprintf(stream, "%s ", itos((unsigned)*(processor->buffer+i), 16, 2).str);
-        if(i % BUFFER_CHARS_BY_LINE == BUFFER_CHARS_BY_LINE - 1)\
+        if(i < processor->command_pointer)
+            fprintf(stream, BLUE "%s " CLEAN, itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+        else if(i == processor->command_pointer)
+            fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+        else
+            fprintf(stream, "%s ", itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+        if(i % BUFFER_CHARS_BY_LINE == BUFFER_CHARS_BY_LINE - 1)
             fprintf(stream, "\n");
     }
 }

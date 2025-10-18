@@ -2,7 +2,7 @@
 #define STACK_H_
 
 #include <stdio.h>
-#include "../universal_constants.h"
+#include "../constants.h"
 
 const int SHIELD_START = 0x6BADF00D;
 const int SHIELD_END = 0x7BADF00D;
@@ -40,4 +40,4 @@ void StackDestroy(Stack_t* stack);
 
 const int shield_size = 1;
 
-#endif //STACK_H_
+#endif // STACK_H_

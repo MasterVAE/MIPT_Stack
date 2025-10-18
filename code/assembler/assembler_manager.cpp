@@ -4,12 +4,15 @@
 #include <assert.h>
 #include <ctype.h>
 
-#include "assembler_life.h"
+#include "assembler_manager.h"
 #include "assembler_func.h"
-#include "../universal_constants.h"
+#include "../constants.h"
 
+#define FREE(var) free(var); var = NULL;
+
+//FIXME все
 //====== РАЗБИЕНИЕ КОДА НА КОМАНДЫ И АРГУМЕНТЫ ======//
-size_t initialize_text(Line** text, char* buffer, size_t size)
+size_t InitializeText(Line** text, char* buffer, size_t size)
 {
     assert(buffer != NULL);
     assert(text != NULL);
@@ -42,38 +45,36 @@ size_t initialize_text(Line** text, char* buffer, size_t size)
         }
         
     } 
+    //FIXME все
+    //FIXME все
+    //FIXME все
     for(size_t current_line = 0; current_line < line_count; current_line++)
     {
         size_t read = 0;
-        size_t off = parse((*text)[current_line].line, 
+        size_t off = Parse((*text)[current_line].line, 
             (*text)[current_line].line, MAX_COMMAND_LENGHT, &read);
 
         if((current_line < line_count-1 && 
             (*text)[current_line].line + off + 1 < (*text)[current_line+1].line) || 
             current_line == line_count-1) off++;
-        for(size_t current_arg = 0; current_arg < ARG_LIMIT; current_arg++)
-        {
-            size_t add = parse((*text)[current_line].line + off, 
+
+            Parse((*text)[current_line].line + off, 
                                (*text)[current_line].line + off, MAX_COMMAND_LENGHT, &read);
             if(read == 0)
             {
-                (*text)[current_line].args[current_arg] = NULL;
+                (*text)[current_line].arg = NULL;
                 break;
             }
-            (*text)[current_line].args[current_arg] = (*text)[current_line].line + off;
-            (*text)[current_line].arg_count++;
-            off += add;
-            if(current_line < line_count-1 && 
-                (*text)[current_line].line + off + 1 < (*text)[current_line+1].line) off++;
-            (*text)[current_line].args[current_arg + 1] = (*text)[current_line].line + off;
-        }
+
+            (*text)[current_line].arg = (*text)[current_line].line + off;
+            (*text)[current_line].is_have_arg = true;
     }
     
     return line_count;
 }
 
 //====== УДАЛЕНИЕ ЛИШНИХ ПРОБЕЛЬНЫХ СИМВОЛОВ ИЗ СТРОКИ ======//
-size_t parse(const char* source, char* dest, size_t max, size_t* read)
+size_t Parse(const char* source, char* dest, size_t max, size_t* read)
 {
     assert(source != NULL);
     assert(dest != NULL);
@@ -84,15 +85,15 @@ size_t parse(const char* source, char* dest, size_t max, size_t* read)
     size_t offset = 0;
 
     char c = '\0';
-    bool state_space = true;
+    bool is_state_space = true;
     while((c = source[offset]) != '\0' && c != '\n' && offset < max)
     {
-        if(state_space && !isspace(c))
+        if(is_state_space && !isspace(c))
         {
-            state_space = false;
+            is_state_space = false;
         }
 
-        if(!state_space)
+        if(!is_state_space)
         {
             if(isspace(c))  break;
 
@@ -103,26 +104,30 @@ size_t parse(const char* source, char* dest, size_t max, size_t* read)
         }
         offset++;    
     }
+
     *dest = '\0';
+    
     if(read != NULL) *read = letter_count; 
+    
     return offset;
 }
 
 ASSErr_t ASSInit(Assembler* ass)
 {
     if(ass == NULL) return ASS_ASSEMBLER_NULL;
-
+//FIXME все инициализировать
     ass->offset = 0;
     ass->lines_count = 0;
     ass->line_offset = 0;
-    ass->buffer_size = buffer_start_size;
-    ass->buffer = (char*)calloc(ass->buffer_size, sizeof(char));
+    ass->buffer_size = BUFFER_START_SIZE;
+    ass->bin_buffer = (char*)calloc(ass->buffer_size, sizeof(char));
     ass->current_jump_memory = 0;
     
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
         ass->labels[i] = {"", -1};
     }
+
     for(size_t i = 0; i < MAX_JUMPS; i++)
     {
         ass->jumps[i] = {"", 0};
@@ -134,14 +139,13 @@ ASSErr_t ASSInit(Assembler* ass)
 void ASSDestroy(Assembler* ass)
 {
     if(ass == NULL) return;
-    free(ass->buffer);
-    free(ass->text);
-    ass->buffer = NULL;
-    ass->text = NULL;
+
+    FREE(ass->bin_buffer)
+    FREE(ass->text)
 }
 
 //======= ПОЛУЧЕНИЕ МЕТКИ ПО ИМЕНИ =======//
-label* get_label(Assembler* ass, char* label_name)
+label* GetLabel(Assembler* ass, char* label_name)
 {
     assert(ass);
     assert(label_name);
@@ -150,6 +154,7 @@ label* get_label(Assembler* ass, char* label_name)
     {
         if(!strcmp(ass->labels[i].name, label_name)) return ass->labels + i;
     }
+
     return NULL;
 }
 
@@ -162,39 +167,41 @@ ASSErr_t ASSPostCompile(Assembler* ass)
 
     for(size_t i = 0; i < ass->current_jump_memory; i++)
     {
-        label* lbl = get_label(ass, ass->jumps[i].label);
+        label* lbl = GetLabel(ass, ass->jumps[i].label);
         if(!lbl) return ASS_LABEL_INVALID;
 
-        ass->offset = ass->jumps[i].offcet;
-        bytecode_value(ass, lbl->value);
+        ass->offset = ass->jumps[i].command_pointer;
+        BytecodeValue(ass, lbl->address);
     }
+
     ass->offset = max_offset;
+
     return ASS_CORRECT;
 }
 
 //====== СОЗДАНИЕ НОВОЙ МЕТКИ ======//
-void add_label(Assembler* ass, char* name, int value)
+void AddLabel(Assembler* ass, char* name, int value)
 {
     assert(ass);
     assert(name);
 
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
-        if(ass->labels[i].value == -1)
+        if(ass->labels[i].address == -1)
         {
             strcpy(ass->labels[i].name, name);
-            ass->labels[i].value = value;
+            ass->labels[i].address = value;
             break;
         }
     }
 }
 
-void error_printer(ASSErr_t error)
+void ErrorPrinter(ASSErr_t error)
 {
-    fprintf(stderr, "%s\n", error_parser(error));
+    fprintf(stderr, "%s\n", ErrorParser(error));
 }
 
-const char* error_parser(ASSErr_t error)
+const char* ErrorParser(ASSErr_t error)
 {
     switch (error)
     {

@@ -1,5 +1,5 @@
-#ifndef UNIVERSAL_CONSTANTS_H_
-#define UNIVERSAL_CONSTANTS_H_
+#ifndef CONSTANTS_H_
+#define CONSTANTS_H_
 
 #include <stddef.h>
 
@@ -22,9 +22,6 @@ const char* const regs[] =
     "SRY"
 };
 
-const size_t REG_SIZE = sizeof(regs)/sizeof(regs[0]);
-const size_t ARG_LIMIT = 10;
+const size_t REG_SIZE = sizeof(regs) / sizeof(regs[0]);
 
-const size_t FRAME_DELAY = 20000;
-
-#endif //UNIVERSAL_CONSTANTS_H_
+#endif // CONSTANTS_H_

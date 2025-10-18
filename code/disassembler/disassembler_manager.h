@@ -1,9 +1,9 @@
-#ifndef DISASSEMLER_LIFE_H_
-#define DISASSEMLER_LIFE_H_
+#ifndef DISASSEMLER_MANAGER_H_
+#define DISASSEMLER_MANAGER_H_
 
 #include <stdio.h>
 
-#include "../universal_constants.h"
+#include "../constants.h"
 
 typedef enum dis_err
 {
@@ -30,10 +30,10 @@ typedef struct Disassembler
 
 int DISInit(Disassembler* dis);
 void DISDestroy(Disassembler* dis);
-void error_printer(dis_err error);
-const char* error_parser(dis_err error);
-int find_label(Disassembler* dis, int label_value);
-dis_err label_search(Disassembler* dis);
-void insert_label(Disassembler* dis, FILE* output_file);
+void ErrorPrinter(dis_err error);
+const char* ErrorParser(dis_err error);
+int FindLabel(Disassembler* dis, int label_value);
+dis_err LabelSearch(Disassembler* dis);
+void InsertLabel(Disassembler* dis, FILE* output_file);
 
-#endif //DISASSEMLER_LIFE_H_
+#endif // DISASSEMLER_MANAGER_H_

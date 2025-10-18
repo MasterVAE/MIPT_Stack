@@ -1,18 +1,18 @@
-#ifndef PROCESSOR_LIFE_H_
-#define PROCESSOR_LIFE_H_
+#ifndef PROCESSOR_MANAGER_H_
+#define PROCESSOR_MANAGER_H_
 
 #include "stack.h"
 
 typedef struct SPU
 {
     Stack_t stack;
-    char* buffer;
-    size_t offset;
-    size_t buffer_size;
+    char* command_buffer;
+    size_t command_buffer_size;
+    size_t command_pointer;
     Stack_t return_stack;
 
     int reg[REG_SIZE];
-    char ram[RAM_SIZE]; //ВЫНЕСТИ В КУЧУ
+    char* ram;
 
     int err_code;
     
@@ -26,4 +26,4 @@ void SPUErrorParser (int error);
 
 const int BUFFER_CHARS_BY_LINE = 32;
 
-#endif //PROCESSOR_LIFE_H_
+#endif // PROCESSOR_MANAGER_H_
