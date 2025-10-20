@@ -51,6 +51,7 @@ SPUErr_t SpuHalt(SPU*)
 SPUErr_t SpuDraw(SPU* processor)
 {
     Draw(processor);
+    
     return SPU_CORRECT;
 }
 
@@ -61,6 +62,7 @@ SPUErr_t SpuAdd(SPU* processor)
     stack_type b = POP_ERR(&processor->stack, &err);
 
     PUSH_ERR(&processor->stack, a + b);
+
     return SPU_CORRECT;
 }
 
@@ -71,6 +73,7 @@ SPUErr_t SpuSub(SPU* processor)
     stack_type a = POP_ERR(&processor->stack, &err);
 
     PUSH_ERR(&processor->stack, a - b);
+    
     return SPU_CORRECT;
 }
 
@@ -81,6 +84,7 @@ SPUErr_t SpuMul(SPU* processor)
     stack_type b = POP_ERR(&processor->stack, &err);
 
     PUSH_ERR(&processor->stack, a * b);
+
     return SPU_CORRECT;
 }
 
@@ -97,6 +101,7 @@ SPUErr_t SpuDiv(SPU* processor)
 
     stack_type a = POP_ERR(&processor->stack, &err);
     PUSH_ERR(&processor->stack, a/b);
+
     return SPU_CORRECT;
 }
 
@@ -105,6 +110,7 @@ SPUErr_t SpuSqrt(SPU* processor)
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
     PUSH_ERR(&processor->stack, (int)sqrt(value));
+
     return SPU_CORRECT;
 }
 
@@ -113,6 +119,7 @@ SPUErr_t SpuPush(SPU* processor)
     stack_type value = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
     processor->command_pointer += sizeof(value_type);
     PUSH_ERR(&processor->stack, value);
+
     return SPU_CORRECT;
 }
 
