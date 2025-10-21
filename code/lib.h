@@ -3,6 +3,8 @@
 
 #include "stdio.h"
 
+#define FREE(var) free(var); var = NULL;
+
 const size_t MAX_STRING_LENGHT = 100;
 
 typedef struct string

@@ -22,7 +22,7 @@ int  SPUInit        (SPU* processor);
 void SPUDestroy     (SPU* processor);
 void SPUDump        (SPU* processor);
 int  SPUVerify      (SPU* processor);
-void SPUErrorParser (int error);
+void SPUStateorParser (int error);
 
 const int BUFFER_CHARS_BY_LINE = 32;
 

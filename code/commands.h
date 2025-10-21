@@ -25,7 +25,7 @@ typedef struct instruction
     #endif
     
     #ifdef SPU_MODE
-    SPUErr_t (*SpuFunc) (SPU*);
+    SPUState_t (*SpuFunc) (SPU*);
     #endif
 
     #ifdef DIS_MODE
@@ -71,9 +71,9 @@ static const instruction COMMANDS[] =
     CMD("IN",   0b0001000, AssDef,  SpuIn,   DisDef,  sizeof(command_type)),
     CMD("OUT",  0b0001001, AssDef,  SpuOut,  DisDef,  sizeof(command_type)),
     
-    CMD("PUSHR",0b0010001, AssPopr, SpuPushr, DisPopr, sizeof(command_type) + sizeof(value_type)),
+    CMD("PUSHR",0b0010001, AssPopr, SpuPushr,DisPopr, sizeof(command_type) + sizeof(value_type)),
     
-    CMD("PUSHM",0b0010011, AssPopm, SpuPushm, DisPopr, sizeof(command_type) + sizeof(value_type)),
+    CMD("PUSHM",0b0010011, AssPopm, SpuPushm,DisPopr, sizeof(command_type) + sizeof(value_type)),
     
 
     CMD("JMP",  0b0100000, AssJump, SpuJmp,  DisJump, sizeof(command_type) + sizeof(value_type)),

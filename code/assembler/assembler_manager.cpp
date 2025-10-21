@@ -7,8 +7,7 @@
 #include "assembler_manager.h"
 #include "assembler_func.h"
 #include "../constants.h"
-
-#define FREE(var) free(var); var = NULL;
+#include "../lib.h"
 
 enum InitState
 {

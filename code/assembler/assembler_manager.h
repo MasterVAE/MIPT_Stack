@@ -74,8 +74,6 @@ typedef struct Assembler
     label_table lbl_table;
 } Assembler;
 
-const size_t asmsds = sizeof(Assembler);
-
 ASSErr_t ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);
 ASSErr_t ASSPostCompile(Assembler* ass);

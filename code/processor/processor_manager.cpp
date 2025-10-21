@@ -76,7 +76,7 @@ void RegisterDump(SPU* processor)
 void SPUDump(SPU* processor)
 {
         fprintf(ERROR_STREAM, RED "\n\n= = = SPU dumping start = = =\n" CLEAN);
-    SPUErrorParser(processor->err_code);
+    SPUStateorParser(processor->err_code);
     if(processor == NULL)
     {
         fprintf(ERROR_STREAM, RED "Processor NULL\n" CLEAN); 
@@ -112,7 +112,7 @@ void SPUDestroy(SPU* processor)
     memset(processor, 0, sizeof(SPU));
 }
 
-void SPUErrorParser(int error)
+void SPUStateorParser(int error)
 {   
     if(IsError(error, SPU_HALT_STATE))          fprintf(ERROR_STREAM, "Error: SPU halted\n");
     if(IsError(error, SPU_DIVISION_BY_ZERO))    fprintf(ERROR_STREAM, "Error: division by zero\n");
