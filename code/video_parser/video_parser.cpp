@@ -17,7 +17,7 @@ const char* ASM_NAME = "files/code.asm";
 
 const size_t MAX_FRAMES = 10000;
 
-char last_frame[RAM_SIZE] = {0};
+char* last_frame = NULL;
 
 static void process_frame(AVFrame*, FILE*);
 
@@ -49,6 +49,8 @@ static void process_frame(AVFrame* frame, FILE* asm_file)
 
 int main() 
 {
+    last_frame = (char*)calloc(RAM_SIZE, sizeof(char));
+
     AVFormatContext* fmt_ctx = NULL;
     avformat_open_input(&fmt_ctx, MP4_NAME, NULL, NULL);
 
@@ -89,6 +91,8 @@ int main()
     avcodec_free_context(&codec_ctx);
     avformat_close_input(&fmt_ctx);
     
+    free(last_frame);
+
     printf("FRAMES PROCESSED: %lu\n", frame_count);
     return 0;
 }

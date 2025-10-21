@@ -89,17 +89,19 @@ ASSErr_t ASSInit(Assembler* ass)
     ass->line_offset = 0;
     ass->text = NULL;
     ass->buffer_size = BUFFER_START_SIZE;
+
     ass->bin_buffer = (char*)calloc(ass->buffer_size, sizeof(char));
-    ass->lbl_table = {};
+
+    ass->lbl_table = (label_table*)calloc(1, sizeof(label_table));
     
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
-        ass->lbl_table.labels[i] = {"", -1};
+        ass->lbl_table->labels[i] = {"", -1};
     }
 
     for(size_t i = 0; i < MAX_JUMPS; i++)
     {
-        ass->lbl_table.forward_jumps[i] = {"", 0};
+        ass->lbl_table->forward_jumps[i] = {"", 0};
     }
 
     return ASS_CORRECT;
@@ -111,6 +113,7 @@ void ASSDestroy(Assembler* ass)
 
     FREE(ass->bin_buffer)
     FREE(ass->text)
+    FREE(ass->lbl_table)
 }
 
 //======= ПОЛУЧЕНИЕ МЕТКИ ПО ИМЕНИ =======//
@@ -121,7 +124,7 @@ label* GetLabel(Assembler* ass, char* label_name)
 
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
-        if(!strcmp(ass->lbl_table.labels[i].name, label_name)) return ass->lbl_table.labels + i;
+        if(!strcmp(ass->lbl_table->labels[i].name, label_name)) return ass->lbl_table->labels + i;
     }
 
     return NULL;
@@ -134,12 +137,12 @@ ASSErr_t ASSPostCompile(Assembler* ass)
     
     size_t max_offset = ass->offset;
 
-    for(size_t i = 0; i < ass->lbl_table.current_forward_jump; i++)
+    for(size_t i = 0; i < ass->lbl_table->current_forward_jump; i++)
     {
-        label* lbl = GetLabel(ass, ass->lbl_table.forward_jumps[i].label);
+        label* lbl = GetLabel(ass, ass->lbl_table->forward_jumps[i].label);
         if(!lbl) return ASS_LABEL_INVALID;
 
-        ass->offset = ass->lbl_table.forward_jumps[i].command_pointer;
+        ass->offset = ass->lbl_table->forward_jumps[i].command_pointer;
         BytecodeValue(ass, lbl->address);
     }
 
@@ -156,10 +159,10 @@ void AddLabel(Assembler* ass, char* name, int value)
 
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
-        if(ass->lbl_table.labels[i].address == -1)
+        if(ass->lbl_table->labels[i].address == -1)
         {
-            strcpy(ass->lbl_table.labels[i].name, name);
-            ass->lbl_table.labels[i].address = value;
+            strcpy(ass->lbl_table->labels[i].name, name);
+            ass->lbl_table->labels[i].address = value;
             break;
         }
     }

@@ -13,6 +13,7 @@ static int RegCmp(const char* arg);
 ASSErr_t AssDef(Assembler* asm_ptr, size_t my_ind) 
 {
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
+
     return ASS_CORRECT;
 }
 
@@ -26,6 +27,7 @@ ASSErr_t AssPopr(Assembler* asm_ptr, size_t my_ind)
 
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
     BytecodeValue(asm_ptr, reg);
+
     return ASS_CORRECT;
 }
 
@@ -41,6 +43,7 @@ ASSErr_t AssPopm(Assembler* asm_ptr, size_t my_ind)
 
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
     BytecodeValue(asm_ptr, reg);
+
     return ASS_CORRECT;
 }
 
@@ -71,6 +74,7 @@ ASSErr_t AssPush(Assembler* asm_ptr, size_t my_ind)
             if(!strcmp(COMMANDS[i].name, "PUSHR"))  return AssPopr(asm_ptr, i);
         }
     }
+
     return ASS_ARGUMENT_INVALID;
 }
 
@@ -78,12 +82,13 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
-    if(asm_ptr->lbl_table.current_forward_jump >= MAX_JUMPS) return ASS_TOO_MANY_JUMPS;
+    if(asm_ptr->lbl_table.current_forward_jump >= MAX_JUMPS)    return ASS_TOO_MANY_JUMPS;
     label* lbl = GetLabel(asm_ptr, arg); 
     if(lbl)
     {
         BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
         BytecodeValue(asm_ptr, lbl->address);
+
         return ASS_CORRECT; 
     }
     asm_ptr->lbl_table.forward_jumps[asm_ptr->lbl_table.current_forward_jump].command_pointer 
@@ -94,6 +99,7 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
     
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
     BytecodeValue(asm_ptr, -1);
+
     return ASS_CORRECT;
 }
 
@@ -102,27 +108,29 @@ ASSErr_t AssLabel(Assembler* asm_ptr, size_t)
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) 
                                                     return ASS_ARGUMENT_INVALID;;
-    if(GetLabel(asm_ptr, arg))                     return ASS_USED_LABEL;
-    AddLabel(asm_ptr, arg, (int)asm_ptr->offset);  return ASS_CORRECT; 
+    if(GetLabel(asm_ptr, arg))                      return ASS_USED_LABEL;
+    AddLabel(asm_ptr, arg, (int)asm_ptr->offset);   return ASS_CORRECT; 
 }
 
 int BytecodeComm(Assembler* asm_ptr, int command)
 {
-    if(asm_ptr == NULL)         return ASS_ASSEMBLER_NULL;
+    if(asm_ptr == NULL)             return ASS_ASSEMBLER_NULL;
     if(asm_ptr->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
 
     memcpy(asm_ptr->bin_buffer + asm_ptr->offset, &command, sizeof(command_type));
     asm_ptr->offset += sizeof(command_type);
+
     return ASS_CORRECT;
 }
 
 int BytecodeValue(Assembler* asm_ptr, int value)
 {
-    if(asm_ptr == NULL)         return ASS_ASSEMBLER_NULL;
+    if(asm_ptr == NULL)             return ASS_ASSEMBLER_NULL;
     if(asm_ptr->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
 
     memcpy(asm_ptr->bin_buffer + asm_ptr->offset, &value, sizeof(value_type));
     asm_ptr->offset += sizeof(value_type);
+
     return ASS_CORRECT;
 }
 
@@ -137,5 +145,6 @@ static int RegCmp(const char* arg)
             return (int)i;
         }
     }
+
     return -1;
 }

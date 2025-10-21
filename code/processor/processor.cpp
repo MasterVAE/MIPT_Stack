@@ -22,6 +22,7 @@ const char* input_filename = "files/code.bcode";
 int main()
 {
     printf("SPU STARTING...\n");
+
     SPU spu_main = {};
     int error = SPUInit(&spu_main);
     spu_main.err_code = error;
@@ -53,6 +54,7 @@ int main()
     }
     SPUDestroy(&spu_main);
     printf("SPU TURNING OFF...\n");
+
     return 0;
 }
 
@@ -71,5 +73,6 @@ static int run(SPU* processor)
             return COMMANDS[i].SpuFunc(processor);
         }
     }
+    
     return SPU_INVALID_COMMAND;
 }

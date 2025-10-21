@@ -10,8 +10,6 @@
 #include "../lib.h"
 #include "processor_functions.h"
 
-#define FREE(var) free(var); var = NULL;
-
 const char RAM_DEFAULT_VALUE = '_';
 
 void PrintBuffer(FILE* stream, SPU* processor);

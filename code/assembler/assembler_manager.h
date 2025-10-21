@@ -71,7 +71,7 @@ typedef struct Assembler
     Line* text;
     size_t lines_count;
 
-    label_table lbl_table;
+    label_table* lbl_table;
 } Assembler;
 
 ASSErr_t ASSInit(Assembler* ass);
