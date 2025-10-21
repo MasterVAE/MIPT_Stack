@@ -82,7 +82,7 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 {
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
-    if(asm_ptr->lbl_table.current_forward_jump >= MAX_JUMPS)    return ASS_TOO_MANY_JUMPS;
+    if(asm_ptr->lbl_table->current_forward_jump >= MAX_JUMPS)    return ASS_TOO_MANY_JUMPS;
     label* lbl = GetLabel(asm_ptr, arg); 
     if(lbl)
     {
@@ -91,11 +91,11 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 
         return ASS_CORRECT; 
     }
-    asm_ptr->lbl_table.forward_jumps[asm_ptr->lbl_table.current_forward_jump].command_pointer 
+    asm_ptr->lbl_table->forward_jumps[asm_ptr->lbl_table->current_forward_jump].command_pointer 
         = asm_ptr->offset+sizeof(command_type);
-    memcpy(asm_ptr->lbl_table.forward_jumps[asm_ptr->lbl_table.current_forward_jump].label, 
+    memcpy(asm_ptr->lbl_table->forward_jumps[asm_ptr->lbl_table->current_forward_jump].label, 
         arg, MAX_COMMAND_LENGHT);
-    asm_ptr->lbl_table.current_forward_jump++;
+    asm_ptr->lbl_table->current_forward_jump++;
     
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
     BytecodeValue(asm_ptr, -1);
