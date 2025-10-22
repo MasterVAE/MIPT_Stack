@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "assembler_func.h"
 #include "assembler_manager.h"
@@ -8,10 +9,18 @@
 #define ASS_MODE
 #include "../commands.h"
 
+#define NUM_TO_STR(arg) #arg
+#define ITOS(arg) NUM_TO_STR(arg)
+
+#define MAX_ARG_LEN 10
+#define REG_LEN 3
+
 static int RegCmp(const char* arg);
 
 ASSErr_t AssDef(Assembler* asm_ptr, size_t my_ind) 
 {
+    assert(asm_ptr);
+
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
 
     return ASS_CORRECT;
@@ -19,11 +28,13 @@ ASSErr_t AssDef(Assembler* asm_ptr, size_t my_ind)
 
 ASSErr_t AssPopr(Assembler* asm_ptr, size_t my_ind)
 {
+    assert(asm_ptr);
+
     char* arg = asm_ptr->text[asm_ptr->line_offset].arg;
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
     int reg = RegCmp(arg);
-    if(reg == -1) return ASS_ARGUMENT_INVALID;
+    if(reg == -1)   return ASS_ARGUMENT_INVALID;
 
     BytecodeComm(asm_ptr, COMMANDS[my_ind].num);
     BytecodeValue(asm_ptr, reg);
@@ -33,6 +44,8 @@ ASSErr_t AssPopr(Assembler* asm_ptr, size_t my_ind)
 
 ASSErr_t AssPopm(Assembler* asm_ptr, size_t my_ind)
 {
+    assert(asm_ptr);
+
     char* arg = asm_ptr->text[asm_ptr->line_offset].arg;
     if(arg == NULL) return ASS_ARGUMENT_INVALID;
 
@@ -47,32 +60,31 @@ ASSErr_t AssPopm(Assembler* asm_ptr, size_t my_ind)
     return ASS_CORRECT;
 }
 
+const int PUSHR_INDEX = 13;
+const int PUSHM_INDEX = 14;
+
 ASSErr_t AssPush(Assembler* asm_ptr, size_t my_ind)
 {
+    assert(asm_ptr);
+
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
     
     int value = 0;
-    char data[11] = {};
-    if(sscanf(arg, "%10d", &value))
+    char data[MAX_ARG_LEN + 1] = {};
+    if(sscanf(arg, "%" ITOS(MAX_ARG_LEN) "d", &value))
     {
         BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
         BytecodeValue(asm_ptr, value);
         return ASS_CORRECT;
     }
-    if(sscanf(arg, "[%3s]", data))
+    if(sscanf(arg, "[%" ITOS(REG_LEN) "s]", data))
     {
-        for(size_t i = 0; i < COMMANDS_COUNT; i++)
-        {
-            if(!strcmp(COMMANDS[i].name, "PUSHM"))  return AssPopm(asm_ptr, i);
-        }
+        return AssPopm(asm_ptr, PUSHM_INDEX);
     }
-    if(sscanf(arg, "%10s", data))
+    if(sscanf(arg, "%" ITOS(MAX_ARG_LEN) "s", data))
     {
-        for(size_t i = 0; i < COMMANDS_COUNT; i++)
-        {
-            if(!strcmp(COMMANDS[i].name, "PUSHR"))  return AssPopr(asm_ptr, i);
-        }
+        return AssPopr(asm_ptr, PUSHR_INDEX);
     }
 
     return ASS_ARGUMENT_INVALID;
@@ -80,10 +92,13 @@ ASSErr_t AssPush(Assembler* asm_ptr, size_t my_ind)
 
 ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 {
+    assert(asm_ptr);
+
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) return ASS_ARGUMENT_INVALID;
-    if(asm_ptr->lbl_table->current_forward_jump >= MAX_JUMPS)    return ASS_TOO_MANY_JUMPS;
+    if(asm_ptr->lbl_table->current_forward_jump >= MAX_JUMPS)   return ASS_TOO_MANY_JUMPS;
     label* lbl = GetLabel(asm_ptr, arg); 
+
     if(lbl)
     {
         BytecodeComm(asm_ptr, COMMANDS[my_ind].num); 
@@ -91,6 +106,7 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 
         return ASS_CORRECT; 
     }
+    
     asm_ptr->lbl_table->forward_jumps[asm_ptr->lbl_table->current_forward_jump].command_pointer 
         = asm_ptr->offset+sizeof(command_type);
     memcpy(asm_ptr->lbl_table->forward_jumps[asm_ptr->lbl_table->current_forward_jump].label, 
@@ -105,6 +121,8 @@ ASSErr_t AssJump(Assembler* asm_ptr, size_t my_ind)
 
 ASSErr_t AssLabel(Assembler* asm_ptr, size_t)
 {
+    assert(asm_ptr);
+
     char* arg = NULL;
     if((arg = asm_ptr->text[asm_ptr->line_offset].arg) == NULL) 
                                                     return ASS_ARGUMENT_INVALID;;
@@ -114,6 +132,8 @@ ASSErr_t AssLabel(Assembler* asm_ptr, size_t)
 
 int BytecodeComm(Assembler* asm_ptr, int command)
 {
+    assert(asm_ptr);
+
     if(asm_ptr == NULL)             return ASS_ASSEMBLER_NULL;
     if(asm_ptr->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
 
@@ -125,6 +145,8 @@ int BytecodeComm(Assembler* asm_ptr, int command)
 
 int BytecodeValue(Assembler* asm_ptr, int value)
 {
+    assert(asm_ptr);
+
     if(asm_ptr == NULL)             return ASS_ASSEMBLER_NULL;
     if(asm_ptr->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
 
@@ -138,6 +160,8 @@ int BytecodeValue(Assembler* asm_ptr, int value)
 //======= ПОИСК РЕГИСТРА ПО ИМЕНИ =======//
 static int RegCmp(const char* arg)
 {
+    assert(arg);
+
     for(size_t i = 0; i < REG_SIZE; i++)
     {
         if(!strcmp(arg, regs[i]))

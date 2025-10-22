@@ -18,7 +18,8 @@ typedef enum ASSErr
     ASS_SYNTAX_ERROR,
     ASS_USED_LABEL,
     ASS_LABEL_INVALID,
-    ASS_TOO_MANY_JUMPS
+    ASS_TOO_MANY_JUMPS,
+    ASS_FAILED_MEMORY_ALLOCATION
 } ASSErr_t;
 
 typedef struct Line
@@ -76,6 +77,9 @@ typedef struct Assembler
 
 ASSErr_t ASSInit(Assembler* ass);
 void ASSDestroy(Assembler* ass);
+ASSErr_t Assemble(Assembler* ass);
+ASSErr_t FindCommand(Assembler* ass);
+
 ASSErr_t ASSPostCompile(Assembler* ass);
 
 label* GetLabel(Assembler* ass, char* label_name);

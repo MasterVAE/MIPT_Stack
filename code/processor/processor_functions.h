@@ -7,14 +7,15 @@ typedef enum SPUState
 {
     SPU_CORRECT = 0,
     SPU_HALT_STATE = 1 << 1,
-    SPU_DIVISION_BY_ZERO = 1 << 2,
+    SPU_MATH_ERROR = 1 << 2,
     SPU_INVALID_COMMAND = 1 << 3,
     SPU_STACK_ERROR = 1 << 4,
     SPU_PROCESSOR_NULL = 1 << 5,
     SPU_REG_NULL = 1 << 6,
     SPU_BUFFER_NULL = 1 << 7,
     SPU_INVALID_REGISTER = 1 << 8,
-    SPU_INVALID_RAM = 1 << 9
+    SPU_INVALID_RAM = 1 << 9,
+    SPU_FAILED_MEMORY_ALLOCATION = 1 << 10
 } SPUState_t;
 
 SPUState_t SpuHalt    (SPU* processor);

@@ -1,6 +1,7 @@
 #include <math.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "processor_functions.h"
 #include "stack.h"
@@ -23,6 +24,8 @@ static void Draw(SPU* processor);
 
 static void Draw(SPU* processor)
 {
+    assert(processor);
+
     usleep(FRAME_DELAY);
     printf(ESCAPE "VRAM\n");
 
@@ -50,6 +53,8 @@ SPUState_t SpuHalt(SPU*)
 
 SPUState_t SpuDraw(SPU* processor)
 {
+    assert(processor);
+
     Draw(processor);
     
     return SPU_CORRECT;
@@ -57,6 +62,8 @@ SPUState_t SpuDraw(SPU* processor)
 
 SPUState_t SpuAdd(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -68,6 +75,8 @@ SPUState_t SpuAdd(SPU* processor)
 
 SPUState_t SpuSub(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -79,6 +88,8 @@ SPUState_t SpuSub(SPU* processor)
 
 SPUState_t SpuMul(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type a = POP_ERR(&processor->stack, &err);
     stack_type b = POP_ERR(&processor->stack, &err);
@@ -90,13 +101,15 @@ SPUState_t SpuMul(SPU* processor)
 
 SPUState_t SpuDiv(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
 
     if(b == 0)
     {
         PUSH_ERR(&processor->stack, b);
-        return SPU_DIVISION_BY_ZERO;
+        return SPU_MATH_ERROR;
     }
 
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -107,8 +120,11 @@ SPUState_t SpuDiv(SPU* processor)
 
 SPUState_t SpuSqrt(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
+    if(value < 0) return SPU_MATH_ERROR;
     PUSH_ERR(&processor->stack, (int)sqrt(value));
 
     return SPU_CORRECT;
@@ -116,7 +132,10 @@ SPUState_t SpuSqrt(SPU* processor)
 
 SPUState_t SpuPush(SPU* processor)
 {
-    stack_type value = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+
+    stack_type value = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
     processor->command_pointer += sizeof(value_type);
     PUSH_ERR(&processor->stack, value);
 
@@ -125,14 +144,19 @@ SPUState_t SpuPush(SPU* processor)
 
 SPUState_t SpuOut(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type value = POP_ERR(&processor->stack, &err);
     printf("SPU OUT: %d\n", value);  
+
     return SPU_CORRECT;
 }
 
 SPUState_t SpuIn(SPU* processor)
 {
+    assert(processor);
+
     printf("SPU IN: ");  
     stack_type value = 0;
     scanf("%d", &value);
@@ -143,16 +167,25 @@ SPUState_t SpuIn(SPU* processor)
 
 SPUState_t SpuPushr(SPU* processor)
 {
-    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+
+    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
+
     if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
     processor->command_pointer += sizeof(value_type);
     PUSH_ERR(&processor->stack, processor->reg[reg]); 
+
     return SPU_CORRECT;
 }
 
 SPUState_t SpuPopr(SPU* processor)
 {
-    size_t reg = (size_t)DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+
+    size_t reg = (size_t)DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
+
     if(reg >= REG_SIZE) return SPU_INVALID_REGISTER;
     processor->command_pointer += sizeof(value_type);
     int err = 0;
@@ -163,7 +196,11 @@ SPUState_t SpuPopr(SPU* processor)
 
 SPUState_t SpuPushm(SPU* processor)
 {
-    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+
+    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
+
     if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
     processor->command_pointer += sizeof(value_type);
 
@@ -171,12 +208,17 @@ SPUState_t SpuPushm(SPU* processor)
     if(ram < 0 || ram >= (int)RAM_SIZE) return SPU_INVALID_RAM;
 
     PUSH_ERR(&processor->stack, processor->ram[ram]); 
+
     return SPU_CORRECT;
 }
 
 SPUState_t SpuPopm(SPU* processor)
 {
-    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+
+    int reg = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
+
     if(reg < 0 || reg >= (int)REG_SIZE) return SPU_INVALID_REGISTER;
 
     int ram = processor->reg[reg];
@@ -191,7 +233,11 @@ SPUState_t SpuPopm(SPU* processor)
 
 SPUState_t SpuJmp(SPU* processor)
 {
-    size_t offset = (size_t)DebytecodeInt(processor->command_buffer + processor->command_pointer, sizeof(value_type));
+    assert(processor);
+    
+    size_t offset = (size_t)DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(value_type));
+
     if(offset >= processor->command_buffer_size) return SPU_INVALID_COMMAND;
     processor->command_pointer = offset;
 
@@ -200,6 +246,8 @@ SPUState_t SpuJmp(SPU* processor)
 
 SPUState_t SpuJb(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -207,7 +255,6 @@ SPUState_t SpuJb(SPU* processor)
     if(a >= b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -216,6 +263,8 @@ SPUState_t SpuJb(SPU* processor)
 
 SPUState_t SpuJbe(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -223,7 +272,6 @@ SPUState_t SpuJbe(SPU* processor)
     if(a > b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -232,6 +280,8 @@ SPUState_t SpuJbe(SPU* processor)
 
 SPUState_t SpuJa(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -239,7 +289,6 @@ SPUState_t SpuJa(SPU* processor)
     if(a <= b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -248,6 +297,8 @@ SPUState_t SpuJa(SPU* processor)
 
 SPUState_t SpuJae(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -255,7 +306,6 @@ SPUState_t SpuJae(SPU* processor)
     if(a < b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -264,6 +314,8 @@ SPUState_t SpuJae(SPU* processor)
 
 SPUState_t SpuJe(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -271,7 +323,6 @@ SPUState_t SpuJe(SPU* processor)
     if(a != b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -280,6 +331,8 @@ SPUState_t SpuJe(SPU* processor)
 
 SPUState_t SpuJne(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     stack_type b = POP_ERR(&processor->stack, &err);
     stack_type a = POP_ERR(&processor->stack, &err);
@@ -287,7 +340,6 @@ SPUState_t SpuJne(SPU* processor)
     if(a == b)
     {
         processor->command_pointer += sizeof(value_type);
-
         return SPU_CORRECT;
     }
 
@@ -296,12 +348,18 @@ SPUState_t SpuJne(SPU* processor)
 
 SPUState_t SpuCall(SPU* processor)
 {
-    PUSH_ERR(&processor->return_stack, (stack_type)(processor->command_pointer + sizeof(value_type)));
+    assert(processor);
+
+    PUSH_ERR(&processor->return_stack, (stack_type)(processor->command_pointer 
+        + sizeof(value_type)));
+
     return SpuJmp(processor);
 }
 
 SPUState_t SpuRet(SPU* processor)
 {
+    assert(processor);
+
     int err = 0;
     size_t offset = (size_t)POP_ERR(&processor->return_stack, &err);
     if(offset >= processor->command_buffer_size) return SPU_INVALID_COMMAND;

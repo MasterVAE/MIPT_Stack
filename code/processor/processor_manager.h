@@ -19,9 +19,11 @@ typedef struct SPU
 } SPU;
 
 int  SPUInit        (SPU* processor);
+int  SPUCycle       (SPU* processor);
 void SPUDestroy     (SPU* processor);
 void SPUDump        (SPU* processor);
 int  SPUVerify      (SPU* processor);
+int  Run            (SPU* processor); 
 void SPUStateorParser (int error);
 
 const int BUFFER_CHARS_BY_LINE = 32;

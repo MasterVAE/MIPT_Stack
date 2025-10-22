@@ -13,12 +13,11 @@
 #include "../commands.h"
 
 #define OPEN(file_ptr, file_name, type) FILE* file_ptr = fopen(file_name, type); \
-    if(file_ptr == NULL) {  ErrorPrinter(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;}
+        if(file_ptr == NULL) {  ErrorPrinter(ASS_NULL_FILE); ASSDestroy(&ass);  return 1;} \
+
+#define CLOSE(file_ptr) fclose(file_ptr);
 
 #define CHECK(error) if(error != ASS_CORRECT) {ErrorPrinter(error);ASSDestroy(&ass);return 1;}
-
-
-ASSErr_t Assemble(Assembler* ass);
 
 const char* input_file_name = "files/code.asm";
 const char* output_file_name = "files/code.bcode";
@@ -31,9 +30,9 @@ int main(int argc, char *argv[])
     printf("Start compiling: %s -> %s\n", input_file_name, output_file_name);
     Assembler ass = {};
     ASSErr_t error = ASSInit(&ass);
-    CHECK(error)
+    CHECK(error);
 
-    OPEN(input_file, input_file_name, "r")
+    OPEN(input_file, input_file_name, "r");
 
     size_t input_buffer_size = 0;
     char* input_file_buffer = InitializeBuffer(&input_buffer_size, input_file);
@@ -42,59 +41,17 @@ int main(int argc, char *argv[])
     
     error = Assemble(&ass);
     free(input_file_buffer);
-    CHECK(error)
+    CHECK(error);
 
     error = ASSPostCompile(&ass);
-    CHECK(error)
+    CHECK(error);
 
-    OPEN(output_file, output_file_name, "w+")
-
+    OPEN(output_file, output_file_name, "w+");
     fwrite(ass.bin_buffer, sizeof(ass.bin_buffer[0]), ass.offset, output_file);
-    fclose(output_file);
+    CLOSE(output_file);
     
     ASSDestroy(&ass);
     printf(GREEN "Success compiling: " CLEAN "%s -> %s\n", input_file_name, output_file_name);
 
     return 0;
-}
-
-ASSErr_t Assemble(Assembler* ass)
-{
-    if(ass == NULL)             return ASS_ASSEMBLER_NULL;
-    if(ass->text == NULL)       return ASS_NULL_TEXT_POINTER;
-    if(ass->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
-    if(ass->lines_count == 0)   return ASS_EMPTY_PROGRAMM;
-    
-    for(ass->line_offset = 0; ass->line_offset < ass->lines_count; ass->line_offset++)
-    {   
-        if(!ass->text[ass->line_offset].line) continue;
-
-        if(ass->buffer_size - ass->offset < BUFFER_START_SIZE)
-        {
-            ass->buffer_size *= BUFFER_SIZE_MULT;
-            ass->bin_buffer = (char*)realloc(ass->bin_buffer, ass->buffer_size);
-        }
-        //printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
-        bool found = 0;
-        for(size_t j = 0; j < COMMANDS_COUNT; j++)
-        {
-            if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[j].name))
-            {
-                found = 1;
-                ASSErr_t error = COMMANDS[j].AssFunc(ass, j);
-                if(error != ASS_CORRECT)
-                {
-                    printf(RED "ERROR " CLEAN "%s:%lu    %s\n",
-                        input_file_name, ass->line_offset, ass->text[ass->line_offset].line);
-                    return error;
-                }
-            }
-        }
-        if(!found)
-        {
-            printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
-            return ASS_UNKNOWN_COMMAND;
-        }
-    }
-    return ASS_CORRECT;
 }

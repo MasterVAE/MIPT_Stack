@@ -7,6 +7,7 @@ extern "C"
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
+#include <assert.h>
 
 #include "../constants.h"
 
@@ -17,11 +18,9 @@ const char* ASM_NAME = "files/code.asm";
 
 const size_t MAX_FRAMES = 10000;
 
-char* last_frame = NULL;
+static void process_frame(AVFrame*, FILE*, char*);
 
-static void process_frame(AVFrame*, FILE*);
-
-static void process_frame(AVFrame* frame, FILE* asm_file) 
+static void process_frame(AVFrame* frame, FILE* asm_file, char* last_frame) 
 {
     for (int y = 0; y < frame->height-2; y++) 
     {
@@ -49,7 +48,8 @@ static void process_frame(AVFrame* frame, FILE* asm_file)
 
 int main() 
 {
-    last_frame = (char*)calloc(RAM_SIZE, sizeof(char));
+    char* last_frame = (char*)calloc(RAM_SIZE, sizeof(char));
+    assert(last_frame);
 
     AVFormatContext* fmt_ctx = NULL;
     avformat_open_input(&fmt_ctx, MP4_NAME, NULL, NULL);
@@ -75,7 +75,7 @@ int main()
             avcodec_send_packet(codec_ctx, packet);
             if (avcodec_receive_frame(codec_ctx, frame) == 0) 
             {
-                process_frame(frame, asm_file);
+                process_frame(frame, asm_file, last_frame);
                 fprintf(asm_file, "DRAW\n");
                 frame_count++;
             }

@@ -14,19 +14,17 @@
 #define OPEN(file_ptr, file_name, type) FILE* file_ptr = fopen(file_name, type); \
     if(file_ptr == NULL) {  ErrorPrinter(DIS_NULL_FILE); DISDestroy(&dis);   return 1;}
 
-#define ARG_PARSE if(argc >= 2) {   input_file_name = argv[1];if(argc >= 3) \
-    output_file_name = argv[2];}
+#define CLOSE(file_ptr) fclose(file_ptr);
 
 #define CHECK(error) if(error != DIS_CORRECT){ ErrorPrinter(error);DISDestroy(&dis);return 1;}
-
-DisErr_t Disassemble(Disassembler* dis, FILE* out_file);
 
 const char* input_file_name = "files/code.bcode";
 const char* output_file_name = "files/code_disassembled.asm";
 
 int main(int argc, char *argv[])
 {
-    ARG_PARSE
+    if(argc >= 2) input_file_name = argv[1];
+    if(argc >= 3) output_file_name = argv[2];
 
     Disassembler dis = {};
     DISInit(&dis);
@@ -39,46 +37,19 @@ int main(int argc, char *argv[])
 
     fclose(input_file);
 
-    OPEN(output_file, output_file_name, "w+")
-
     DisErr_t error = LabelSearch(&dis);
     CHECK(error)
     
-    error = Disassemble(&dis, output_file);
+    error = Disassemble(&dis);
     CHECK(error)
 
-    fclose(output_file);
+    OPEN(output_file, output_file_name, "w+");
+    fwrite(dis.output_buffer, sizeof(dis.output_buffer[0]), dis.output_buffer_size, output_file);
+    CLOSE(output_file);
+
     DISDestroy(&dis);
 
-
     printf(GREEN "Success disassembling: " CLEAN "%s -> %s\n", input_file_name, output_file_name);
+
     return 0;
 }
-
-DisErr_t Disassemble(Disassembler* dis, FILE* out_file)
-{
-    if(dis->buffer == NULL) return DIS_NULL_BUFFER;
-    if(out_file == NULL) return DIS_NULL_FILE;
-    if(dis->buffer_size == 0) return DIS_EMPTY_PROGRAMM;
-
-    for(dis->offset = 0; dis->offset < dis->buffer_size; dis->offset+=sizeof(command_type))
-    {
-        InsertLabel(dis, out_file);
-        if(dis->offset + sizeof(command_type) > dis->buffer_size)   return DIS_SYNTAX_ERROR;
-        int comm = DebytecodeInt(dis->buffer + dis->offset, sizeof(command_type));
-        
-        bool found = 0;
-        for(size_t j = 0; j < COMMANDS_COUNT; j++)
-        {    
-            if(COMMANDS[j].num == comm)
-            {
-                COMMANDS[j].DisFunc(dis, j, out_file);
-                found = 1;
-                break;
-            }
-        }
-        if(!found)  return DIS_UNKNOWN_COMMAND;
-    }
-    return DIS_CORRECT;
-}
-

@@ -8,6 +8,10 @@
 #include "assembler_func.h"
 #include "../constants.h"
 #include "../lib.h"
+#include "../colors.h"
+
+#define ASS_MODE
+#include "../commands.h"
 
 enum InitState
 {
@@ -33,7 +37,7 @@ size_t InitializeText(Line** text, char* buffer, size_t size)
     }
 
     *text = (Line*)calloc(line_count, sizeof(Line));
-    assert(text != NULL);
+    if(!text) return ASS_FAILED_MEMORY_ALLOCATION;
 
     line_count = 0;
     InitState state = SPACE_BEFORE_COMMAND;
@@ -45,12 +49,12 @@ size_t InitializeText(Line** text, char* buffer, size_t size)
             line_count++;
             state = SPACE_BEFORE_COMMAND;
         }
-        else if(buffer[i] == ';')
+        else if(buffer[i] == COMMENT_SYMBOL)
         {
             buffer[i] = '\0';
             state = COMMENT;
         }
-        else if(buffer[i] == ' ')
+        else if(isspace(buffer[i]))
         {
             if(state == COMMAND)
             {
@@ -77,6 +81,7 @@ size_t InitializeText(Line** text, char* buffer, size_t size)
             }
         }
     } 
+    
     return line_count + 1;
 }
 
@@ -91,9 +96,11 @@ ASSErr_t ASSInit(Assembler* ass)
     ass->buffer_size = BUFFER_START_SIZE;
 
     ass->bin_buffer = (char*)calloc(ass->buffer_size, sizeof(char));
+    if(!ass->bin_buffer) return ASS_FAILED_MEMORY_ALLOCATION;
 
     ass->lbl_table = (label_table*)calloc(1, sizeof(label_table));
-    
+    if(!ass->lbl_table) return ASS_FAILED_MEMORY_ALLOCATION;
+
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
         ass->lbl_table->labels[i] = {"", -1};
@@ -124,7 +131,8 @@ label* GetLabel(Assembler* ass, char* label_name)
 
     for(size_t i = 0; i < MAX_LABELS; i++)
     {
-        if(!strcmp(ass->lbl_table->labels[i].name, label_name)) return ass->lbl_table->labels + i;
+        if(!strcmp(ass->lbl_table->labels[i].name, label_name)) 
+            return ass->lbl_table->labels + i;
     }
 
     return NULL;
@@ -168,6 +176,63 @@ void AddLabel(Assembler* ass, char* name, int value)
     }
 }
 
+ASSErr_t Assemble(Assembler* ass)
+{
+    if(ass == NULL)             return ASS_ASSEMBLER_NULL;
+    if(ass->text == NULL)       return ASS_NULL_TEXT_POINTER;
+    if(ass->bin_buffer == NULL) return ASS_NULL_BUFFER_POINTER;
+    if(ass->lines_count == 0)   return ASS_EMPTY_PROGRAMM;
+    
+    for(ass->line_offset = 0; ass->line_offset < ass->lines_count; ass->line_offset++)
+    {   
+        if(!ass->text[ass->line_offset].line) continue;
+
+        if(ass->buffer_size - ass->offset < BUFFER_START_SIZE)
+        {
+            ass->buffer_size *= BUFFER_SIZE_MULT;
+            ass->bin_buffer = (char*)realloc(ass->bin_buffer, ass->buffer_size);
+            if(!ass->bin_buffer) 
+            {
+                free(ass->bin_buffer);
+                return ASS_FAILED_MEMORY_ALLOCATION;
+            }
+        }
+        //printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
+        ASSErr_t state = FindCommand(ass);
+        if(state != ASS_CORRECT) return state;
+    }
+    
+    return ASS_CORRECT;
+}
+
+ASSErr_t FindCommand(Assembler* ass)
+{
+    if(!ass) return ASS_ASSEMBLER_NULL;
+
+    bool found = 0;
+    for(size_t command = 0; command < COMMANDS_COUNT; command++)
+    {
+        if(!strcmp(ass->text[ass->line_offset].line, COMMANDS[command].name))
+        {
+            found = 1;
+            ASSErr_t error = COMMANDS[command].AssFunc(ass, command);
+            if(error != ASS_CORRECT)
+            {
+                printf(RED "ERROR " CLEAN ":%lu    %s\n",
+                    ass->line_offset, ass->text[ass->line_offset].line);
+                return error;
+            }
+        }
+    }
+    if(!found)
+    {
+        printf("COMMAND: %s\n", ass->text[ass->line_offset].line);
+        return ASS_UNKNOWN_COMMAND;
+    }
+
+    return ASS_CORRECT;
+}
+
 void ErrorPrinter(ASSErr_t error)
 {
     fprintf(stderr, "%s\n", ErrorParser(error));
@@ -177,18 +242,19 @@ const char* ErrorParser(ASSErr_t error)
 {
     switch (error)
     {
-        case ASS_CORRECT:               return "Correct";
-        case ASS_ASSEMBLER_NULL:        return "Assembler NULL";
-        case ASS_NULL_TEXT_POINTER:     return "NULL text pointet";
-        case ASS_NULL_BUFFER_POINTER:   return "NULL buffer pointer";
-        case ASS_EMPTY_PROGRAMM:        return "Empty programm";
-        case ASS_UNKNOWN_COMMAND:       return "Unknown command";
-        case ASS_ARGUMENT_INVALID:      return "Argument invalid";
-        case ASS_NULL_FILE:             return "Error opening file";
-        case ASS_SYNTAX_ERROR:          return "Syntax error";
-        case ASS_USED_LABEL:            return "Label overriding";
-        case ASS_LABEL_INVALID:         return "Label incorrect";
-        case ASS_TOO_MANY_JUMPS:        return "Too many jumps";
-        default:                        return "Unknown error";
+        case ASS_CORRECT:                   return "Correct";
+        case ASS_ASSEMBLER_NULL:            return "Assembler NULL";
+        case ASS_NULL_TEXT_POINTER:         return "NULL text pointet";
+        case ASS_NULL_BUFFER_POINTER:       return "NULL buffer pointer";
+        case ASS_EMPTY_PROGRAMM:            return "Empty programm";
+        case ASS_UNKNOWN_COMMAND:           return "Unknown command";
+        case ASS_ARGUMENT_INVALID:          return "Argument invalid";
+        case ASS_NULL_FILE:                 return "Error opening file";
+        case ASS_SYNTAX_ERROR:              return "Syntax error";
+        case ASS_USED_LABEL:                return "Label overriding";
+        case ASS_LABEL_INVALID:             return "Label incorrect";
+        case ASS_TOO_MANY_JUMPS:            return "Too many jumps";
+        case ASS_FAILED_MEMORY_ALLOCATION:  return "Fail allocating memory";
+        default:                            return "Unknown error";
     }
 }

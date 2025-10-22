@@ -24,4 +24,6 @@ const char* const regs[] =
 
 const size_t REG_SIZE = sizeof(regs) / sizeof(regs[0]);
 
+const char COMMENT_SYMBOL = ';';
+
 #endif // CONSTANTS_H_

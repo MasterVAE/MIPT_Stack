@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "stack.h"
 #include "processor_manager.h"
@@ -9,6 +10,9 @@
 #include "../constants.h"
 #include "../lib.h"
 #include "processor_functions.h"
+
+#define SPU_MODE
+#include "../commands.h"
 
 const char RAM_DEFAULT_VALUE = '_';
 
@@ -40,12 +44,55 @@ int SPUInit(SPU* processor)
     processor->command_buffer = NULL;
 
     processor->ram = (char*)calloc(RAM_SIZE, sizeof(char));
+    if(!processor->ram) return SPU_FAILED_MEMORY_ALLOCATION;
 
     for(size_t i = 0; i < REG_SIZE; i++)   processor->reg[i] = 0;
     for(size_t i = 0; i < RAM_SIZE; i++)   processor->ram[i] = RAM_DEFAULT_VALUE;
 
     return SPU_CORRECT;
 }
+
+int SPUCycle(SPU* processor)
+{   
+    int error = SPU_CORRECT;
+
+    while(error != SPU_HALT_STATE)
+    {
+        error = Run(processor);
+        if(error == SPU_HALT_STATE) break;
+
+        error |= SPUVerify(processor);
+        if(error != SPU_CORRECT)
+        {
+            processor->err_code = error;
+            SPUDump(processor);
+            break;
+        }
+    }
+
+    return error;
+}
+
+int Run(SPU* processor)
+{
+    int error = SPUVerify(processor);
+    if(error != SPU_CORRECT) return error;
+    
+    int inp = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
+        sizeof(command_type));
+
+    for(size_t command = 0; command < COMMANDS_COUNT; command++)
+    {
+        if(inp == COMMANDS[command].num)
+        {    
+            processor->command_pointer += sizeof(command_type);
+            return COMMANDS[command].SpuFunc(processor);
+        }
+    }
+    
+    return SPU_INVALID_COMMAND;
+}
+
 
 void BufferDump(SPU* processor)
 {
@@ -94,7 +141,7 @@ int SPUVerify(SPU* processor)
 
     if(processor == NULL)                    return processor->err_code |= SPU_PROCESSOR_NULL;
     if(StackVerify(&processor->stack) != Verified)  processor->err_code |= SPU_STACK_ERROR;
-    if(processor->command_buffer == NULL)                   processor->err_code |= SPU_BUFFER_NULL;
+    if(processor->command_buffer == NULL)           processor->err_code |= SPU_BUFFER_NULL;
     return                                          processor->err_code;
 }
 
@@ -112,15 +159,16 @@ void SPUDestroy(SPU* processor)
 
 void SPUStateorParser(int error)
 {   
-    if(IsError(error, SPU_HALT_STATE))          fprintf(ERROR_STREAM, "Error: SPU halted\n");
-    if(IsError(error, SPU_DIVISION_BY_ZERO))    fprintf(ERROR_STREAM, "Error: division by zero\n");
-    if(IsError(error, SPU_INVALID_COMMAND))     fprintf(ERROR_STREAM, "Error: invalid command\n");
-    if(IsError(error, SPU_STACK_ERROR))         fprintf(ERROR_STREAM, "Error: stack error\n");
-    if(IsError(error, SPU_PROCESSOR_NULL))      fprintf(ERROR_STREAM, "Error: processor NULL\n");
-    if(IsError(error, SPU_REG_NULL))            fprintf(ERROR_STREAM, "Error: register NULL\n");
-    if(IsError(error, SPU_BUFFER_NULL))         fprintf(ERROR_STREAM, "Error: buffer null\n");
-    if(IsError(error, SPU_INVALID_REGISTER))    fprintf(ERROR_STREAM, "Error: invalid register\n");
-    if(IsError(error, SPU_INVALID_RAM))         fprintf(ERROR_STREAM, "Error: invalid RAM adress\n");
+    if(IsError(error, SPU_HALT_STATE))              fprintf(ERROR_STREAM, "Error: SPU halted\n");
+    if(IsError(error, SPU_MATH_ERROR))              fprintf(ERROR_STREAM, "Error: math error\n");
+    if(IsError(error, SPU_INVALID_COMMAND))         fprintf(ERROR_STREAM, "Error: invalid command\n");
+    if(IsError(error, SPU_STACK_ERROR))             fprintf(ERROR_STREAM, "Error: stack error\n");
+    if(IsError(error, SPU_PROCESSOR_NULL))          fprintf(ERROR_STREAM, "Error: processor NULL\n");
+    if(IsError(error, SPU_REG_NULL))                fprintf(ERROR_STREAM, "Error: register NULL\n");
+    if(IsError(error, SPU_BUFFER_NULL))             fprintf(ERROR_STREAM, "Error: buffer null\n");
+    if(IsError(error, SPU_INVALID_REGISTER))        fprintf(ERROR_STREAM, "Error: invalid register\n");
+    if(IsError(error, SPU_INVALID_RAM))             fprintf(ERROR_STREAM, "Error: invalid RAM adress\n");
+    if(IsError(error, SPU_FAILED_MEMORY_ALLOCATION))fprintf(ERROR_STREAM, "Error: fail allocating memory\n");
 }
 
 void PrintBuffer(FILE* stream, SPU* processor)
@@ -128,9 +176,12 @@ void PrintBuffer(FILE* stream, SPU* processor)
     for(size_t i = 0; i < processor->command_buffer_size; i++)
     {
         if(i < processor->command_pointer)
-            fprintf(stream, BLUE "%s " CLEAN, itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+            fprintf(stream, BLUE "%s " CLEAN, 
+                itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+
         else if(i == processor->command_pointer)
-            fprintf(stream, PINK "%s " CLEAN, itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
+            fprintf(stream, PINK "%s " CLEAN, 
+                itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
         else
             fprintf(stream, "%s ", itos((unsigned)*(processor->command_buffer + i), 16, 2).str);
         if(i % BUFFER_CHARS_BY_LINE == BUFFER_CHARS_BY_LINE - 1)

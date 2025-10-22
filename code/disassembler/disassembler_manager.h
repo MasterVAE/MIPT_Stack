@@ -24,16 +24,25 @@ typedef struct Disassembler
     char* buffer;
     size_t buffer_size;
     size_t offset;
+
+    char* output_buffer;
+    size_t output_buffer_size;
+    size_t output_offset;
+
     int labels[MAX_LABELS];
     
 } Disassembler;
 
-int DISInit(Disassembler* dis);
+const size_t OUT_BUFFER_START_SIZE = 100;
+const size_t OUT_BUFFER_SIZE_MULT = 2;
+
+DisErr_t DISInit(Disassembler* dis);
+DisErr_t Disassemble(Disassembler* dis);
 void DISDestroy(Disassembler* dis);
 void ErrorPrinter(DisErr_t error);
 const char* ErrorParser(DisErr_t error);
 int FindLabel(Disassembler* dis, int label_value);
 DisErr_t LabelSearch(Disassembler* dis);
-void InsertLabel(Disassembler* dis, FILE* output_file);
+void InsertLabel(Disassembler* dis);
 
 #endif // DISASSEMLER_MANAGER_H_

@@ -32,7 +32,7 @@ int StackVerify(Stack_t* stack)
     if(stack->size > stack->capacity) stack->err_code |= StackOverflow;
     if(stack->data == NULL) return stack->err_code |= DataNull;
     if(stack->data[0] != SHIELD_START || stack->data[1 + stack->capacity] != SHIELD_END) \
-    return stack->err_code |= DataCorrupted;
+        return stack->err_code |= DataCorrupted;
 
     return stack->err_code;
 }
@@ -60,6 +60,7 @@ int StackPush(Stack_t* stack, stack_type value)
     {
         stack->data[1 * shield_size + stack->size++] = value;
         err = StackVerify(stack); if(err != 0) return err;
+
         return Verified;
     }
 
@@ -72,6 +73,7 @@ int StackPush(Stack_t* stack, stack_type value)
     stack->data[1 * shield_size + stack->size++] = value;
 
     err = StackVerify(stack); if(err != 0) return err;
+
     return Verified;
 }
 
@@ -90,6 +92,7 @@ stack_type StackPop(Stack_t* stack, int* err)
         return stack->data[1 * shield_size + stack->size];
     }
     if(err != NULL) *err = StackUnderflow;
+    
     return 0;
 }
 
