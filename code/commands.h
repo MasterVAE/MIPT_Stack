@@ -50,38 +50,34 @@ typedef struct instruction
 
 enum CommandCodes
 {
-    LABEL = 0,
-    POPM  = 0b0010010,
-    PUSH  = 0b0000110,
-    POPR  = 0b0010000,
-    HLT   = 0b1000000,
-    DRAW  = 0b1000001,
-    ADD   = 0b0000001,
-    SUB   = 0b0000010,
-    MUL   = 0b0000011,
-    DIV   = 0b0000100,
-    SQRT  = 0b0000101,
-    IN    = 0b0001000,
-    OUT   = 0b0001001,
-    PUSHR = 0b0010001,
-    PUSHM = 0b0010011,
-    JMP   = 0b0100000,
-    JB    = 0b0100001,
-    JBE   = 0b0100010,
-    JA    = 0b0100011,
-    JAE   = 0b0100100,
-    JE    = 0b0100101,
-    JNE   = 0b0100110,
-    CALL  = 0b0101000,
-    RET   = 0b0101001
+    POPM,
+    PUSH,
+    POPR,
+    HLT,
+    DRAW,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    SQRT,
+    IN,
+    OUT,
+    PUSHR,
+    PUSHM,
+    JMP,
+    JB,
+    JBE,
+    JA,
+    JAE,
+    JE,
+    JNE,
+    CALL,
+    RET,
+    LABEL
 };
 
 static const instruction COMMANDS[] = 
 {
-    #ifdef ASS_MODE
-    CMD("LABEL", LABEL, AssLabel, NULL, DisDef, 0),
-    #endif
-
     CMD("POPM", POPM,  AssPopm, SpuPopm, DisPopr, sizeof(command_type) + sizeof(value_type)),
     CMD("PUSH", PUSH,  AssPush, SpuPush, DisPush, sizeof(command_type) + sizeof(value_type)),
     CMD("POPR", POPR,  AssPopr, SpuPopr, DisPopr, sizeof(command_type) + sizeof(value_type)),
@@ -112,7 +108,11 @@ static const instruction COMMANDS[] =
     CMD("JE",   JE,    AssJump, SpuJe,   DisJump, sizeof(command_type) + sizeof(value_type)),
     CMD("JNE",  JNE,   AssJump, SpuJne,  DisJump, sizeof(command_type) + sizeof(value_type)),
     CMD("CALL", CALL,  AssJump, SpuCall, DisJump, sizeof(command_type) + sizeof(value_type)),
-    CMD("RET",  RET,   AssDef,  SpuRet,  DisDef,  sizeof(command_type))
+    CMD("RET",  RET,   AssDef,  SpuRet,  DisDef,  sizeof(command_type)),
+
+    #ifdef ASS_MODE
+    CMD("LABEL", LABEL, AssLabel, NULL, DisDef, 0),
+    #endif
 };
 
 static const size_t COMMANDS_COUNT = sizeof(COMMANDS) / sizeof(COMMANDS[0]);

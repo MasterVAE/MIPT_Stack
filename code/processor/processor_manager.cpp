@@ -81,16 +81,12 @@ int Run(SPU* processor)
     int inp = DebytecodeInt(processor->command_buffer + processor->command_pointer, 
         sizeof(command_type));
 
-    for(size_t command = 0; command < COMMANDS_COUNT; command++)
+    if(inp < 0 || inp >= COMMANDS_COUNT)
     {
-        if(inp == COMMANDS[command].num)
-        {    
-            processor->command_pointer += sizeof(command_type);
-            return COMMANDS[command].SpuFunc(processor);
-        }
+         return SPU_INVALID_COMMAND;
     }
-    
-    return SPU_INVALID_COMMAND;
+    processor->command_pointer += sizeof(command_type);
+    return COMMANDS[inp].SpuFunc(processor);  
 }
 
 
