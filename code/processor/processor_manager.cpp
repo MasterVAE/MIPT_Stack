@@ -43,7 +43,7 @@ int SPUInit(SPU* processor)
     processor->err_code = 0;
     processor->command_buffer = NULL;
 
-    processor->ram = (char*)calloc(RAM_SIZE, sizeof(char));
+    processor->ram = (int*)calloc(RAM_SIZE, sizeof(int));
     if(!processor->ram) return SPU_FAILED_MEMORY_ALLOCATION;
 
     for(size_t i = 0; i < REG_SIZE; i++)   processor->reg[i] = 0;

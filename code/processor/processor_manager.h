@@ -12,7 +12,7 @@ typedef struct SPU
     Stack_t return_stack;
 
     int reg[REG_SIZE];
-    char* ram;
+    int* ram;
 
     int err_code;
     

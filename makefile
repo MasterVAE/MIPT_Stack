@@ -36,4 +36,4 @@ $(OBJ_DIR) $(TARGET_DIR):
 
 $(OBJ_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	@$(CC) $(DEBUG_FLAGS) $(CFLAGS) -c $< -o $@
+	@$(CC) $(RELEASE_FLAGS) -c $< -o $@

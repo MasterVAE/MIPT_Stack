@@ -1,192 +1,359 @@
+IN
+
+PUSH 0                 #VARIABLE n ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
+
+PUSH 2
+
+PUSH 1                 #VARIABLE i ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
+
 PUSH 0
-POPR SR6
 
-CALL CYCLE_1
-CALL CYCLE_2
-CALL CYCLE_1
-CALL CYCLE_2
-CALL CYCLE_1
-CALL CYCLE_2
-CALL CYCLE_1
-CALL CYCLE_2
-HLT
+PUSH 4                 #VARIABLE answer ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
 
-LABEL CYCLE_1
-    PUSH 0
-    POPR SRY
-    CALL FOR_Y
+LABEL 0
 
-    CALL ADD_COUNTER
-    DRAW
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
 
-    PUSHR SR6
-    PUSH 130
-    JB CYCLE_1
+
+PUSH 0                 #VARIABLE n
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+CALL 0_SMALLER
+PUSH 0
+JE 1
+
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSHR SR2
+PUSH 1
+ADD
+POPR SR2
+CALL prime
+PUSH 0
+JE 2
+
+PUSH 4                 #VARIABLE answer
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSH 1
+ADD
+
+PUSH 4                 #VARIABLE answer ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
+
+LABEL 2
+
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSH 1
+ADD
+
+PUSH 1                 #VARIABLE i ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
+
+JMP 0
+LABEL 1
+
+PUSH 4                 #VARIABLE answer
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+OUT
+HLT                          #END OF MAIN PROG
+
+LABEL 0_EQUAL                #EQUAL CALL
+JE 0_EQUAL_TRUE
+PUSH 0
+RET
+LABEL 0_EQUAL_TRUE
+PUSH 1
 RET
 
-LABEL CYCLE_2
-    PUSH 0
-    POPR SRY
-    CALL FOR_Y
-
-    CALL SUB_COUNTER
-    DRAW
-
-    PUSHR SR6
-    PUSH 0
-    JAE CYCLE_2
+LABEL 0_NEQUAL               #NEQUAL CALL
+JNE 0_NEQUAL_TRUE
+PUSH 0
+RET
+LABEL 0_NEQUAL_TRUE
+PUSH 1
 RET
 
-LABEL FOR_Y
-    PUSH 0
-    POPR SRX
-
-    CALL FOR_X
-
-    CALL ADD_Y
-
-    PUSHR SRY
-    PUSH 45           ; ВЫСОТА
-    JB FOR_Y
+LABEL 0_SMALLER              #SMALLER CALL
+JB 0_SMALLER_TRUE
+PUSH 0
+RET
+LABEL 0_SMALLER_TRUE
+PUSH 1
 RET
 
-LABEL FOR_X
-    PUSHR SRX
-    PUSH 40         ; СЕРЕДИНА X
-    SUB
-    CALL SQUARE
-    POPR SR3
-
-    PUSHR SRY
-    PUSH 23          ; СЕРЕДИНА Y
-    SUB
-    CALL SQUARE
-    POPR SR4
-
-    PUSHR SR3
-    PUSHR SR4
-    ADD
-    PUSH 250    ; КВАДРАТ РАДИУСА
-    JB FOR_X_TRUE 
-
-    LABEL FOR_X_FALSE
-        CALL PRINT_0
-        CALL ADD_X
-
-        PUSHR SRX
-        PUSH 80          ; ШИРИНА
-        JB FOR_X
+LABEL 0_BIGGER               #BIGGER CALL
+JA 0_BIGGER_TRUE
+PUSH 0
+RET
+LABEL 0_BIGGER_TRUE
+PUSH 1
 RET
 
-    LABEL FOR_X_TRUE
-        PUSHR SRX
-        PUSH 23         ; СЕРЕДИНА X
-        JBE FOR_X_TRUE_2
+LABEL prime                     #FUNCTION prime BODY
 
-        CALL LINE_1
-        JBE FOR_X_TRUE_2
+PUSH 0                 #VARIABLE n AS ARGUMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
 
-        CALL LINE_2
-        JAE FOR_X_TRUE_2
+PUSH 2
 
-        LABEL FOR_X_FALSE_2
-            CALL PRINT_0
-            CALL ADD_X
+PUSH 1                 #VARIABLE i ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
 
-            PUSHR SRX
-            PUSH 80          ; ШИРИНА
-            JB FOR_X
+LABEL 3
 
-        LABEL FOR_X_TRUE_2
-            CALL PRINT_1
-            CALL ADD_X
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
 
-            PUSHR SRX
-            PUSH 80          ;ШИРИНА
-            JB FOR_X
+
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+MUL
+
+PUSH 0                 #VARIABLE n
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSH 1
+ADD
+CALL 0_SMALLER
+PUSH 0
+JE 4
+
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+
+PUSH 0                 #VARIABLE n
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSHR SR2
+PUSH 1
+ADD
+POPR SR2
+CALL dels
+PUSH 0
+JE 5
+PUSH 0
+PUSHR SR2
+PUSH 1
+SUB
+POPR SR2
 RET
+LABEL 5
 
-LABEL ADD_X
-    PUSHR SRX
-    PUSH 1
-    ADD
-    POPR SRX
+PUSH 1                 #VARIABLE i
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+PUSH 1
+ADD
+
+PUSH 1                 #VARIABLE i ASSIGMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+PUSHM [SR1]
+
+JMP 3
+LABEL 4
+PUSH 1
+PUSHR SR2
+PUSH 1
+SUB
+POPR SR2
 RET
-
-LABEL ADD_Y
-    PUSHR SRY
-    PUSH 1
-    ADD
-    POPR SRY
+PUSHR SR2                # DECREASING RECURSION DEPTH 
+PUSH 1
+SUB
+POPR SR2
 RET
+LABEL dels                     #FUNCTION dels BODY
 
-LABEL ADD_COUNTER
-    PUSHR SR6
-    PUSH 4         ; ШАГ
-    ADD
-    POPR SR6
+PUSH 2                 #VARIABLE x AS ARGUMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+
+
+PUSH 3                 #VARIABLE y AS ARGUMENT
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+POPM [SR1]
+
+
+PUSH 2                 #VARIABLE x
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+
+PUSH 3                 #VARIABLE y
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+DIV
+
+PUSH 3                 #VARIABLE y
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+MUL
+
+PUSH 2                 #VARIABLE x
+PUSHR SR2
+PUSH 5
+MUL
+ADD
+POPR SR1
+PUSHM [SR1]
+
+CALL 0_EQUAL
+PUSH 0
+JE 6
+PUSH 1
+PUSHR SR2
+PUSH 1
+SUB
+POPR SR2
 RET
-
-LABEL SUB_COUNTER
-    PUSHR SR6
-    PUSH 4         ; ШАГ
-    SUB
-    POPR SR6
+LABEL 6
+PUSH 0
+PUSHR SR2
+PUSH 1
+SUB
+POPR SR2
 RET
-
-LABEL PRINT_0
-    PUSHR SRY
-    PUSH 80              ; ШИРИНА  
-    MUL
-    PUSHR SRX
-    ADD
-    POPR SR1
-    PUSH 95
-    POPM [SR1]
-RET
-
-LABEL PRINT_1
-    PUSHR SRY
-    PUSH 80             ; ШИРИНА
-    MUL
-    PUSHR SRX
-    ADD
-    POPR SR1
-    PUSH 35
-    POPM [SR1]
-RET
-
-LABEL SQUARE
-    POPR SR1
-    PUSHR SR1
-    PUSHR SR1
-    MUL
-RET
-
-LABEL LINE_1
-    PUSHR SRX
-    PUSH 40         ; СЕРЕДИНА X
-    SUB
-    PUSHR SR6
-    MUL
-    PUSHR SRY
-    PUSH 23         ; СЕРЕДИНА Y
-    SUB
-    PUSH 100
-    MUL
-RET
-
-LABEL LINE_2
-    PUSHR SRX
-    PUSH 40         ; СЕРЕДИНА X
-    SUB
-    PUSHR SR6
-    PUSH -1
-    MUL
-    MUL
-    PUSHR SRY
-    PUSH 23             ; СЕРЕДИНА Y
-    SUB
-    PUSH 100
-    MUL
+PUSHR SR2                # DECREASING RECURSION DEPTH 
+PUSH 1
+SUB
+POPR SR2
 RET

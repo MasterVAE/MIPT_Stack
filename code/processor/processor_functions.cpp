@@ -226,7 +226,7 @@ SPUState_t SpuPopm(SPU* processor)
     
     processor->command_pointer += sizeof(value_type);
     int err = 0;
-    processor->ram[processor->reg[reg]] = (char)POP_ERR(&processor->stack, &err);
+    processor->ram[processor->reg[reg]] = (int)POP_ERR(&processor->stack, &err);
    
     return SPU_CORRECT;
 }
