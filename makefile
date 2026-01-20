@@ -4,7 +4,6 @@ OBJ_DIR = obj
 TARGET_DIR = build
 SOURCE_DIR = ./
 
-
 TARGET = DEBUG
 
 CC = g++
@@ -74,12 +73,13 @@ CFLAGS = -std=c++17 -Wall \
 		-Werror=vla \
 		
 RELEASE_FLAGS = -O2 -march=native
+
 export OBJ_DIR OBJ_RELEASE TARGET_DIR SOURCE_DIR CC DEBUG_FLAGS CFLAGS RELEASE_FLAGS
 
 ifeq ($(TARGET), DEBUG)
-    CFLAGS += DEBUG_FLAGS
+    CFLAGS += $(DEBUG_FLAGS)
 else
-    CFLAGS += RELEASE_FLAGS
+    CFLAGS += $(RELEASE_FLAGS)
 endif
 
 include makefiles/assembler.mk
