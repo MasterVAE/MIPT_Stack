@@ -26,6 +26,10 @@ void ErrorParser(int error)
 
 int StackVerify(Stack_t* stack)
 {
+    #ifdef NDEBUG
+        return Verified;
+    #endif
+
     if(stack == NULL) return StackNull;
     stack->err_code = Verified;
     if(stack->capacity == 0) stack->err_code |= CapacityInvalid;
